@@ -3,12 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚾ BASEBALL SIM — Spectator Edition (Showcase)</title>
-<meta name="description" content="観戦特化型の本格野球シミュレーター。チーム編集・選手能力値編集を含む全機能を無料でお試しいただけるショーケース版。スマホ・PC両対応、日英バイリンガル。">
-<meta property="og:title" content="⚾ BASEBALL SIM — 観戦特化型 野球シミュレーター">
-<meta property="og:description" content="ベストプレープロ野球を彷彿とさせる観戦特化型シミュレーター。球数管理・規定打席まで再現した本格派。全機能無料でお試し可能。">
+<title>⚾ BASEBALL SIM — Spectator Edition</title>
+<meta name="description" content="観戦専用の野球シミュレーター。12球団・2リーグ・140試合のペナントレース、クライマックスシリーズ、日本シリーズまで楽しめます。全選手・全球団は架空のものです。">
+<meta name="author" content="BASEBALL SIM">
+<meta name="theme-color" content="#0f0f0f">
+<!-- Open Graph (SNSシェア用) -->
+<meta property="og:title" content="⚾ BASEBALL SIM — Spectator Edition">
+<meta property="og:description" content="観戦専用の野球シミュレーター。12球団2リーグ140試合 + ポストシーズン。">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
+<meta property="og:locale" content="ja_JP">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="⚾ BASEBALL SIM — Spectator Edition">
+<meta name="twitter:description" content="観戦専用の野球シミュレーター">
+<!-- Favicon (inline SVG for portability) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BE%3C/text%3E%3C/svg%3E">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -97,6 +106,95 @@ label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-
 #logbox{height:calc(100vh - 540px);min-height:130px;max-height:calc(100vh - 540px)}
 @media (max-width:480px){
   #logbox{height:calc(100vh - 470px);min-height:160px;max-height:calc(100vh - 470px)}
+
+  /* ═══════════════════════════════════════════════
+     スマホ表示用のフォント・余白の全面拡大
+     （視認性を上げて、参考画像レベルに揃える）
+     ═══════════════════════════════════════════════ */
+  body{font-size:16px}
+
+  /* セクションヘッダー・タイトル */
+  .sec{font-size:1rem!important;font-weight:700!important}
+
+  /* ボタン全般を太く大きく */
+  .btn{font-size:.95rem!important;font-weight:700!important;padding:.6rem .8rem!important}
+  .btn.sm{font-size:.85rem!important;padding:.45rem .6rem!important}
+  .btn.block{font-size:1rem!important;padding:.75rem!important}
+
+  /* チーム情報（順位表） */
+  .stand-tbl th{font-size:.82rem!important;font-weight:700!important;padding:7px 4px!important}
+  .stand-tbl td{font-size:.95rem!important;font-weight:600!important;padding:8px 4px!important}
+  .stand-tbl td.L{font-size:1rem!important;font-weight:900!important}
+
+  /* リーグタブ・サブタブ・ステータスタブ */
+  .lg-tab{font-size:.92rem!important;font-weight:700!important;padding:.55rem .5rem!important}
+  .ltab{font-size:.95rem!important;font-weight:700!important;padding:.6rem 1rem!important}
+  .etab{font-size:.95rem!important;font-weight:700!important;padding:.6rem 1rem!important}
+  .ttab{font-size:.9rem!important;font-weight:700!important;padding:.45rem .9rem!important}
+
+  /* 試合スケジュール行 */
+  .sched-row{font-size:.95rem!important;padding:.55rem .7rem!important}
+  .sched-row.next{font-weight:700!important}
+  .sched-num{font-size:.85rem!important;font-weight:700!important}
+  .sched-teams{font-size:.95rem!important;font-weight:600!important}
+  .sched-score{font-size:1rem!important;font-weight:900!important}
+
+  /* 個人成績テーブル */
+  .stats-tbl th{font-size:.8rem!important;font-weight:700!important;padding:6px 3px!important}
+  .stats-tbl td{font-size:.92rem!important;font-weight:600!important;padding:6px 3px!important}
+  .stats-tbl td.L{font-weight:900!important;font-size:.95rem!important}
+
+  /* タイトル争いカード — スマホでも3列維持、2段レイアウトでスペース確保 */
+  .title-race-grid{grid-template-columns:repeat(3,1fr)!important;gap:.4rem!important}
+  .title-race-header{font-size:1.05rem!important;font-weight:800!important}
+  .title-card{padding:.5rem .4rem!important}
+  .title-card-label{font-size:.88rem!important;font-weight:900!important;letter-spacing:.02em!important}
+  .title-row{padding:3px 0!important}
+  .title-row-bot{padding-left:1.7em!important}
+  .title-rank{font-size:.95rem!important;width:1.3em!important}
+  .title-name{font-size:.9rem!important;font-weight:800!important}
+  .title-team{font-size:.72rem!important;font-weight:700!important}
+  .title-val{font-size:.95rem!important}
+
+  /* 試合結果のボックススコア（投打成績）— 横スクロール優先で各セルを広く */
+  .box-tbl th{font-size:.85rem!important;font-weight:700!important;padding:8px 11px!important}
+  .box-tbl td{font-size:.95rem!important;font-weight:700!important;padding:8px 11px!important}
+  .box-tbl td.L,.box-tbl th.L{padding-right:16px!important;min-width:6em!important}
+  .box-tbl td.L{font-weight:900!important;font-size:1rem!important}
+
+  /* オーダー編成画面 */
+  .ord-team-tab{font-size:1rem!important;font-weight:900!important;padding:.7rem!important}
+  .ord-pname{font-size:1rem!important;font-weight:900!important}
+  .ord-prole{font-size:.82rem!important;font-weight:700!important}
+  .ord-pstats{font-size:.85rem!important;font-weight:600!important}
+  .ord-name{font-size:1rem!important;font-weight:900!important}
+  .ord-stats{font-size:.85rem!important;font-weight:600!important}
+  .ord-record{font-size:.82rem!important;font-weight:700!important}
+  .ord-num{font-size:1.1rem!important;font-weight:900!important;min-width:28px}
+  .ord-pos{font-size:.9rem!important;font-weight:900!important}
+  .ord-pos-btn{padding:5px 8px!important}
+
+  /* ポジションピッカー */
+  .pos-pick-label{font-size:1.3rem!important;font-weight:900!important}
+  .pos-pick-btn{min-height:64px!important;padding:.85rem .3rem!important}
+
+  /* ログ表示 */
+  .le{font-size:.92rem!important;padding:3px 0!important;font-weight:600}
+  .le.imp,.le.run{font-weight:900!important}
+
+  /* ゲーム画面のスコア表示・回表記など */
+  .rfinal{font-size:2rem!important;font-weight:900!important}
+  .rteams{font-size:1rem!important;font-weight:700!important}
+  .stbl td{font-size:.95rem!important;font-weight:600!important;padding:6px 0!important}
+
+  /* チェックボックス（チーム選択） */
+  .tchk{font-size:.92rem!important;font-weight:700!important;padding:.5rem .65rem!important}
+
+  /* テキスト入力 (iOSのズーム防止のため16px以上を維持) */
+  input[type="text"],input[type="number"],select,textarea{font-size:16px!important}
+
+  /* リーグ管理画面の情報行 */
+  .card{font-size:.95rem}
 }
 .le{font-size:.85rem;padding:2px 0;border-bottom:1px solid #1a1a1a;color:var(--text2)}
 .le:last-child{border-bottom:none;color:var(--text)}.le.imp{color:var(--text);font-weight:700}.le.run{color:var(--gold);font-weight:700}.le.brk{color:var(--text3);border-bottom:1px solid #252525;padding:4px 0}
@@ -131,6 +229,10 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 .ltab.on{color:var(--gold);border-bottom-color:var(--gold)}
 .lpanel{display:none}.lpanel.on{display:block}
 .stand-tbl{width:100%;border-collapse:collapse}
+.lg-tabs{display:flex;gap:.4rem;margin-bottom:.65rem}
+.lg-tab{flex:1;background:var(--bg2);color:var(--text2);border:1px solid var(--border);padding:.45rem .5rem;font-size:.85rem;font-weight:700;border-radius:var(--radius);cursor:pointer;letter-spacing:.02em}
+.lg-tab.on{background:var(--gold);color:#111;border-color:var(--gold2)}
+.lg-tab:hover:not(.on){background:var(--bg3)}
 .stand-tbl th{font-size:.84rem;color:var(--text3);text-align:center;padding:5px 5px;border-bottom:1px solid var(--border);font-weight:400}
 .stand-tbl th.L{text-align:left}.stand-tbl td{font-size:.88rem;padding:6px 5px;border-bottom:1px solid var(--border);text-align:center;color:var(--text2)}
 .stand-tbl td.L{text-align:left;font-weight:700;color:var(--text)}.stand-tbl td.hi{color:var(--gold)}
@@ -143,6 +245,29 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 .sched-teams{flex:1;text-align:center;color:var(--text2)}.sched-score{min-width:58px;text-align:center;font-weight:700;color:var(--gold)}
 .sched-score.pend{color:var(--text3);font-weight:400}.sched-num{font-size:.82rem;color:var(--text3);min-width:28px}
 .stats-tbl{width:100%;border-collapse:collapse}
+/* Title race section (above the stats table) */
+.title-race{margin-bottom:1rem}
+.title-race-header{font-size:1rem;color:var(--gold);letter-spacing:.06em;font-weight:800;margin:.5rem 0 .65rem;padding-left:.15rem}
+.title-race-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem}
+.title-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--border);border-radius:var(--radius);padding:.55rem .5rem;display:flex;flex-direction:column;gap:.35rem}
+.title-card-label{font-size:.95rem;color:var(--gold);font-weight:800;letter-spacing:.04em;text-align:center;padding-bottom:.3rem;border-bottom:1px dashed var(--border)}
+.title-card-empty{font-size:.9rem;color:var(--text3);text-align:center;padding:.5rem 0}
+/* Each title row is a 2-line block: top = rank+name, bottom = team+value */
+.title-row{display:flex;flex-direction:column;gap:1px;padding:3px 0;border-bottom:1px dotted rgba(255,255,255,0.04)}
+.title-row:last-child{border-bottom:none}
+.title-row-top{display:flex;align-items:center;gap:.3rem}
+.title-row-bot{display:flex;align-items:center;justify-content:space-between;padding-left:1.9em}
+.title-rank{font-size:1rem;line-height:1;flex-shrink:0;width:1.5em;text-align:center}
+.title-name{color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.92rem;min-width:0;flex:1}
+.title-team{font-size:.75rem;color:var(--text3);font-weight:600;letter-spacing:.04em}
+.title-val{color:var(--gold);font-weight:900;font-family:'Courier New',monospace;text-align:right;font-size:1rem;letter-spacing:.02em}
+/* Box score tables (post-game per-team stats): horizontal scroll with no-wrap cells */
+.box-card{-webkit-overflow-scrolling:touch}
+.box-tbl{width:auto!important;min-width:100%;white-space:nowrap;table-layout:auto}
+.box-tbl th,.box-tbl td{padding:6px 10px!important;white-space:nowrap}
+.box-tbl td.L,.box-tbl th.L{padding-left:6px!important;padding-right:14px!important;min-width:5.5em}
+.box-tbl th{font-size:.78rem}
+.box-tbl td{font-size:.85rem}
 .stats-tbl th{font-size:.82rem;color:var(--text3);text-align:center;padding:4px 4px;border-bottom:1px solid var(--border);font-weight:400}
 .stats-tbl th.L{text-align:left}.stats-tbl td{font-size:.85rem;padding:5px 4px;border-bottom:1px solid var(--border);text-align:center;color:var(--text2)}
 .stats-tbl td.L{text-align:left;color:var(--text)}.stats-tbl td.hi{color:var(--gold);font-weight:700}.stats-tbl tr:last-child td{border-bottom:none}
@@ -150,7 +275,8 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 .stab{padding:.35rem .85rem;font-family:'Courier New',monospace;font-size:.82rem;font-weight:700;cursor:pointer;border:1.5px solid var(--border2);border-radius:var(--radius);background:var(--bg3);color:var(--text2);transition:all .1s}
 .stab.on{border-color:var(--gold);color:var(--gold)}
 /* BOX SCORE - at-bat result colors */
-.ab-cell{font-size:.78rem;padding:4px 4px;border-bottom:1px solid var(--border);text-align:center;font-weight:700}
+.ab-cell{font-size:.78rem;padding:4px 4px;border-bottom:1px solid var(--border);text-align:center;font-weight:700;white-space:nowrap}
+.ab-cell>div{white-space:nowrap}
 .ab-cell.walk,.ab-cell .walk{color:#4caf50;font-weight:700}
 .ab-cell.hit1,.ab-cell .hit1{color:#f39c12;font-weight:700}
 .ab-cell.hit2,.ab-cell.hit3,.ab-cell.hr,.ab-cell .hit2,.ab-cell .hit3,.ab-cell .hr{color:#e74c3c;font-weight:700}
@@ -186,12 +312,13 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 .ord-pos{font-size:.85rem;color:var(--text2);text-align:center;background:var(--bg);padding:3px 5px;border-radius:3px;font-weight:700}
 .ord-name{font-size:.98rem;color:var(--text);font-weight:700}
 .ord-stats{font-size:.78rem;color:var(--text2);margin-top:2px}
+.ord-record{font-size:.74rem;color:var(--gold);margin-top:3px;letter-spacing:.02em;font-weight:600}
 /* Ability rating color classes (visual strength indicator) */
 .r-elite{color:#e74c3c;font-weight:700}    /* 85+ red */
 .r-good{color:var(--gold);font-weight:700}  /* 75-84 gold */
 .r-mid{color:#9acd32}                       /* 65-74 yellow-green */
 .r-low{color:var(--text3)}                  /* under 65 dim */
-.ord-bench-row{display:grid;grid-template-columns:48px 1fr auto;gap:.4rem;align-items:center;padding:.4rem .55rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.ord-bench-row{display:grid;grid-template-columns:1fr auto;gap:.4rem;align-items:center;padding:.4rem .55rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
 .ord-bench-row:last-child{border-bottom:none}
 .ord-bench-row:hover{background:var(--bg3)}
 .ord-bench-row.swap-target{background:#1a1900;border-left:3px solid var(--gold);padding-left:calc(.55rem - 3px)}
@@ -206,6 +333,21 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 #sub-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);z-index:1100;display:flex;align-items:center;justify-content:center;padding:.75rem}
 #sub-modal.on{display:flex!important}
 #sub-box{background:var(--bg2);border:1.5px solid var(--gold);border-radius:var(--radius2);max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.7)}
+/* Position picker modal (lineup pos change) */
+#pos-picker-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);z-index:1100;display:none;align-items:center;justify-content:center;padding:.75rem}
+#pos-picker-modal.on{display:flex!important}
+#pos-picker-box{background:var(--bg2);border:1.5px solid var(--gold);border-radius:var(--radius2);max-width:420px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.7)}
+#pos-picker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;padding:.65rem .85rem}
+.pos-pick-btn{background:var(--bg3);color:var(--text);border:1.5px solid var(--border);border-radius:var(--radius);padding:.85rem .35rem;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;min-height:60px;display:flex;align-items:center;justify-content:center}
+.pos-pick-btn:hover{background:var(--bg2);border-color:var(--gold);color:var(--gold)}
+.pos-pick-btn.on{background:var(--gold);color:#111;border-color:var(--gold)}
+.pos-pick-label{font-size:1.15rem;font-weight:900;letter-spacing:.04em}
+.pos-pick-hint{font-size:.66rem;color:var(--text3);margin-top:2px;letter-spacing:.02em}
+.pos-pick-btn.on .pos-pick-hint{color:#3a3a00}
+/* Clickable position cell inside lineup row */
+.ord-pos-btn{cursor:pointer;user-select:none;border:1px dashed var(--border2);border-radius:6px;padding:3px 6px;transition:background .15s,border-color .15s}
+.ord-pos-btn:hover{background:var(--bg3);border-color:var(--gold)}
+.ord-pos-caret{font-size:.65rem;margin-left:3px;color:var(--text3)}
 #tstats-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);z-index:1100;display:flex;align-items:flex-start;justify-content:center;padding:1rem .5rem;overflow-y:auto}
 #tstats-modal.on{display:flex!important}
 #tstats-box{background:var(--bg2);border:1.5px solid var(--gold);border-radius:var(--radius2);max-width:1200px;width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.7)}
@@ -250,53 +392,40 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 <div id="menu-screen" class="screen active">
   <div class="logo">⚾</div>
   <div class="gtitle">BASEBALL SIM</div>
-  <div class="gsub" data-ja="SPECTATOR EDITION ✦ SHOWCASE" data-en="SPECTATOR EDITION ✦ SHOWCASE">SPECTATOR EDITION ✦ SHOWCASE</div>
+  <div class="gsub" data-ja="SPECTATOR EDITION" data-en="SPECTATOR EDITION">SPECTATOR EDITION</div>
   <div class="menu-list">
     <button class="btn pri block" onclick="gotoLeague()" data-ja="◈ リーグモード" data-en="◈ League Mode">◈ リーグモード</button>
     <button class="btn green block" onclick="gotoSelect()" data-ja="▶ クイック観戦" data-en="▶ Quick Game">▶ クイック観戦</button>
-    <button class="btn block" id="edit-btn" onclick="gotoEditor()" data-ja="✎ チーム編集" data-en="✎ Edit Teams">✎ チーム編集</button>
-    <div style="display:flex;gap:.4rem;margin-top:.3rem">
-      <button class="btn sm" style="flex:1" onclick="saveData()" data-ja="💾 データ保存" data-en="💾 Save Data">💾 データ保存</button>
-      <button class="btn sm" style="flex:1" onclick="loadData()" data-ja="📂 データ読込" data-en="📂 Load Data">📂 データ読込</button>
-    </div>
-    <input type="file" id="load-file" accept=".json" style="display:none" onchange="onFileLoad(event)">
   </div>
 
-  <!-- ショーケース告知 -->
-  <div class="pro-promo">
-    <div class="pro-promo-title" data-ja="⚾ ショーケース版へようこそ" data-en="⚾ Welcome to the Showcase Version">⚾ ショーケース版へようこそ</div>
-    <div class="pro-promo-body" data-ja="このバージョンは全機能を無料で体験できるショーケース版です。チーム編集・選手能力値編集など、すべての機能を自由にお試しいただけます。気に入ったらSNSでシェアしてください！" data-en="This is a showcase version with all features unlocked for free. Edit teams, customize player stats, and try everything. If you enjoy it, please share on social media!">このバージョンは全機能を無料で体験できるショーケース版です。チーム編集・選手能力値編集など、すべての機能を自由にお試しいただけます。気に入ったらSNSでシェアしてください！</div>
-    <ul class="pro-promo-list">
-      <li data-ja="観戦特化型の本格野球シミュレーター" data-en="Spectator-focused baseball simulator">観戦特化型の本格野球シミュレーター</li>
-      <li data-ja="球数管理・規定打席・完投率まで再現" data-en="Pitch counts, qualifying ABs, complete games">球数管理・規定打席・完投率まで再現</li>
-      <li data-ja="単一HTMLファイル・スマホ&PC両対応" data-en="Single HTML file, works on phones & PCs">単一HTMLファイル・スマホ&PC両対応</li>
-      <li data-ja="日本語・英語に対応" data-en="Japanese & English support">日本語・英語に対応</li>
-    </ul>
+  <div class="showcase-disclaimer">
+    <div class="showcase-disclaimer-title" data-ja="📢 本作について" data-en="📢 About this work">📢 本作について</div>
+    <p data-ja="本作は野球観戦をテーマとしたシミュレーションゲームです。" data-en="This is a baseball spectator simulation game.">本作は野球観戦をテーマとしたシミュレーションゲームです。</p>
+    <p data-ja="登場するチーム名、選手名、地域名はすべて架空のものであり、実在の団体・個人・地名とは一切関係ありません。" data-en="All team names, player names, and regional names appearing in this work are entirely fictional and bear no relation to any real organizations, individuals, or places.">登場するチーム名、選手名、地域名はすべて架空のものであり、実在の団体・個人・地名とは一切関係ありません。</p>
+    <p data-ja="このゲームはライセンスフリーで提供されており、改変・再配布が可能です。" data-en="This game is provided license-free and may be modified and redistributed.">このゲームはライセンスフリーで提供されており、改変・再配布が可能です。</p>
   </div>
 </div>
+<style>
+.showcase-disclaimer{
+  margin-top:1.5rem;padding:.9rem 1rem;background:var(--bg2);
+  border:1px solid var(--border);border-left:3px solid var(--gold);
+  border-radius:var(--radius);font-size:.82rem;color:var(--text2);
+  line-height:1.6;letter-spacing:.02em
+}
+.showcase-disclaimer-title{
+  color:var(--gold);font-weight:700;margin-bottom:.4rem;font-size:.9rem
+}
+.showcase-disclaimer p{margin:.3rem 0}
+@media (max-width:480px){
+  .showcase-disclaimer{font-size:.86rem!important;padding:.85rem .9rem!important}
+  .showcase-disclaimer-title{font-size:.95rem!important;font-weight:800!important}
+}
+</style>
 
-<!-- PRO -->
+<!-- PRO (kept for compatibility but unused in showcase) -->
 <div id="pro-screen" class="screen">
-  <div class="fb mb"><div class="sec" style="margin:0" data-ja="🔑 ライセンス認証" data-en="🔑 License Activation">🔑 ライセンス認証</div><button class="btn sm" onclick="gotoScreen('menu-screen')" data-ja="← 戻る" data-en="← Back">← 戻る</button></div>
-  <div class="card">
-    <div class="fb mb"><span style="font-weight:700" data-ja="ステータス" data-en="Status">ステータス</span><span class="badge free" id="pro-badge">FREE</span></div>
-    <ul class="pro-feat">
-      <li data-ja="チーム名・選手名の編集" data-en="Edit team & player names">チーム名・選手名の編集</li>
-      <li data-ja="能力値の自由編集" data-en="Edit player stats freely">能力値の自由編集</li>
-      <li data-ja="チームの追加・削除" data-en="Add/remove teams">チームの追加・削除</li>
-      <li data-ja="リーグ戦フル機能" data-en="Full league mode">リーグ戦フル機能</li>
-      <li data-ja="JSONデータ保存・読込" data-en="JSON save/load">JSONデータ保存・読込</li>
-    </ul>
-    <div class="notice info" style="margin-top:.75rem;font-size:.82rem" data-ja="💡 PRO版では、お使いのデバイスのキーボード/IMEで好きな言語で編集できます（日本語・英語・中国語・韓国語など、UTF-8対応の全言語）。" data-en="💡 In PRO mode, you can edit names in any language supported by your device's keyboard/IME (Japanese, English, Chinese, Korean, etc. — all UTF-8 languages).">💡 PRO版では、お使いのデバイスのキーボード/IMEで好きな言語で編集できます（日本語・英語・中国語・韓国語など、UTF-8対応の全言語）。</div>
-  </div>
-  <div class="card">
-    <div class="sec" data-ja="ライセンスキー入力" data-en="Enter License Key">ライセンスキー入力</div>
-    <div class="key-wrap"><input type="text" id="lic-in" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" oninput="fmtKey(this)"><button class="btn pri" onclick="activateLic()" data-ja="認証" data-en="Activate">認証</button></div>
-    <div class="notice" id="lic-msg" style="display:none"></div>
-  </div>
-  <div class="notice warn" id="revoke-area" style="display:none">
-    <div class="fb"><span data-ja="PRO認証済み" data-en="PRO Activated">PRO認証済み</span><button class="btn sm dan" onclick="revokeLic()" data-ja="解除" data-en="Revoke">解除</button></div>
-  </div>
+  <div class="fb mb"><div class="sec" style="margin:0">🔑 ライセンス認証</div><button class="btn sm" onclick="gotoScreen('menu-screen')">← 戻る</button></div>
+  <div class="card"><div class="notice info">このショーケース版ではライセンス認証は不要です。すべての機能をご利用いただけます。</div></div>
 </div>
 
 <!-- SELECT -->
@@ -323,7 +452,7 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   <!-- Action buttons -->
   <div style="display:flex;gap:.45rem;margin-bottom:.6rem;flex-wrap:wrap">
     <button class="btn sm" onclick="autoOrderCurrent()" data-ja="⚡ 自動編成" data-en="⚡ Auto-Set">⚡ 自動編成</button>
-    <button class="btn sm" onclick="autoOrderBoth()" data-ja="⚡ 両チーム自動" data-en="⚡ Both Teams Auto">⚡ 両チーム自動</button>
+    <button class="btn sm" id="ord-both-btn" onclick="autoOrderBoth()" data-ja="⚡ 両チーム自動" data-en="⚡ Both Teams Auto">⚡ 両チーム自動</button>
   </div>
 
   <!-- Starting pitcher -->
@@ -346,7 +475,7 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   </div>
 
   <!-- Play ball button -->
-  <button class="btn pri block" onclick="confirmOrderAndStart()" data-ja="▶ プレイボール" data-en="▶ Play Ball">▶ プレイボール</button>
+  <button class="btn pri block" id="ord-play-btn" onclick="confirmOrderAndStart()" data-ja="▶ プレイボール" data-en="▶ Play Ball">▶ プレイボール</button>
 </div>
 
 <!-- GAME -->
@@ -490,8 +619,8 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 <div id="league-screen" class="screen">
   <div class="fb mb"><div class="sec" style="margin:0" data-ja="◈ リーグモード" data-en="◈ League Mode">◈ リーグモード</div><button class="btn sm" onclick="gotoScreen('menu-screen')" data-ja="← 戻る" data-en="← Back">← 戻る</button></div>
   <div class="ltabs">
-    <button class="ltab on" onclick="lTab(0)" data-ja="設定・日程" data-en="Schedule">設定・日程</button>
-    <button class="ltab" onclick="lTab(1)" data-ja="順位表" data-en="Standings">順位表</button>
+    <button class="ltab on" onclick="lTab(0)" data-ja="設定・日程・試合進行" data-en="Schedule &amp; Play">設定・日程・試合進行</button>
+    <button class="ltab" onclick="lTab(1)" data-ja="チーム情報" data-en="Teams">チーム情報</button>
     <button class="ltab" onclick="lTab(2)" data-ja="個人成績" data-en="Stats">個人成績</button>
   </div>
   <div id="lp0" class="lpanel on"><div id="lsetup"></div><div id="lsched"></div></div>
@@ -533,18 +662,15 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   </div>
 </div>
 
-<!-- TEAM STATS MODAL -->
-<div id="tstats-modal" style="display:none">
-  <div id="tstats-box">
+<!-- POSITION PICKER MODAL -->
+<div id="pos-picker-modal">
+  <div id="pos-picker-box">
     <div class="sub-header">
-      <span id="tstats-title"></span>
-      <button class="sub-close" onclick="closeTeamStats()">✕</button>
+      <span id="pos-picker-title"></span>
+      <button class="sub-close" onclick="closePosPicker()">✕</button>
     </div>
-    <div class="sub-tabs">
-      <button class="sub-tab on" id="tstats-tab-bat" onclick="setTeamStatsTab('bat')" data-ja="打者成績" data-en="Batting">打者成績</button>
-      <button class="sub-tab" id="tstats-tab-pit" onclick="setTeamStatsTab('pit')" data-ja="投手成績" data-en="Pitching">投手成績</button>
-    </div>
-    <div id="tstats-content" style="padding:.65rem .85rem"></div>
+    <div id="pos-picker-grid"></div>
+    <div style="font-size:.74rem;color:var(--text3);padding:.4rem .85rem .65rem;letter-spacing:.02em" data-ja="※ 他のポジションを選ぶと、そのポジションのスロットと入れ替わります" data-en="※ Picking another position swaps positions with that slot">※ 他のポジションを選ぶと、そのポジションのスロットと入れ替わります</div>
   </div>
 </div>
 
@@ -582,7 +708,7 @@ const T={
     proActive:'✓ PRO版が有効になりました！',proInvalid:'✗ キーが無効です。',
     noTeam:'チームを2つ選んでください',oneTeam:'もう1チーム選んでください',
     noLeague:'リーグが開幕していません',noGames:'まだ試合がありません',
-    leagueEnd:'🏆 全試合終了！順位表で結果を確認してください。',
+    leagueEnd:'🏆 全試合終了！チーム情報で結果を確認してください。',
     nextGame:'次の試合',allSched:'全日程',pending:'未',
     simAll:'残り全試合を自動消化しますか？',resetLeague:'リーグをリセットしますか？',
     delTeam:'このチームを削除しますか？',minTeam:'最低2チーム必要です。',minTeamSel:'最低2チームを選択してください。',
@@ -609,7 +735,7 @@ const T={
     proActive:'✓ PRO version activated!',proInvalid:'✗ Invalid key.',
     noTeam:'Select 2 teams',oneTeam:'Select 1 more team',
     noLeague:'League not started',noGames:'No games yet',
-    leagueEnd:'🏆 Season complete! Check standings.',
+    leagueEnd:'🏆 Season complete! Check the Teams tab for results.',
     nextGame:'Next Game',allSched:'Full Schedule',pending:'TBD',
     simAll:'Simulate all remaining games?',resetLeague:'Reset league? All results will be lost.',
     delTeam:'Delete this team?',minTeam:'Minimum 2 teams required.',minTeamSel:'Select at least 2 teams.',
@@ -679,17 +805,30 @@ function applyLang(){
 // Name pools for auto-generating bench / bullpen players per team
 const NAME_POOLS={
   KYO:{first:["佐藤","鈴木","高橋","田中","伊藤","渡辺","山本","中村","小林","加藤","吉田","山田"],
-       last:["太郎","健一","大輔","翔太","健太","誠","浩二","哲也","拓也","隆","直樹","洋平"]},
+       last:["太郎","健一","大輔","翔太","健太","誠一","浩二","哲也","拓也","隆司","直樹","洋平"]},
   KAN:{first:["佐々木","山口","松本","井上","木村","林","斎藤","清水","山崎","森","池田","橋本"],
-       last:["智也","翔","優","蓮","大樹","颯","陽斗","康介","信也","正樹","和也","裕也"]},
+       last:["智也","翔平","裕介","蓮太","大樹","颯一","陽斗","康介","信也","正樹","和也","裕也"]},
   NII:{first:["阿部","石川","前田","藤田","近藤","坂本","遠藤","青木","坂口","福田","太田","西村"],
-       last:["亮","聡","勇人","俊介","隼人","和樹","祐介","拓海","涼","真一","秀樹","光"]},
+       last:["亮太","聡志","勇人","俊介","隼人","和樹","祐介","拓海","涼介","真一","秀樹","光輝"]},
   MAT:{first:["藤井","岡田","三浦","金子","中島","小川","中野","原田","松田","竹内","村田","上田"],
-       last:["健介","龍太","海斗","駿","旭","彰","俊","昇","壮太","昌弘","裕太","恭平"]},
+       last:["健介","龍太","海斗","駿一","旭彦","彰人","俊明","昇平","壮太","昌弘","裕太","恭平"]},
   SHI:{first:["森田","原","柴田","酒井","工藤","横山","宮崎","内田","平野","千葉","岩田","菅原"],
-       last:["将太","直人","慎吾","俊也","拓真","遼","純平","康太","和真","怜","樹","暁"]},
+       last:["将太","直人","慎吾","俊也","拓真","遼介","純平","康太","和真","怜司","樹生","暁人"]},
   KMT:{first:["長谷川","村上","近江","古川","石田","本田","武田","上原","秋山","新井","大野","菊池"],
-       last:["晃","勝","学","信","誠也","泰志","良太","哲","幸太","裕一","俊太","琢磨"]},
+       last:["晃一","勝也","学人","信吾","誠也","泰志","良太","哲平","幸太","裕一","俊太","琢磨"]},
+  // === Pacific League name pools ===
+  NAH:{first:["比嘉","金城","新垣","伊波","安里","喜屋武","上原","知念","与那覇","宮里","儀間","平良"],
+       last:["翔大","大樹","海斗","蓮太","翼","颯介","朔太","諒一","昇平","真也","清志","龍一"]},
+  MOR:{first:["千葉","高橋","鈴木","伊藤","渡辺","山田","工藤","加藤","佐藤","及川","菅原","小野寺"],
+       last:["隼人","修平","啓太","健司","雄太","拓也","蓮太","慎吾","巧海","遼介","和真","信吾"]},
+  TAK:{first:["森山","川田","福永","小野","村田","安藤","井川","瀬戸","三宅","松永","岩崎","西岡"],
+       last:["駿介","颯太","涼平","拓海","蒼太","涼太","蓮一","翔吾","裕介","怜司","充樹","海斗"]},
+  TOY:{first:["立山","黒部","井波","南砺","礪波","高岡","魚津","氷見","滑川","八尾","入善","朝日"],
+       last:["駿一","翔太","蓮介","大樹","龍生","怜央","颯太","海斗","拓真","隼平","蒼介","巧海"]},
+  KGS:{first:["霧島","指宿","屋久","奄美","枕崎","知覧","川内","鹿屋","出水","串木野","加治木","曽於"],
+       last:["蓮太","颯介","海斗","蒼太","翔吾","隼平","駿介","大樹","龍一","勇人","拓也","琢磨"]},
+  NAG:{first:["茅野","岡谷","佐久","小諸","木曽","白馬","蓼科","美ヶ原","御嶽","乗鞍","大町","千曲"],
+       last:["翔太","大樹","隆司","蓮介","蒼介","駿一","昇平","俊明","誠也","拓真","勇人","海斗"]},
 };
 
 // Generate a hitter with skill rating centered on `tier` (0=star, 1=regular, 2=bench)
@@ -712,12 +851,31 @@ function genPitcher(name,role,tier){
 
 // Build full 26-man roster for a team given starting 8 hitters + ace pitcher
 function buildFullRoster(abbr,starters,ace){
-  const pool=NAME_POOLS[abbr]||NAME_POOLS.AUR;
-  let firstIdx=0,lastIdx=0;
+  const pool=NAME_POOLS[abbr]||NAME_POOLS.AUR||Object.values(NAME_POOLS)[0];
+  // Track all names already used (starters + ace + previously generated)
+  const usedNames=new Set();
+  starters.forEach(s=>usedNames.add(s.name));
+  usedNames.add(ace.name);
+
+  // Generate a unique name by trying combinations from the pool
+  // Falls back to numbered suffix if pool is exhausted
   const nextName=()=>{
-    const n=`${pool.first[firstIdx%pool.first.length]} ${pool.last[lastIdx%pool.last.length]}`;
-    firstIdx++;lastIdx++;
-    return n;
+    for(let attempts=0;attempts<pool.first.length*pool.last.length;attempts++){
+      const fIdx=Math.floor(Math.random()*pool.first.length);
+      const lIdx=Math.floor(Math.random()*pool.last.length);
+      const n=`${pool.first[fIdx]} ${pool.last[lIdx]}`;
+      if(!usedNames.has(n)){
+        usedNames.add(n);
+        return n;
+      }
+    }
+    // Fallback: pool exhausted (rare case)
+    let suffix=2;
+    while(true){
+      const n=`${pool.first[0]} ${pool.last[0]} ${suffix}`;
+      if(!usedNames.has(n)){usedNames.add(n);return n;}
+      suffix++;
+    }
   };
 
   // 13 hitters: 8 starters + 5 bench (backup C, backup IF x2, backup OF x2)
@@ -748,7 +906,7 @@ function buildFullRoster(abbr,starters,ace){
 
 // Starting 8 hitters + ace pitcher for each team (handcrafted base data)
 const TEAM_BASE=[
-  {id:0,name:"京都クレインズ",abbr:"KYO",
+  {id:0,name:"京都クレインズ",abbr:"KYO",league:"a",
     ace:{name:"佐藤 翔太",spd:82,ctrl:75,stam:88},
     starters:[
       {name:"鈴木 健一",pos:"CF",meet:78,power:65,speed:80,def:75},
@@ -760,7 +918,7 @@ const TEAM_BASE=[
       {name:"中村 健太",pos:"LF",meet:65,power:70,speed:75,def:70},
       {name:"小林 隆",pos:"2B",meet:72,power:58,speed:78,def:80},
     ]},
-  {id:1,name:"金沢ブレイブス",abbr:"KAN",
+  {id:1,name:"金沢ブレイブス",abbr:"KAN",league:"a",
     ace:{name:"佐々木 翔",spd:78,ctrl:80,stam:85},
     starters:[
       {name:"山口 智也",pos:"2B",meet:80,power:62,speed:79,def:82},
@@ -772,7 +930,7 @@ const TEAM_BASE=[
       {name:"清水 康介",pos:"SS",meet:75,power:55,speed:80,def:85},
       {name:"山崎 信也",pos:"LF",meet:67,power:72,speed:70,def:68},
     ]},
-  {id:2,name:"新潟タイフーンズ",abbr:"NII",
+  {id:2,name:"新潟タイフーンズ",abbr:"NII",league:"a",
     ace:{name:"阿部 亮",spd:80,ctrl:77,stam:82},
     starters:[
       {name:"石川 聡",pos:"SS",meet:77,power:60,speed:82,def:86},
@@ -784,7 +942,7 @@ const TEAM_BASE=[
       {name:"青木 拓海",pos:"CF",meet:79,power:63,speed:84,def:78},
       {name:"坂口 涼",pos:"LF",meet:66,power:69,speed:72,def:69},
     ]},
-  {id:3,name:"松山ウェイブス",abbr:"MAT",
+  {id:3,name:"松山ウェイブス",abbr:"MAT",league:"a",
     ace:{name:"藤井 健介",spd:79,ctrl:78,stam:86},
     starters:[
       {name:"岡田 龍太",pos:"CF",meet:83,power:67,speed:86,def:80},
@@ -796,7 +954,7 @@ const TEAM_BASE=[
       {name:"原田 昇",pos:"LF",meet:68,power:73,speed:73,def:70},
       {name:"松田 壮太",pos:"2B",meet:74,power:59,speed:79,def:83},
     ]},
-  {id:4,name:"静岡サンライズ",abbr:"SHI",
+  {id:4,name:"静岡サンライズ",abbr:"SHI",league:"a",
     ace:{name:"森田 将太",spd:81,ctrl:76,stam:87},
     starters:[
       {name:"原 直人",pos:"2B",meet:78,power:64,speed:80,def:82},
@@ -808,7 +966,7 @@ const TEAM_BASE=[
       {name:"内田 康太",pos:"SS",meet:77,power:58,speed:81,def:88},
       {name:"平野 和真",pos:"LF",meet:65,power:71,speed:74,def:69},
     ]},
-  {id:5,name:"熊本ボルケーノズ",abbr:"KMT",
+  {id:5,name:"熊本ボルケーノズ",abbr:"KMT",league:"a",
     ace:{name:"長谷川 晃",spd:77,ctrl:81,stam:84},
     starters:[
       {name:"村上 勝",pos:"CF",meet:80,power:66,speed:83,def:79},
@@ -819,6 +977,85 @@ const TEAM_BASE=[
       {name:"武田 良太",pos:"C",meet:72,power:74,speed:56,def:85},
       {name:"上原 哲",pos:"SS",meet:76,power:57,speed:82,def:87},
       {name:"秋山 幸太",pos:"LF",meet:67,power:70,speed:71,def:68},
+    ]},
+  // === Pacific League (パ・リーグ) ===
+  // 那覇マリーンズ：打撃のチーム（meet+5, power+3、ピッチング普通）
+  {id:6,name:"那覇マリーンズ",abbr:"NAH",league:"b",
+    ace:{name:"宮城 翔太",spd:75,ctrl:73,stam:80},
+    starters:[
+      {name:"比嘉 翔",pos:"CF",meet:85,power:70,speed:78,def:73},
+      {name:"金城 大樹",pos:"2B",meet:82,power:65,speed:76,def:78},
+      {name:"新垣 海斗",pos:"RF",meet:78,power:88,speed:60,def:70},
+      {name:"伊波 蓮",pos:"1B",meet:73,power:94,speed:50,def:72},
+      {name:"安里 翼",pos:"3B",meet:80,power:81,speed:62,def:76},
+      {name:"喜屋武 颯",pos:"C",meet:75,power:75,speed:54,def:82},
+      {name:"上原 朔",pos:"SS",meet:78,power:60,speed:78,def:84},
+      {name:"知念 諒",pos:"LF",meet:70,power:75,speed:70,def:65},
+    ]},
+  // 盛岡イーグルウィンズ：投手王国（ace超強力、全投手能力高め、打撃やや弱）
+  {id:7,name:"盛岡イーグルウィンズ",abbr:"MOR",league:"b",
+    ace:{name:"佐藤 龍之介",spd:90,ctrl:85,stam:90},
+    starters:[
+      {name:"千葉 隼人",pos:"CF",meet:73,power:60,speed:75,def:80},
+      {name:"高橋 修",pos:"2B",meet:71,power:58,speed:74,def:84},
+      {name:"鈴木 啓太",pos:"RF",meet:68,power:78,speed:60,def:72},
+      {name:"伊藤 健司",pos:"1B",meet:65,power:82,speed:48,def:74},
+      {name:"渡辺 雄太",pos:"3B",meet:70,power:72,speed:62,def:78},
+      {name:"山田 拓",pos:"C",meet:66,power:68,speed:50,def:88},
+      {name:"工藤 蓮",pos:"SS",meet:69,power:55,speed:78,def:90},
+      {name:"加藤 慎吾",pos:"LF",meet:62,power:65,speed:68,def:68},
+    ]},
+  // 高松クリッパーズ：機動力・守備のチーム
+  {id:8,name:"高松クリッパーズ",abbr:"TAK",league:"b",
+    ace:{name:"四国 翔",spd:78,ctrl:78,stam:82},
+    starters:[
+      {name:"森山 駿",pos:"CF",meet:75,power:55,speed:92,def:88},
+      {name:"川田 颯太",pos:"2B",meet:78,power:58,speed:89,def:89},
+      {name:"福永 涼",pos:"SS",meet:74,power:53,speed:90,def:92},
+      {name:"小野 拓",pos:"3B",meet:72,power:68,speed:78,def:86},
+      {name:"村田 蒼",pos:"RF",meet:73,power:72,speed:75,def:80},
+      {name:"安藤 涼太",pos:"1B",meet:68,power:78,speed:65,def:82},
+      {name:"井川 蓮",pos:"C",meet:65,power:64,speed:60,def:92},
+      {name:"瀬戸 翔",pos:"LF",meet:70,power:62,speed:83,def:80},
+    ]},
+  // 富山フェニックス：絶対王者（全能力+3）
+  {id:9,name:"富山フェニックス",abbr:"TOY",league:"b",
+    ace:{name:"加賀 大地",spd:88,ctrl:82,stam:92},
+    starters:[
+      {name:"立山 駿",pos:"CF",meet:83,power:72,speed:85,def:80},
+      {name:"黒部 翔太",pos:"2B",meet:82,power:68,speed:82,def:85},
+      {name:"井波 蓮",pos:"RF",meet:78,power:89,speed:65,def:75},
+      {name:"南砺 大樹",pos:"1B",meet:73,power:93,speed:55,def:78},
+      {name:"礪波 龍",pos:"3B",meet:78,power:82,speed:68,def:83},
+      {name:"高岡 怜",pos:"C",meet:75,power:78,speed:58,def:90},
+      {name:"魚津 颯",pos:"SS",meet:79,power:63,speed:85,def:90},
+      {name:"氷見 海",pos:"LF",meet:70,power:75,speed:78,def:72},
+    ]},
+  // 鹿児島ヴァルカンズ：若手育成中（全能力-4、ベテランエース1人だけ強い）
+  {id:10,name:"鹿児島ヴァルカンズ",abbr:"KGS",league:"b",
+    ace:{name:"桜島 健",spd:83,ctrl:80,stam:88},  // ベテランエース
+    starters:[
+      {name:"霧島 蓮",pos:"CF",meet:69,power:58,speed:75,def:70},
+      {name:"指宿 颯",pos:"2B",meet:68,power:55,speed:73,def:75},
+      {name:"屋久 海斗",pos:"RF",meet:65,power:78,speed:55,def:65},
+      {name:"奄美 蒼",pos:"1B",meet:62,power:82,speed:46,def:69},
+      {name:"枕崎 翔",pos:"3B",meet:66,power:70,speed:58,def:72},
+      {name:"知覧 隼",pos:"C",meet:64,power:65,speed:48,def:80},
+      {name:"川内 駿",pos:"SS",meet:67,power:52,speed:76,def:82},
+      {name:"鹿屋 大樹",pos:"LF",meet:60,power:63,speed:66,def:62},
+    ]},
+  // 長野ハイランダーズ：バランス型
+  {id:11,name:"長野ハイランダーズ",abbr:"NAG",league:"b",
+    ace:{name:"信濃 翔太",spd:80,ctrl:78,stam:85},
+    starters:[
+      {name:"上田 颯",pos:"CF",meet:78,power:67,speed:80,def:77},
+      {name:"松本 大樹",pos:"2B",meet:76,power:63,speed:77,def:81},
+      {name:"伊那 蓮",pos:"RF",meet:74,power:84,speed:60,def:70},
+      {name:"駒ヶ根 隆",pos:"1B",meet:69,power:90,speed:50,def:74},
+      {name:"諏訪 翔",pos:"3B",meet:73,power:78,speed:65,def:79},
+      {name:"塩尻 蒼",pos:"C",meet:71,power:72,speed:54,def:86},
+      {name:"安曇 駿",pos:"SS",meet:75,power:58,speed:81,def:87},
+      {name:"飯田 颯太",pos:"LF",meet:66,power:71,speed:73,def:68},
     ]},
 ];
 
@@ -831,6 +1068,7 @@ const DT=TEAM_BASE.map(tb=>{
   const lineup9=dhHitter?[...tb.starters,dhHitter]:[...tb.starters];
   return {
     id:tb.id, name:tb.name, abbr:tb.abbr,
+    league:tb.league||'a',           // 'a' or 'b' for league division
     pitcher:tb.ace,                  // current ace = starting pitcher (backward compat)
     lineup:lineup9,                  // 9 hitters (DH-based)
     pitchers,                        // full 13-man pitching staff
@@ -840,11 +1078,11 @@ const DT=TEAM_BASE.map(tb=>{
 
 // ═══ STATE ═══
 let teams=JSON.parse(JSON.stringify(DT));
-let isPro=true,selIds=[],edTabIdx=0,edTeamIdx=0;
+let isPro=false,selIds=[],edTabIdx=0,edTeamIdx=0;
 let gs=null,awayT,homeT,logs=[],autoOn=false,autoTmr=null;
 let league={active:false,name:"",gpp:2,teamIds:[],schedule:[],stats:{}};
 let leagueBat={},leaguePit={};
-let leagueGameId=-1,fromLeague=false,curStatsType='bat',chkIds=null;
+let leagueGameId=-1,fromLeague=false,fromStandings=false,curStatsType='bat',chkIds=null;
 
 // ═══ LICENSE ═══
 const MS='BSIM-2025-NAKAZONO';
@@ -871,16 +1109,16 @@ function activateLic(){
 }
 async function revokeLic(){if(!(await showConfirm(lang==='ja'?'PRO認証を解除しますか？':'Revoke PRO activation?')))return;isPro=false;localStorage.removeItem('bsim_pro');updPro();}
 function updPro(){
-  const pb=document.getElementById('pro-badge');
-  if(pb){
-    pb.textContent=isPro?'PRO':'FREE';
-    pb.className='badge '+(isPro?'pro':'free');
-  }
-  const ra=document.getElementById('revoke-area');
-  if(ra) ra.style.display=isPro?'block':'none';
-  const lbl=document.getElementById('pro-lbl');
-  if(lbl) lbl.textContent=isPro?t('proStatus'):t('freeStatus');
-  // Showcase version: keep promo (showcase info) visible always
+  document.getElementById('pro-badge').textContent=isPro?'PRO':'FREE';
+  document.getElementById('pro-badge').className='badge '+(isPro?'pro':'free');
+  document.getElementById('revoke-area').style.display=isPro?'block':'none';
+  document.getElementById('pro-lbl').textContent=isPro?t('proStatus'):t('freeStatus');
+  // hide PRO promo section if already PRO
+  const promo=document.querySelector('.pro-promo');
+  if(promo) promo.style.display=isPro?'none':'block';
+  // also update divider label
+  const dl=document.getElementById('pro-divider-label');
+  if(dl) dl.style.color=isPro?'var(--green)':'var(--gold)';
 }
 
 // ═══ SCREENS ═══
@@ -895,18 +1133,41 @@ let orderData=[null,null];
 let curOrderTeam=0;
 
 function gotoOrderScreen(){
-  // Build initial order data for both teams (default: starters in roster order)
+  // Watch-game entry (not from standings): two-team tab mode
+  fromStandings=false;
   const awayTeam=teams.find(x=>x.id===selIds[0]);
   const homeTeam=teams.find(x=>x.id===selIds[1]);
   ensureFullRoster(awayTeam);ensureFullRoster(homeTeam);
-  orderData[0]=buildInitialOrder(awayTeam);
-  orderData[1]=buildInitialOrder(homeTeam);
+  // Restore saved order if available (so edits from standings carry over)
+  orderData[0]=awayTeam.savedOrder?restoreSavedOrder(awayTeam):buildInitialOrder(awayTeam);
+  orderData[1]=homeTeam.savedOrder?restoreSavedOrder(homeTeam):buildInitialOrder(homeTeam);
   curOrderTeam=0;
   renderOrderTabs();renderOrderScreen();
   gotoScreen('order-screen');
 }
 
 function buildInitialOrder(team){
+  // Choose default starter: highest-ability SP with rest=0, mirroring quickSim's logic.
+  // Falls back to lowest-rest SP, then to index 0.
+  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  const restMap=(inLeagueCtx&&league.restDays&&league.restDays[team.id])||{};
+  let defaultPitcherIdx=0;
+  if(team.pitchers&&team.pitchers.length>0){
+    const sps=team.pitchers
+      .map((p,i)=>({p,i}))
+      .filter(x=>x.p.role&&x.p.role.startsWith('SP'));
+    const sortedSPs=sps.slice().sort((a,b)=>{
+      return ((b.p.spd||0)+(b.p.ctrl||0)+(b.p.stam||0))-((a.p.spd||0)+(a.p.ctrl||0)+(a.p.stam||0));
+    });
+    // First, an SP with rest=0 (preferring strongest)
+    let chosen=sortedSPs.find(x=>(restMap[x.p.name]||0)===0);
+    if(!chosen){
+      // All SPs need rest -> pick the one with lowest rest
+      chosen=sortedSPs.slice().sort((a,b)=>(restMap[a.p.name]||0)-(restMap[b.p.name]||0))[0];
+    }
+    if(chosen)defaultPitcherIdx=chosen.i;
+  }
+
   // DH-system lineup: 9 hitters bat, no pitcher in batting order.
   //
   // Determine the starting 9 batters:
@@ -928,7 +1189,7 @@ function buildInitialOrder(team){
   if(isCustomLineup){
     // User has set up the 9th slot intentionally — use as-is
     startingHitters=[...top8,{...ninth}];
-    benchHitters=remainingBench.map(p=>({...p}));
+    benchHitters=remainingBench.map(p=>{const{pos:_p,...rest}=p;return rest;});
   }else{
     // Auto-fill 9th slot with the best-hitting bench player (DH)
     const allBench=ninth?[ninth,...remainingBench]:[...remainingBench];
@@ -936,7 +1197,7 @@ function buildInitialOrder(team){
       // Pick best hitter by meet+power
       const bestIdx=allBench.reduce((bi,p,i,a)=>(p.meet+p.power)>(a[bi].meet+a[bi].power)?i:bi,0);
       const bestBat={...allBench[bestIdx],pos:'DH'};
-      const remaining=allBench.filter((_,i)=>i!==bestIdx).map(p=>({...p}));
+      const remaining=allBench.filter((_,i)=>i!==bestIdx).map(p=>{const{pos:_p,...rest}=p;return rest;});
       startingHitters=[...top8,bestBat];
       benchHitters=remaining;
     }else{
@@ -948,7 +1209,7 @@ function buildInitialOrder(team){
   }
   return {
     team,
-    pitcherIdx:0,
+    pitcherIdx:defaultPitcherIdx,
     lineup:startingHitters,  // 9 batters (DH-based)
     bench:benchHitters,
     selSlot:null,
@@ -956,19 +1217,35 @@ function buildInitialOrder(team){
 }
 
 function renderOrderTabs(){
-  const aT=orderData[0].team, hT=orderData[1].team;
   const aBtn=document.getElementById('ord-tab-away'), hBtn=document.getElementById('ord-tab-home');
+  if(fromStandings){
+    // Single-team mode: show just one tab with the team name
+    const tm=orderData[0].team;
+    if(aBtn){
+      aBtn.textContent=`${tm.abbr}  ${tm.name}`;
+      aBtn.className='ord-team-tab away-tab on';
+      aBtn.style.flex='1';
+    }
+    if(hBtn){hBtn.style.display='none';}
+    return;
+  }
+  // Two-team mode (watching a game)
+  const aT=orderData[0].team, hT=orderData[1].team;
   if(aBtn){
     aBtn.textContent=`${lang==='ja'?'AWAY':'AWAY'}  ${aT.abbr}`;
     aBtn.className='ord-team-tab away-tab '+(curOrderTeam===0?'on':'');
+    aBtn.style.flex='';
+    aBtn.style.display='';
   }
   if(hBtn){
     hBtn.textContent=`${lang==='ja'?'HOME':'HOME'}  ${hT.abbr}`;
     hBtn.className='ord-team-tab home-tab '+(curOrderTeam===1?'on':'');
+    hBtn.style.display='';
   }
 }
 
 function orderSwitchTeam(idx){
+  if(fromStandings)return;  // disable team switching in single-team mode
   curOrderTeam=idx;
   orderData[curOrderTeam].selSlot=null;
   renderOrderTabs();renderOrderScreen();
@@ -976,38 +1253,112 @@ function orderSwitchTeam(idx){
 
 function renderOrderScreen(){
   const od=orderData[curOrderTeam];
+  // Mode-specific UI tweaks — use IDs (stable) and assign onclick via JS property (reliable)
+  const bothBtn=document.getElementById('ord-both-btn');
+  if(bothBtn)bothBtn.style.display=fromStandings?'none':'';
+  const playBtn=document.getElementById('ord-play-btn');
+  if(playBtn){
+    if(fromStandings){
+      playBtn.textContent=lang==='ja'?'✓ 編成を保存して戻る':'✓ Save & Back';
+      playBtn.onclick=saveOrderAndBack;
+    }else{
+      playBtn.textContent=lang==='ja'?'▶ プレイボール':'▶ Play Ball';
+      playBtn.onclick=confirmOrderAndStart;
+    }
+  }
   renderOrderPitchers(od);
   renderOrderLineup(od);
   renderOrderBench(od);
 }
 
+// Save current edits to team.savedOrder and return to league screen
+function saveOrderAndBack(){
+  saveCurrentOrder(orderData[0]);
+  fromStandings=false;
+  gotoScreen('league-screen');
+}
+
+// Look up the current season's batting/pitching stats from leagueBat/leaguePit by team+name.
+// Returns a small HTML snippet (or empty if no data yet).
+function getBatStatsLine(teamName,playerName){
+  if(!league||!league.active)return '';
+  const key=teamName+':'+playerName;
+  const s=leagueBat&&leagueBat[key];
+  if(!s||!s.atbats)return '';
+  const ab=s.atbats,h=s.hits,bb=s.bb||0,d=s.doubles||0,t=s.triples||0,hr=s.hrs||0;
+  const singles=h-d-t-hr;
+  const tb=singles+d*2+t*3+hr*4;
+  const obp=(ab+bb)>0?(h+bb)/(ab+bb):0;
+  const slg=ab>0?tb/ab:0;
+  const ops=obp+slg;
+  const avg=ab>0?h/ab:0;
+  const fmt=(v)=>bbAvg(v);
+  return `<div class="ord-record">${lang==='ja'?'打率':'AVG'} ${fmt(avg)} · OPS ${fmt(ops)} · ${lang==='ja'?'打点':'RBI'} ${s.rbi||0} · HR ${hr} · ${lang==='ja'?'盗':'SB'} ${s.sb||0}</div>`;
+}
+function getPitStatsLine(teamName,playerName){
+  if(!league||!league.active)return '';
+  const key=teamName+':'+playerName;
+  const s=leaguePit&&leaguePit[key];
+  if(!s||!s.ip)return '';
+  const era=s.ip>0?s.er*27/s.ip:0;
+  const whip=s.ip>0?((s.bb||0)+(s.ha||0))*3/s.ip:0;
+  return `<div class="ord-record">${s.w||0}-${s.l||0} · H ${s.h||0} · S ${s.s||0} · K ${s.k||0} · WHIP ${whip.toFixed(2)} · ERA ${era.toFixed(2)}</div>`;
+}
+
 function renderOrderPitchers(od){
   const el=document.getElementById('ord-pitcher-list');if(!el)return;
-  el.innerHTML=od.team.pitchers.map((p,i)=>`
-    <div class="ord-pcard ${i===od.pitcherIdx?'on':''}" onclick="selectOrderPitcher(${i})">
-      <div class="ord-pname">${p.name}</div>
+  // Look up rest days whenever we're in a league context — either from a watched game
+  // (fromLeague) or from the standings screen (fromStandings).
+  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  const restMap=(inLeagueCtx&&league.restDays&&league.restDays[od.team.id])||{};
+  el.innerHTML=od.team.pitchers.map((p,i)=>{
+    const rest=restMap[p.name]||0;
+    const restable=rest>0;
+    const restLabel=restable
+      ? (lang==='ja'?`<span style="color:#e24b4a;font-size:.72rem;margin-left:.4rem">休養${rest}日</span>`
+                    :`<span style="color:#e24b4a;font-size:.72rem;margin-left:.4rem">Rest ${rest}d</span>`)
+      : '';
+    const dim=restable?'opacity:.45;cursor:not-allowed':'';
+    const onClick=restable?'':`onclick="selectOrderPitcher(${i})"`;
+    const statsLine=getPitStatsLine(od.team.name,p.name);
+    return `<div class="ord-pcard ${i===od.pitcherIdx?'on':''}" ${onClick} style="${dim}">
+      <div class="ord-pname">${p.name}${restLabel}</div>
       <div class="ord-prole">${p.role||''}</div>
       <div class="ord-pstats">${rStat('SPD',p.spd)}  ${rStat('CTRL',p.ctrl)}  ${rStat('STM',p.stam)}</div>
-    </div>`).join('');
+      ${statsLine}
+    </div>`;
+  }).join('');
 }
 
 function selectOrderPitcher(i){
-  orderData[curOrderTeam].pitcherIdx=i;
-  renderOrderPitchers(orderData[curOrderTeam]);
+  // Defensive: refuse to select a resting pitcher
+  const od=orderData[curOrderTeam];
+  const p=od.team.pitchers[i];
+  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  const restMap=(inLeagueCtx&&league.restDays&&league.restDays[od.team.id])||{};
+  if(p&&(restMap[p.name]||0)>0){
+    return;  // resting; cannot select
+  }
+  od.pitcherIdx=i;
+  renderOrderPitchers(od);
 }
 
 function renderOrderLineup(od){
   const el=document.getElementById('ord-lineup-list');if(!el)return;
-  el.innerHTML=od.lineup.map((p,i)=>`
-    <div class="ord-row ${od.selSlot===i?'selected':''}" onclick="selectOrderSlot(${i})">
+  el.innerHTML=od.lineup.map((p,i)=>{
+    const statsLine=getBatStatsLine(od.team.name,p.name);
+    // The position cell is its own clickable button; stopPropagation prevents the row's swap action.
+    return `<div class="ord-row ${od.selSlot===i?'selected':''}" onclick="selectOrderSlot(${i})">
       <div class="ord-num">${i+1}</div>
-      <div class="ord-pos">${p.pos}</div>
+      <div class="ord-pos ord-pos-btn" onclick="event.stopPropagation();openPosPicker(${i})">${p.pos}<span class="ord-pos-caret">▾</span></div>
       <div>
         <div class="ord-name">${p.name}</div>
         <div class="ord-stats">${rStat('CON',p.meet)}  ${rStat('PWR',p.power)}  ${rStat('SPD',p.speed)}  ${rStat('DEF',p.def)}</div>
+        ${statsLine}
       </div>
       <div style="font-size:.78rem;color:var(--text3)">${od.selSlot===i?(lang==='ja'?'⇄選択中':'⇄ selected'):''}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function selectOrderSlot(i){
@@ -1017,84 +1368,161 @@ function selectOrderSlot(i){
   }else if(od.selSlot===null){
     od.selSlot=i;
   }else{
-    // Swap within lineup (slot-to-slot)
+    // Slot-to-slot swap: BOTH the player AND the position move together.
+    // This keeps the 9-position invariant naturally (we're just rearranging existing entries),
+    // and is more intuitive — "move this guy AT his position to a new batting slot".
     [od.lineup[od.selSlot],od.lineup[i]]=[od.lineup[i],od.lineup[od.selSlot]];
     od.selSlot=null;
   }
   renderOrderLineup(od);renderOrderBench(od);
 }
 
+// Open a position picker for the given lineup slot.
+// Clicking another position will SWAP the positions between this slot and
+// whichever slot currently holds that position. This keeps the 9-position
+// uniqueness invariant: each position always appears exactly once in the lineup.
+let posPickerSlot=null;
+const ALL_POSITIONS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
+function openPosPicker(slotIdx){
+  posPickerSlot=slotIdx;
+  const od=orderData[curOrderTeam];
+  const currentPos=od.lineup[slotIdx].pos;
+  const playerName=od.lineup[slotIdx].name;
+  const grid=document.getElementById('pos-picker-grid');
+  // Show every position; mark the current one as selected.
+  grid.innerHTML=ALL_POSITIONS.map(pos=>{
+    const isCurrent=pos===currentPos;
+    return `<button class="pos-pick-btn ${isCurrent?'on':''}" onclick="pickPosition('${pos}')">
+      <div class="pos-pick-label">${pos}</div>
+    </button>`;
+  }).join('');
+  document.getElementById('pos-picker-title').textContent=
+    lang==='ja'?`${slotIdx+1}番 ${playerName} の守備位置`
+              :`${slotIdx+1} - ${playerName} - Position`;
+  document.getElementById('pos-picker-modal').classList.add('on');
+}
+function closePosPicker(){
+  document.getElementById('pos-picker-modal').classList.remove('on');
+  posPickerSlot=null;
+}
+function pickPosition(newPos){
+  if(posPickerSlot===null)return;
+  const od=orderData[curOrderTeam];
+  const slotIdx=posPickerSlot;
+  const currentPos=od.lineup[slotIdx].pos;
+  if(newPos===currentPos){closePosPicker();return;}
+  // Find the slot that currently holds newPos
+  const otherIdx=od.lineup.findIndex((p,i)=>i!==slotIdx&&p.pos===newPos);
+  // Swap positions between the two slots (players stay in place)
+  od.lineup[slotIdx].pos=newPos;
+  if(otherIdx>=0)od.lineup[otherIdx].pos=currentPos;
+  closePosPicker();
+  renderOrderLineup(od);
+}
+
 function renderOrderBench(od){
   const el=document.getElementById('ord-bench-list');if(!el)return;
   const canSwap=od.selSlot!==null;
-  el.innerHTML=od.bench.map((p,i)=>`
-    <div class="ord-bench-row ${canSwap?'swap-target':''}" onclick="swapToBench(${i})">
-      <div class="ord-pos">${p.pos}</div>
+  el.innerHTML=od.bench.map((p,i)=>{
+    const statsLine=getBatStatsLine(od.team.name,p.name);
+    return `<div class="ord-bench-row ${canSwap?'swap-target':''}" onclick="swapToBench(${i})">
       <div>
         <div class="ord-name">${p.name}</div>
         <div class="ord-stats">${rStat('CON',p.meet)}  ${rStat('PWR',p.power)}  ${rStat('SPD',p.speed)}  ${rStat('DEF',p.def)}</div>
+        ${statsLine}
       </div>
       <div style="font-size:.78rem;color:${canSwap?'var(--gold)':'var(--text3)'}">${canSwap?(lang==='ja'?'⇄ 入替':'⇄ swap'):''}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function swapToBench(benchIdx){
   const od=orderData[curOrderTeam];
   if(od.selSlot===null) return; // require a lineup slot to be selected first
-  // Swap selected lineup slot with bench player
-  const temp=od.lineup[od.selSlot];
-  od.lineup[od.selSlot]=od.bench[benchIdx];
-  od.bench[benchIdx]=temp;
+  // Swap selected lineup slot with bench player BUT keep the slot's position.
+  // Bench players don't carry a position; they inherit the slot's pos when promoted.
+  const slotPos=od.lineup[od.selSlot].pos;
+  const oldPlayer=od.lineup[od.selSlot];
+  const newPlayer=od.bench[benchIdx];
+  od.lineup[od.selSlot]={...newPlayer,pos:slotPos};
+  // The player coming OUT loses the position (now on the bench)
+  const{pos:_omit,...benchPlayer}=oldPlayer;
+  od.bench[benchIdx]=benchPlayer;
   od.selSlot=null;
   renderOrderLineup(od);renderOrderBench(od);
 }
 
 // Auto-order: arrange 9-hitter lineup by typical baseball wisdom
 // DH system: 9 hitters, no pitcher in batting order
+// Strategy: pick top 9 by composite score, then assign each a UNIQUE position from
+//   C / 1B / 2B / 3B / SS / LF / CF / RF / DH. Players with a pre-existing pos (like
+//   the team's defined starters) keep it where possible; bench-promoted players fill
+//   whatever positions remain. The weakest defender ends up at DH.
 function autoOrderTeam(od){
-  // Use all 13 roster, pick best 9 by composite score, then arrange
+  // Combine lineup+bench, score and pick top 9
   const all=[...od.lineup,...od.bench].map(p=>({...p,score:p.meet*0.4+p.power*0.3+p.speed*0.15+p.def*0.15}));
-  // Sort by total ability, take top 9
   all.sort((a,b)=>b.score-a.score);
-  const starters=all.slice(0,9);
-  const bench=all.slice(9);
-  // Arrange batting order
-  // 1: high speed + meet  (leadoff)
-  // 2: high meet  (contact)
-  // 3: balanced best
-  // 4: highest power (cleanup)
-  // 5: 2nd highest power
-  // 6: 3rd best overall
-  // 7-9: remaining
+  let starters=all.slice(0,9);
+  const benchPlayers=all.slice(9);
+
+  // Assign UNIQUE positions to the 9 starters.
+  // The starter with the LOWEST defense becomes DH.
+  // Other starters get C/1B/2B/3B/SS/LF/CF/RF — preferring their original pos if available.
+  const FIELD_POS=['C','1B','2B','3B','SS','LF','CF','RF'];
+  // Pick the weakest defender for DH
+  const sortedByDef=[...starters].sort((a,b)=>a.def-b.def);
+  const dhPlayer=sortedByDef[0];
+  // Build a list of {player, originalPos} for the 8 fielders (excluding DH)
+  const fielders=starters.filter(p=>p.name!==dhPlayer.name);
+  // Greedy assignment: pass 1 keeps original pos when available, pass 2 fills the rest
+  const assignedPos={};  // name -> pos
+  const usedPos=new Set();
+  // Pass 1: original pos (only if it's a real field position and not yet taken)
+  fielders.forEach(p=>{
+    if(FIELD_POS.includes(p.pos)&&!usedPos.has(p.pos)){
+      assignedPos[p.name]=p.pos;
+      usedPos.add(p.pos);
+    }
+  });
+  // Pass 2: fill remaining fielders with the leftover positions
+  const remainingPos=FIELD_POS.filter(p=>!usedPos.has(p));
+  let rpIdx=0;
+  fielders.forEach(p=>{
+    if(!assignedPos[p.name]){
+      assignedPos[p.name]=remainingPos[rpIdx++];
+    }
+  });
+  assignedPos[dhPlayer.name]='DH';
+
+  // Arrange batting order (same logic as before, but using newly-positioned starters)
+  starters=starters.map(p=>{const{score,...rest}=p;return{...rest,pos:assignedPos[p.name]};});
   const byPower=[...starters].sort((a,b)=>b.power-a.power);
   const bySpeed=[...starters].sort((a,b)=>(b.speed+b.meet)-(a.speed+a.meet));
   const byMeet=[...starters].sort((a,b)=>b.meet-a.meet);
   const arranged=[];
   const used=new Set();
   const pick=(arr)=>{for(const p of arr){if(!used.has(p.name)){used.add(p.name);return p;}}return null;};
-  arranged[0]=pick(bySpeed);    // 1番:足
-  arranged[1]=pick(byMeet);     // 2番:ミート
-  arranged[2]=pick([...starters].sort((a,b)=>b.score-a.score));  // 3番:バランス
-  arranged[3]=pick(byPower);    // 4番:パワー
-  arranged[4]=pick(byPower);    // 5番:パワー2
-  arranged[5]=pick([...starters].sort((a,b)=>b.score-a.score));  // 6番
-  // Remaining slots 7-9
+  arranged[0]=pick(bySpeed);
+  arranged[1]=pick(byMeet);
+  arranged[2]=pick([...starters].sort((a,b)=>b.score-a.score));
+  arranged[3]=pick(byPower);
+  arranged[4]=pick(byPower);
+  arranged[5]=pick([...starters].sort((a,b)=>b.score-a.score));
   const remaining=starters.filter(p=>!used.has(p.name));
   arranged[6]=remaining[0];arranged[7]=remaining[1];arranged[8]=remaining[2];
-  // The least-defense starter becomes DH (typical baseball strategy)
-  // Find weakest defender among the 9 starters and assign DH
-  let dhIdx=0,worstDef=99;
-  arranged.forEach((p,i)=>{if(p.def<worstDef){worstDef=p.def;dhIdx=i;}});
-  // Cleanup: strip score field, assign DH position
-  od.lineup=arranged.map((p,i)=>{
-    const{score,...rest}=p;
-    if(i===dhIdx) rest.pos='DH';
-    return rest;
-  });
-  od.bench=bench.map(p=>{const{score,...rest}=p;return rest;});
-  // Auto-pick best pitcher (highest spd+ctrl+stam)
+
+  od.lineup=arranged;
+  // Bench players never carry a position
+  od.bench=benchPlayers.map(p=>{const{score,pos:_p,...rest}=p;return rest;});
+  // Auto-pick best pitcher (respecting rest days if in a league context)
+  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  const restMap=(inLeagueCtx&&league.restDays&&league.restDays[od.team.id])||{};
   let bestPi=0,bestScore=-1;
-  od.team.pitchers.forEach((p,i)=>{const s=p.spd+p.ctrl+p.stam;if(s>bestScore){bestScore=s;bestPi=i;}});
+  od.team.pitchers.forEach((p,i)=>{
+    if((restMap[p.name]||0)>0)return;  // skip resting pitchers
+    const s=(p.spd||0)+(p.ctrl||0)+(p.stam||0);
+    if(s>bestScore){bestScore=s;bestPi=i;}
+  });
   od.pitcherIdx=bestPi;
   od.selSlot=null;
 }
@@ -1111,6 +1539,9 @@ function autoOrderBoth(){
 }
 
 function confirmOrderAndStart(){
+  // Persist current edits so they carry over to future games
+  saveCurrentOrder(orderData[0]);
+  saveCurrentOrder(orderData[1]);
   // Apply order data to teams' lineup and pitcher (used by game engine)
   // DH system: lineup is 9 hitters only (no pitcher in batting order)
   const buildTeamForGame=(od)=>{
@@ -1128,7 +1559,17 @@ function confirmOrderAndStart(){
 }
 function gotoLeague(){renderLSetup();renderStandings();renderStats('bat');gotoScreen('league-screen');}
 function backFromGame(){stopAuto();if(fromLeague)gotoLeague();else gotoSelect();}
-function backFromOrder(){if(fromLeague)gotoLeague();else gotoScreen('select-screen');}
+function backFromOrder(){
+  // Standings -> Order: save edits before leaving, then return to league screen
+  if(fromStandings){
+    saveCurrentOrder(orderData[0]);
+    fromStandings=false;
+    gotoLeague();
+    return;
+  }
+  if(fromLeague)gotoLeague();
+  else gotoScreen('select-screen');
+}
 
 // ═══ TEAM SELECT ═══
 function renderTGrid(){
@@ -1182,11 +1623,16 @@ function startGame(overA,overH){
       tm.benchHitters=(tm.roster||[]).filter(p=>!tm.usedHitters.has(p.name)).map(p=>({...p}));
     }
     if(!tm.benchPitchers){
-      tm.benchPitchers=(tm.pitchers||[]).filter(p=>p.name!==tm.pitcher.name).map(p=>({...p}));
+      // Filter out pitchers who are currently resting (rest > 0 in league.restDays)
+      const restMap=(fromLeague&&league&&league.restDays&&league.restDays[tm.id])||{};
+      tm.benchPitchers=(tm.pitchers||[])
+        .filter(p=>p.name!==tm.pitcher.name)
+        .filter(p=>(restMap[p.name]||0)===0)  // exclude resting pitchers
+        .map(p=>({...p}));
     }
   });
   awayT=at;homeT=ht;
-  gs={inning:1,half:0,outs:0,balls:0,strikes:0,bases:[false,false,false],score:[0,0],ilog:{away:Array(12).fill(null),home:Array(12).fill(null)},order:[0,0],over:false,
+  gs={inning:1,half:0,outs:0,balls:0,strikes:0,bases:[false,false,false],baseRunners:[null,null,null],score:[0,0],ilog:{away:Array(12).fill(null),home:Array(12).fill(null)},order:[0,0],over:false,
       leadChanges:[]};  // tracks who pitched when lead was taken (for relief W decision)
   document.getElementById('btn-next').disabled=false;
   document.getElementById('btn-auto').disabled=false;
@@ -1245,11 +1691,109 @@ function applyPitchToStamina(p){
   p.curStam=Math.max(8,(p.curStam||p.stam)-drop);
 }
 
+// ═══ STEALING BASES (盗塁) ═══
+// Called at the start of each at-bat (before pitches). Considers whether the lead runner
+// on 1B or 2B should attempt to steal. Returns true if a runner attempted (success or failed).
+//
+// Tuning targets (NPB-like):
+//   - League SB leader ≈ 30-50 per season (140 games)
+//   - SB success rate ≈ 70-80% for typical speedy runners
+//   - Slow runners (SPD < 50) almost never attempt
+//
+// IMPORTANT: this function mutates gs.bases, gs.baseRunners, gs.outs and records stats on the runner.
+function attemptSteal(gs,currentPitcher){
+  const b=gs.bases,br=gs.baseRunners;
+  // Don't steal with 2 outs (running into the third out is poor strategy)
+  if(gs.outs>=2)return false;
+  // Try stealing 3B first (more impactful), then 2B
+  // 3B steal: runner on 2nd, 3rd empty
+  if(b[1]&&!b[2]&&br[1]){
+    const runner=br[1];
+    if(shouldAttemptSteal(runner,'3B',gs)){
+      return executeSteal(gs,runner,1,2,currentPitcher);
+    }
+  }
+  // 2B steal: runner on 1st, 2nd empty
+  if(b[0]&&!b[1]&&br[0]){
+    const runner=br[0];
+    if(shouldAttemptSteal(runner,'2B',gs)){
+      return executeSteal(gs,runner,0,1,currentPitcher);
+    }
+  }
+  return false;
+}
+
+// Decide whether this runner should attempt to steal.
+// Tuned via offline simulation to produce NPB-like SB leader totals (30-50/season for top runners).
+function shouldAttemptSteal(runner,targetBase,gs){
+  const spd=runner.speed||50;
+  if(spd<45)return false;  // very slow runners essentially never attempt
+  let baseRate=0.08;
+  let spdFactor;
+  if(spd<50) spdFactor=0.2;
+  else if(spd<65) spdFactor=0.6;
+  else if(spd<80) spdFactor=1.4;
+  else if(spd<90) spdFactor=2.4;
+  else spdFactor=3.4;
+  if(targetBase==='3B')spdFactor*=0.5;
+  const battingSide=gs.half;
+  const myScore=gs.score[battingSide],oppScore=gs.score[1-battingSide];
+  const lead=myScore-oppScore;
+  let sitFactor=1.0;
+  if(Math.abs(lead)>=5)sitFactor=0.3;
+  else if(Math.abs(lead)>=3)sitFactor=0.65;
+  if(gs.inning>=7&&Math.abs(lead)<=2)sitFactor*=1.3;
+  return Math.random()<baseRate*spdFactor*sitFactor;
+}
+
+// Execute the steal attempt: roll for success, mutate game state, record stat.
+// If currentPitcher is provided, the caught-stealing out is credited to that pitcher's IP
+// (matches real-world scorebook convention: CS outs count toward pitcher's IP).
+function executeSteal(gs,runner,fromIdx,toIdx,currentPitcher){
+  const spd=runner.speed||50;
+  const successProb=Math.min(0.92,Math.max(0.40,0.55+(spd-50)*0.006));
+  const success=Math.random()<successProb;
+  if(success){
+    gs.bases[fromIdx]=false;
+    gs.bases[toIdx]=true;
+    gs.baseRunners[fromIdx]=null;
+    gs.baseRunners[toIdx]=runner;
+    runner.sb=(runner.sb||0)+1;
+    const baseLabel=toIdx===1?(lang==='ja'?'二盗':'2B'):(lang==='ja'?'三盗':'3B');
+    if(typeof addLog==='function')addLog(`  ◆ ${runner.name} ${lang==='ja'?'盗塁成功！':'STEAL!'} (${baseLabel})`,'run');
+  }else{
+    gs.bases[fromIdx]=false;
+    gs.baseRunners[fromIdx]=null;
+    gs.outs++;
+    runner.cs=(runner.cs||0)+1;
+    // Credit the out to the pitcher's IP (scorebook standard)
+    if(currentPitcher){
+      if(currentPitcher.ip===undefined)currentPitcher.ip=0;
+      currentPitcher.ip++;
+    }
+    const baseLabel=toIdx===1?(lang==='ja'?'二盗':'2B'):(lang==='ja'?'三盗':'3B');
+    if(typeof addLog==='function')addLog(`  ✕ ${runner.name} ${lang==='ja'?'盗塁失敗':'CAUGHT STEALING'} (${baseLabel}) — ${gs.outs} OUT`,'out');
+  }
+  return true;
+}
+
+function attemptStealForCurrentBatter(){
+  if(!gs||gs.over)return false;
+  return attemptSteal(gs,cP());
+}
+
 function simPitch(){
   if(!gs||gs.over)return;
   // At the start of a new at-bat (no count yet), consider AI pinch-hitting (auto mode only)
   if(autoOn&&gs.balls===0&&gs.strikes===0){
     aiAutoPinchHit();
+  }
+  // Attempt a steal at the very start of each at-bat (only when count is fresh).
+  // attemptSteal may cause an out and end the half — if so, simPitch should bail out.
+  if(gs.balls===0&&gs.strikes===0){
+    attemptStealForCurrentBatter();
+    if(gs.outs>=3){endHalf();updUI();return;}
+    if(gs.over)return;
   }
   const bt=cB(),pt=cP(),cf=pt.ctrl*(pt.curStam/pt.stam),r=Math.random();
   // Each call to simPitch represents one pitch — count it and reduce stamina
@@ -1304,13 +1848,40 @@ function doWalk(bt){
   bt.bb++;cP().bb++;
   bt.history.push({result:t('shBB'),cls:'walk',inning:gs.inning});
   addLog(`  ${bt.name}  ${t('walk')}`);
-  const b=gs.bases;if(b[0]&&b[1]&&b[2])scrRun(bt,1);else if(b[0]&&b[1])b[2]=true;else if(b[0])b[1]=true;
-  b[0]=true;nxtB();rstC();
+  const b=gs.bases,br=gs.baseRunners;
+  if(b[0]&&b[1]&&b[2]){
+    scrRun(bt,1);  // runner on 3B scores
+  }else if(b[0]&&b[1]){
+    b[2]=true;br[2]=br[1];  // 2B→3B
+  }else if(b[0]){
+    b[1]=true;br[1]=br[0];  // 1B→2B
+  }
+  b[0]=true;br[0]=bt;
+  nxtB();rstC();
 }
 function advR(bt,hb,isHR){
-  const b=gs.bases;let runs=0;
-  if(isHR){runs=b.filter(Boolean).length+1;gs.bases=[false,false,false];}
-  else{const nb=[false,false,false];for(let i=2;i>=0;i--){if(b[i]){const d=i+hb;if(d>=3)runs++;else nb[d]=true;}}if(hb===1)nb[0]=true;else if(hb===2)nb[1]=true;else if(hb===3)nb[2]=true;gs.bases=nb;}
+  const b=gs.bases,br=gs.baseRunners;let runs=0;
+  if(isHR){
+    runs=b.filter(Boolean).length+1;
+    gs.bases=[false,false,false];
+    gs.baseRunners=[null,null,null];
+  }else{
+    const nb=[false,false,false],nbr=[null,null,null];
+    // Move existing runners forward by hb
+    for(let i=2;i>=0;i--){
+      if(b[i]){
+        const d=i+hb;
+        if(d>=3)runs++;
+        else{nb[d]=true;nbr[d]=br[i];}
+      }
+    }
+    // Batter takes their base
+    if(hb===1){nb[0]=true;nbr[0]=bt;}
+    else if(hb===2){nb[1]=true;nbr[1]=bt;}
+    else if(hb===3){nb[2]=true;nbr[2]=bt;}
+    gs.bases=nb;
+    gs.baseRunners=nbr;
+  }
   if(runs>0)scrRun(bt,runs);
 }
 function scrRun(bt,n){
@@ -1357,7 +1928,7 @@ function endHalf(){
   const idx=gs.inning-1,side=gs.half===0?'away':'home';
   if(gs.ilog[side][idx]===null||gs.ilog[side][idx]===undefined)gs.ilog[side][idx]=0;
   // IP is now tracked per-out in doOut; stamina decay is now per-pitch (applyPitchToStamina)
-  gs.bases=[false,false,false];gs.outs=0;rstC();
+  gs.bases=[false,false,false];gs.baseRunners=[null,null,null];gs.outs=0;rstC();
   if(gs.half===0){
     // End of top half: if it's 9th or later and HOME already leads, skip bottom (HOME doesn't need to bat)
     if(gs.inning>=9&&gs.score[1]>gs.score[0]){endGame();return;}
@@ -1366,7 +1937,9 @@ function endHalf(){
   else{
     if(gs.inning>=9&&gs.score[1]>gs.score[0]){endGame();return;}
     if(gs.inning>=9&&gs.score[0]!==gs.score[1]){endGame();return;}
-    if(gs.inning>=12){endGame();return;}
+    // Regular season ends ties at 12. Postseason has no ties - extend until decided.
+    if(!currentPSGame&&gs.inning>=12){endGame();return;}
+    if(currentPSGame&&gs.inning>=20){endGame();return;}  // safety cap for postseason
     gs.inning++;gs.half=0;addLog(innLabel(gs.inning,0,awayT),'brk');
   }
   // Auto-substitute pitchers between innings when in auto-play mode
@@ -1406,15 +1979,83 @@ function endGame(){
   addLog(`${t('gameOver')}  ${awayT.abbr} ${a}  —  ${h} ${homeT.abbr}`,'run');
   if(fromLeague){
     accBat(awayT,awayT.name);accBat(homeT,homeT.name);accPit(awayT,awayT.name);accPit(homeT,homeT.name);
+    // Update league rest days based on who actually pitched in this watched game
+    updateRestDays(awayT,homeT);
     // Snapshot full game data for history viewing
     const snapshot={
       away:dc(awayT),home:dc(homeT),
       ilog:dc(gs.ilog),inning:gs.inning,score:[a,h],
       logs:dc(logs)
     };
-    recLeague(leagueGameId,a,h,snapshot);
+    // Postseason game (watched via playPSGame): record into postseason series
+    if(currentPSGame){
+      recPSGame(currentPSGame,a,h);
+      currentPSGame.snapshot=snapshot;
+      currentPSGame=null;
+    }else{
+      recLeague(leagueGameId,a,h,snapshot);
+    }
   }
   setTimeout(showResult,1200);
+}
+
+// Update league restDays and consecutive-appearance tracking after a game.
+// Rules:
+//   - Starters (SP*): 4 days rest after pitching
+//   - Non-starters (CL/SU/RP*): Allowed to pitch on consecutive days, but blocked on a 4th.
+//     Tracked via `consecAppear` map. If a pitcher hits 3 consecutive games, restDays=1
+//     (forces one game off, which resets the counter).
+//   - Pitchers who didn't appear: restDays decrements normally, consecAppear resets to 0.
+function updateRestDays(awayTm,homeTm){
+  if(!league||!league.restDays)return;
+  if(!league.consecAppear)league.consecAppear={};
+  [awayTm,homeTm].forEach(tm=>{
+    if(!tm)return;
+    const restMap=league.restDays[tm.id]||{};
+    const consec=league.consecAppear[tm.id]||{};
+    // Build a set of pitcher names who actually appeared in this game (ip > 0)
+    const appearedNames=new Set();
+    (tm.pitchersAppeared||[]).forEach(p=>{
+      if(p&&p.ip>0)appearedNames.add(p.name);
+    });
+    // Defensive: also include the starting pitcher if not already in pitchersAppeared
+    if(tm.pitcher&&tm.pitcher.name&&tm.pitcher.ip>0)appearedNames.add(tm.pitcher.name);
+
+    // Step 1: Decrement existing rest days by 1 (one game = one day passed)
+    Object.keys(restMap).forEach(name=>{
+      restMap[name]=Math.max(0,(restMap[name]||0)-1);
+    });
+    // Step 2: For pitchers who DIDN'T appear, reset consecutive-appearance counter
+    Object.keys(consec).forEach(name=>{
+      if(!appearedNames.has(name))consec[name]=0;
+    });
+    // Step 3: For pitchers who DID appear, assign new rest days based on role
+    (tm.pitchersAppeared||[]).concat([tm.pitcher]).forEach(p=>{
+      if(!p||!p.name||!p.ip||p.ip===0)return;
+      if(!appearedNames.has(p.name))return; // already processed via duplicate
+      const role=p.role||'';
+      if(role.startsWith('SP')){
+        // Starter: 4-day rest, reset consec
+        restMap[p.name]=4;
+        consec[p.name]=0;
+      }else{
+        // Non-starter (CL/SU/RP*): consecutive appearance tracking
+        consec[p.name]=(consec[p.name]||0)+1;
+        if(consec[p.name]>=3){
+          // Pitched 3 games in a row — force a day off to prevent a 4th
+          restMap[p.name]=1;
+        }else{
+          // Available next game
+          restMap[p.name]=0;
+        }
+      }
+      appearedNames.delete(p.name); // mark as processed
+    });
+    league.restDays[tm.id]=restMap;
+    league.consecAppear[tm.id]=consec;
+    if(!league.rpRotation)league.rpRotation={};
+    league.rpRotation[tm.id]=tm.rpRotationIdx||0;
+  });
 }
 
 // ═══ W/L/S/H DECISION LOGIC ═══
@@ -1675,7 +2316,7 @@ function renderResultTeamStats(){
     const side=ti===0?'away':'home';
     const p=tm.pitcher;
     const era=p.ip>0?(p.er*27/p.ip).toFixed(2):'---';
-    const ip=(p.ip/3).toFixed(p.ip%3===0?0:1);
+    const ip=fmtIP(p.ip);
     let wl='-';
     if(a>h){
       if(ti===0) wl=`<span style="color:#4a9edd;font-weight:700">${lang==='ja'?'勝':'W'}</span>`;
@@ -1691,16 +2332,16 @@ function renderResultTeamStats(){
     // Pitcher card - show all pitchers who appeared in the game
     const phd=lang==='ja'?[t('cWin'),t('cName'),t('cIP'),'球',t('cH'),t('cK'),t('cBB'),t('cR')]
                         :['W/L','Pitcher','IP','P',t('cH'),'K','BB','R'];
-    html+=`<div class="card" style="overflow-x:auto;padding:.65rem .8rem;margin-bottom:.5rem">
+    html+=`<div class="card box-card" style="overflow-x:auto;padding:.65rem .8rem;margin-bottom:.5rem">
       <div class="sec" data-ja="投手成績" data-en="Pitching">${lang==='ja'?'投手成績':'Pitching'}</div>
-      <table class="stats-tbl">
+      <table class="stats-tbl box-tbl">
         <tr>${phd.map((x,i)=>`<th class="${i===1?'L':''}">${x}</th>`).join('')}</tr>`;
     // List all pitchers who appeared (fallback: just the current pitcher for legacy data)
     const allP=tm.pitchersAppeared&&tm.pitchersAppeared.length>0?tm.pitchersAppeared:[tm.pitcher];
     // Filter out pitchers who never recorded an out (0 IP) — they were subbed in but the game ended
     const pitchersToShow=allP.filter((pi,idx)=>idx===0||pi.ip>0);
     pitchersToShow.forEach((pi,idx)=>{
-      const ipP=(pi.ip/3).toFixed(pi.ip%3===0?0:1);
+      const ipP=fmtIP(pi.ip);
       // Build decision badge from individual pitcher's gW/gL/gS/gH
       let dec='';
       if(pi.gW)dec=`<span style="color:#4a9edd;font-weight:700">${lang==='ja'?'勝':'W'}</span>`;
@@ -1723,9 +2364,9 @@ function renderResultTeamStats(){
     // Batter card
     const bhd=lang==='ja'?[t('cOrder'),t('cPos'),'名前',t('cAB'),t('cHits'),t('cRBI'),t('cSB')]
                         :['#','POS','Name','AB','H','RBI','SB'];
-    html+=`<div class="card" style="overflow-x:auto;padding:.65rem .8rem;margin-bottom:.85rem">
+    html+=`<div class="card box-card" style="overflow-x:auto;padding:.65rem .8rem;margin-bottom:.85rem">
       <div class="sec" data-ja="打者成績" data-en="Batting">${lang==='ja'?'打者成績':'Batting'}</div>
-      <table class="stats-tbl">`;
+      <table class="stats-tbl box-tbl">`;
     html+=`<tr>${bhd.map((x,i)=>`<th class="${i===2?'L':''}">${x}</th>`).join('')}`;
     for(let i=1;i<=totalInn;i++) html+=`<th>${i}</th>`;
     html+=`</tr>`;
@@ -1852,7 +2493,7 @@ function renderSubPitcher(ct,fieldT){
   const stamWarn=stamPct<0.5;
   const stamColor=stamPct<0.3?'#e74c3c':stamPct<0.5?'#f0b429':'var(--green)';
   const era=cur.ip>0?(cur.er*27/cur.ip).toFixed(2):'---';
-  const ip=(cur.ip/3).toFixed(cur.ip%3===0?0:1);
+  const ip=fmtIP(cur.ip);
   let html=`<div class="sub-current">
     <div class="sub-current-lbl">${lang==='ja'?'現在の投手':'Current pitcher'} (${fieldT.abbr})${stamWarn?`<span class="sub-warn">${lang==='ja'?'⚠ スタミナ低下':'⚠ Tired'}</span>`:''}</div>
     <div class="sub-current-name">${cur.name} <span style="font-size:.7rem;color:var(--gold)">${cur.role||''}</span></div>
@@ -2465,6 +3106,28 @@ function lTab(i){
 }
 function sTab(type,el){curStatsType=type;document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderStats(type);}
 
+let curSetupTab='a';
+function switchSetupTab(side){
+  curSetupTab=side;
+  document.querySelectorAll('#setup-lg-tabs .lg-tab').forEach(b=>b.classList.toggle('on',b.dataset.side===side));
+  renderSetupTeams();
+}
+function renderSetupTeams(){
+  const cont=document.getElementById('tchk-by-league');if(!cont)return;
+  const getTeamLeague=(tm)=>tm.league||'a';
+  const filtered=teams.filter(tm=>getTeamLeague(tm)===curSetupTab);
+  if(filtered.length===0){
+    cont.innerHTML=`<div style="font-size:.85rem;color:var(--text3);padding:.7rem">${lang==='ja'?'このリーグにはチームがありません':'No teams in this league'}</div>`;
+    return;
+  }
+  // Note: chkIds tracks all checked team IDs across both leagues, so checked state persists when switching tabs
+  const isChecked=(id)=>!chkIds||chkIds.has(id);
+  cont.innerHTML=`<div class="tchk-grid">${filtered.map(tm=>`
+    <label class="tchk ${isChecked(tm.id)?'on':''}" id="chkl-${tm.id}">
+      <input type="checkbox" ${isChecked(tm.id)?'checked':''} onchange="togChk(${tm.id},this)"><span>${tm.name}</span>
+    </label>`).join('')}</div>`;
+}
+
 function renderLSetup(){
   const el=document.getElementById('lsetup');
   if(league.active){
@@ -2481,7 +3144,7 @@ function renderLSetup(){
           <label>${lang==='ja'?'1カードの試合数':'Games per pair'}</label>
           <select id="l-gpp" style="width:100%" onchange="updateTotalGames()">
             <option value="1">1</option>
-            <option value="2" selected>2</option>
+            <option value="2">2</option>
             <option value="4">4</option>
             <option value="6">6</option>
             <option value="10">10</option>
@@ -2489,7 +3152,7 @@ function renderLSetup(){
             <option value="20">20</option>
             <option value="25">25</option>
             <option value="26">26</option>
-            <option value="28">28</option>
+            <option value="28" selected>28</option>
             <option value="29">29</option>
             <option value="30">30</option>
             <option value="35">35</option>
@@ -2498,13 +3161,16 @@ function renderLSetup(){
         </div>
       </div>
       <div class="sec mt">${lang==='ja'?'参加チームを選択':'Select Teams'}</div>
-      <div class="tchk-grid" id="tchk-grid"></div>
+      <div class="lg-tabs" id="setup-lg-tabs">
+        <button class="lg-tab on" data-side="a" onclick="switchSetupTab('a')">${lang==='ja'?'◆ リーグA':'◆ League A'}</button>
+        <button class="lg-tab" data-side="b" onclick="switchSetupTab('b')">${lang==='ja'?'◆ リーグB':'◆ League B'}</button>
+      </div>
+      <div id="tchk-by-league"></div>
       <div style="font-size:.82rem;color:var(--text3);margin-bottom:.65rem">${lang==='ja'?'（3チーム以上推奨）':'(3+ teams recommended)'}</div>
       <button class="btn pri" onclick="createLeague()">${lang==='ja'?'◈ リーグ開幕':'◈ Start League'}</button></div>`;
-    document.getElementById('tchk-grid').innerHTML=teams.map(tm=>`
-      <label class="tchk on" id="chkl-${tm.id}">
-        <input type="checkbox" checked onchange="togChk(${tm.id},this)"><span>${tm.name}</span>
-      </label>`).join('');
+    // Tab-based team selection
+    curSetupTab='a';
+    renderSetupTeams();
     document.getElementById('lsched').innerHTML='';
     updateTotalGames();
   }
@@ -2513,15 +3179,39 @@ function renderLSetup(){
 function updateTotalGames(){
   const sel=document.getElementById('l-gpp');if(!sel)return;
   const gpp=parseInt(sel.value);
-  const teamCount=chkIds?chkIds.size:teams.length;
-  const perTeam=Math.max(0,(teamCount-1)*gpp);
-  const totalGames=teamCount*perTeam/2; // total league games (each game counted once)
+  // Get team's league (default to 'a')
+  const getTeamLeague=(id)=>{
+    const tm=teams.find(t=>t.id===id);
+    return (tm&&tm.league)||'a';
+  };
+  // Count selected teams per league
+  const selectedIds=chkIds?[...chkIds]:teams.map(x=>x.id);
+  const aCount=selectedIds.filter(id=>getTeamLeague(id)==='a').length;
+  const bCount=selectedIds.filter(id=>getTeamLeague(id)==='b').length;
+  // Games per team (within own league only)
+  const aPerTeam=Math.max(0,(aCount-1)*gpp);
+  const bPerTeam=Math.max(0,(bCount-1)*gpp);
+  const aTotal=aCount*aPerTeam/2;
+  const bTotal=bCount*bPerTeam/2;
+  const totalGames=aTotal+bTotal;
   const preview=document.getElementById('total-games-preview');
   if(preview){
     if(lang==='ja'){
-      preview.textContent=`1チーム ${perTeam}試合  |  リーグ計 ${totalGames}試合`;
+      let msg='';
+      if(aCount>0&&bCount>0){
+        msg=`A:1チーム${aPerTeam}試合(計${aTotal})  |  B:1チーム${bPerTeam}試合(計${bTotal})  |  総${totalGames}試合`;
+      }else{
+        const c=Math.max(aCount,bCount),p=Math.max(aPerTeam,bPerTeam),t=Math.max(aTotal,bTotal);
+        msg=`1チーム ${p}試合  |  計 ${t}試合`;
+      }
+      preview.textContent=msg;
     }else{
-      preview.textContent=`${perTeam} games/team  |  ${totalGames} total`;
+      if(aCount>0&&bCount>0){
+        preview.textContent=`A: ${aPerTeam}g/team (${aTotal} total)  |  B: ${bPerTeam}g/team (${bTotal} total)  |  Grand ${totalGames}`;
+      }else{
+        const p=Math.max(aPerTeam,bPerTeam),t=Math.max(aTotal,bTotal);
+        preview.textContent=`${p} games/team  |  ${t} total`;
+      }
     }
   }
 }
@@ -2531,20 +3221,32 @@ function createLeague(){
   const gpp=parseInt(document.getElementById('l-gpp').value);
   const ids=chkIds?[...chkIds]:teams.map(x=>x.id);
   if(ids.length<2){alert(t('minTeamSel'));return;}
-  league={active:true,name,gpp,teamIds:ids,schedule:[],stats:{},restDays:{}};
-  ids.forEach(id=>{league.stats[id]={w:0,l:0,d:0,ra:0,rh:0};league.restDays[id]={};});
-  let gid=0;
-  // Round-robin scheduling using the circle method.
-  // Each round: every team plays exactly 1 game (or has a bye if odd team count).
-  // For odd number of teams, add a "bye" placeholder.
-  const hasOdd=ids.length%2===1;
-  const work=hasOdd?[...ids,-1]:[...ids]; // -1 represents bye
-  const n=work.length;
-  const roundsPerCycle=n-1; // number of distinct round patterns
+  // Separate teams into Central and Pacific leagues based on team.league flag
+  // Teams without a league flag default to 'central' for backward compatibility
+  const getTeamLeague=(id)=>{
+    const tm=teams.find(t=>t.id===id);
+    return (tm&&tm.league)||'a';
+  };
+  const aIds=ids.filter(id=>getTeamLeague(id)==='a');
+  const bIds=ids.filter(id=>getTeamLeague(id)==='b');
 
-  // Generate one full round-robin cycle (each pair plays once)
+  league={
+    active:true,name,gpp,teamIds:ids,
+    aIds,bIds,
+    schedule:[],stats:{},restDays:{},consecAppear:{},
+    phase:'regular',  // 'regular' | 'cs1' | 'cs2' | 'japanSeries' | 'done'
+  };
+  ids.forEach(id=>{league.stats[id]={w:0,l:0,d:0,ra:0,rh:0};league.restDays[id]={};league.consecAppear[id]={};});
+  let gid=0;
+
+  // Round-robin scheduling using the circle method.
+  // For odd team count, add a "bye" placeholder.
   // Returns: array of rounds, each round is array of {a, b} pairs
-  const buildCycle=()=>{
+  const buildCycle=(leagueIds)=>{
+    const hasOdd=leagueIds.length%2===1;
+    const work=hasOdd?[...leagueIds,-1]:[...leagueIds];
+    const n=work.length;
+    const roundsPerCycle=n-1;
     const rounds=[];
     const arr=[...work];
     for(let r=0;r<roundsPerCycle;r++){
@@ -2554,28 +3256,43 @@ function createLeague(){
         if(a!==-1&&b!==-1) pairs.push({a,b});
       }
       rounds.push(pairs);
-      // Rotate: keep first element fixed, rotate the rest clockwise
       const last=arr.pop();
       arr.splice(1,0,last);
     }
     return rounds;
   };
 
-  // Build gpp cycles, alternating home/away each cycle
-  let roundNum=0;
-  for(let c=0;c<gpp;c++){
-    const cycle=buildCycle();
-    cycle.forEach(round=>{
-      roundNum++;
-      round.forEach(pair=>{
-        // Alternate home/away based on cycle index (even cycle: a=home, odd: b=home)
-        const homeIsA=(c%2===0);
-        const home=homeIsA?pair.a:pair.b;
-        const away=homeIsA?pair.b:pair.a;
-        league.schedule.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum});
+  // Generate schedule for one league (Central or Pacific)
+  // Returns array of games for that league
+  const buildLeagueSchedule=(leagueIds,roundOffset)=>{
+    const games=[];
+    if(leagueIds.length<2)return {games,nextRound:roundOffset};
+    let roundNum=roundOffset;
+    for(let c=0;c<gpp;c++){
+      const cycle=buildCycle(leagueIds);
+      cycle.forEach(round=>{
+        roundNum++;
+        round.forEach(pair=>{
+          const homeIsA=(c%2===0);
+          const home=homeIsA?pair.a:pair.b;
+          const away=homeIsA?pair.b:pair.a;
+          games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
+                      phase:'regular',league:getTeamLeague(home)});
+        });
       });
-    });
-  }
+    }
+    return {games,nextRound:roundNum};
+  };
+
+  // Build both leagues' schedules (interleaved by round for variety)
+  const a=buildLeagueSchedule(aIds,0);
+  const b=buildLeagueSchedule(bIds,0);
+  // Merge both league schedules sorted by round number for natural progression
+  const merged=[...a.games,...b.games].sort((a,b)=>a.round-b.round||a.id-b.id);
+  // Re-assign sequential ids after sorting
+  merged.forEach((g,i)=>g.id=i);
+  league.schedule=merged;
+
   chkIds=null;leagueBat={};leaguePit={};renderLSetup();
 }
 async function resetLeague(){
@@ -2591,10 +3308,429 @@ async function resetLeague(){
   window.scrollTo(0,0);
 }
 
+// === POSTSEASON HELPERS ===
+// Get the standings of one league side ('a' or 'b'), sorted by win pct then run differential
+// Returns array of {id, abbr, name, w, l, d, pct, diff} sorted descending
+function getLeagueStandings(side){
+  const getTeamLeague=(id)=>{
+    const tm=teams.find(t=>t.id===id);
+    return (tm&&tm.league)||'a';
+  };
+  const teamIds=league.teamIds.filter(id=>getTeamLeague(id)===side);
+  const rows=teamIds.map(id=>{
+    const tm=teams.find(x=>x.id===id),s=league.stats[id]||{w:0,l:0,d:0,ra:0,rh:0};
+    const g=s.w+s.l+s.d,pct=g>0?(s.w+s.d*.5)/g:0;
+    return{id,name:tm?.name||'?',abbr:tm?.abbr||'?',w:s.w,l:s.l,d:s.d,pct,diff:s.ra-s.rh};
+  }).sort((a,b)=>b.pct-a.pct||b.diff-a.diff);
+  return rows;
+}
+
+// Initialize CS First Stage: 2nd vs 3rd in each league, best-of-3
+// 2nd place team is home for all games
+function initCS1(){
+  const init={postseason:league.postseason||{cs1:{},cs2:{},js:null,champion:null}};
+  ['a','b'].forEach(side=>{
+    const stand=getLeagueStandings(side);
+    if(stand.length<3){
+      // Not enough teams for first stage; mark as auto-bye (2nd advances)
+      init.postseason.cs1[side]=stand.length>=2?{
+        team1:stand[1].id,team2:null,games:[],wins1:0,wins2:0,winner:stand[1].id,bye:true
+      }:null;
+      return;
+    }
+    init.postseason.cs1[side]={
+      team1:stand[1].id,  // 2nd place (home advantage)
+      team2:stand[2].id,  // 3rd place
+      games:[],wins1:0,wins2:0,winner:null
+    };
+  });
+  league.postseason=init.postseason;
+  league.phase='cs1';
+  // Generate game IDs starting from after schedule
+  generateCS1Games();
+}
+
+// Generate the games for CS First Stage (max 3 games per league)
+function generateCS1Games(){
+  let baseId=league.schedule.length;
+  ['a','b'].forEach(side=>{
+    const cs=league.postseason.cs1[side];
+    if(!cs||cs.bye)return;
+    cs.games=[];
+    // Best-of-3: all 3 games scheduled, but later ones may be skipped if decided
+    for(let i=0;i<3;i++){
+      cs.games.push({
+        id:baseId++,
+        away:cs.team2,home:cs.team1,  // 2nd place always home
+        done:false,scoreA:0,scoreH:0,
+        phase:'cs1',league:side,gameNum:i+1
+      });
+    }
+  });
+}
+
+// Initialize CS Final Stage: 1st vs CS1 winner, best-of-6, 1st gets 1-win advantage
+function initCS2(){
+  ['a','b'].forEach(side=>{
+    const stand=getLeagueStandings(side);
+    const cs1=league.postseason.cs1[side];
+    // Use cs1.winner if explicitly set (could be 0); fall back to 1st place only if cs1 absent
+    const winnerId=cs1&&cs1.winner!=null?cs1.winner:stand[0]?.id;
+    if(winnerId==null||stand.length<1){
+      league.postseason.cs2[side]=null;
+      return;
+    }
+    league.postseason.cs2[side]={
+      team1:stand[0].id,   // 1st place (home advantage + 1 win)
+      team2:winnerId,      // CS1 winner
+      games:[],wins1:1,    // 1-win advantage for league winner
+      wins2:0,winner:null
+    };
+  });
+  league.phase='cs2';
+  generateCS2Games();
+}
+
+// Generate the games for CS Final Stage (max 6 games per league)
+function generateCS2Games(){
+  let baseId=league.schedule.length+10000;  // big offset to avoid collision
+  ['a','b'].forEach(side=>{
+    const cs=league.postseason.cs2[side];
+    if(!cs)return;
+    cs.games=[];
+    // Best-of-6: league winner needs 4 wins (has 1 advantage), so up to 6 games
+    for(let i=0;i<6;i++){
+      cs.games.push({
+        id:baseId++,
+        away:cs.team2,home:cs.team1,  // 1st place always home
+        done:false,scoreA:0,scoreH:0,
+        phase:'cs2',league:side,gameNum:i+1
+      });
+    }
+  });
+}
+
+// Initialize Japan Series: winners of CS Final Stage from each league
+// Best-of-7, alternating home (A-league host first 2, then B-league host 3, back to A 2)
+function initJS(){
+  const aWin=league.postseason.cs2.a?.winner;
+  const bWin=league.postseason.cs2.b?.winner;
+  // Use !=null because team id 0 is valid
+  if(aWin==null||bWin==null){
+    // Edge case: only one league has a winner -> they're champion
+    league.postseason.champion=aWin!=null?aWin:bWin;
+    league.phase='done';
+    return;
+  }
+  league.postseason.js={
+    teamA:aWin,teamB:bWin,
+    games:[],winsA:0,winsB:0,winner:null
+  };
+  league.phase='js';
+  generateJSGames();
+}
+
+// Generate Japan Series games (best-of-7)
+function generateJSGames(){
+  const js=league.postseason.js;
+  if(!js)return;
+  let baseId=league.schedule.length+20000;
+  js.games=[];
+  // Home pattern: A,A,B,B,B,A,A (rough approximation of NPB)
+  const homePattern=['A','A','B','B','B','A','A'];
+  for(let i=0;i<7;i++){
+    const homeIsA=homePattern[i]==='A';
+    js.games.push({
+      id:baseId++,
+      away:homeIsA?js.teamB:js.teamA,
+      home:homeIsA?js.teamA:js.teamB,
+      done:false,scoreA:0,scoreH:0,
+      phase:'js',gameNum:i+1
+    });
+  }
+}
+
+// Check if any series is decided; advance phase as needed
+function checkPostseasonProgress(){
+  if(league.phase==='cs1'){
+    // Each league's CS1 needs to reach 2 wins
+    // NOTE: use `!=null` checks (not truthy) because team id 0 is valid
+    const aDone=league.postseason.cs1.a&&(league.postseason.cs1.a.winner!=null||league.postseason.cs1.a.bye);
+    const bDone=league.postseason.cs1.b&&(league.postseason.cs1.b.winner!=null||league.postseason.cs1.b.bye);
+    if(aDone&&bDone){
+      initCS2();
+    }
+  }else if(league.phase==='cs2'){
+    const aDone=league.postseason.cs2.a&&league.postseason.cs2.a.winner!=null;
+    const bDone=league.postseason.cs2.b&&league.postseason.cs2.b.winner!=null;
+    if(aDone&&bDone){
+      initJS();
+    }
+  }else if(league.phase==='js'){
+    if(league.postseason.js&&league.postseason.js.winner!=null){
+      league.postseason.champion=league.postseason.js.winner;
+      league.phase='done';
+    }
+  }
+}
+
+// Get the next pending postseason game (or null if all current series are decided)
+// NOTE: use `!=null` for winner check because team id 0 is valid
+function getNextPSGame(){
+  if(league.phase==='cs1'){
+    for(const side of ['a','b']){
+      const cs=league.postseason.cs1[side];
+      if(!cs||cs.winner!=null||cs.bye)continue;
+      const next=cs.games.find(g=>!g.done);
+      if(next)return {game:next,series:cs,side,stage:'cs1'};
+    }
+  }else if(league.phase==='cs2'){
+    for(const side of ['a','b']){
+      const cs=league.postseason.cs2[side];
+      if(!cs||cs.winner!=null)continue;
+      const next=cs.games.find(g=>!g.done);
+      if(next)return {game:next,series:cs,side,stage:'cs2'};
+    }
+  }else if(league.phase==='js'){
+    const js=league.postseason.js;
+    if(!js||js.winner!=null)return null;
+    const next=js.games.find(g=>!g.done);
+    if(next)return {game:next,series:js,side:null,stage:'js'};
+  }
+  return null;
+}
+
+// Render the postseason panel shown when regular season is complete
+function renderPostseasonPanel(){
+  // Phase 'regular' = season just finished, postseason not yet started
+  if(!league.postseason||league.phase==='regular'||!league.phase){
+    return `<div class="card" style="border-color:var(--gold)">
+      <div class="sec">${lang==='ja'?'◆ レギュラーシーズン終了':'◆ Regular Season Complete'}</div>
+      <div style="font-size:.85rem;color:var(--text2);margin-bottom:.7rem">
+        ${lang==='ja'?'クライマックスシリーズへ進出します。':'Advance to the Climax Series.'}
+      </div>
+      <button class="btn pri" style="width:100%" onclick="startPostseason()">${lang==='ja'?'◈ クライマックスシリーズ進出':'◈ Start Climax Series'}</button>
+    </div>`;
+  }
+  if(league.phase==='cs1')return renderCSPanel('cs1');
+  if(league.phase==='cs2')return renderCSPanel('cs2');
+  if(league.phase==='js')return renderJSPanel();
+  if(league.phase==='done')return renderChampionPanel();
+  return '';
+}
+
+// Render CS panel (works for both cs1 and cs2)
+function renderCSPanel(stage){
+  const stageLabel=stage==='cs1'
+    ?(lang==='ja'?'CS ファーストステージ':'CS First Stage')
+    :(lang==='ja'?'CS ファイナルステージ':'CS Final Stage');
+  const next=getNextPSGame();
+  let html=`<div class="card" style="border-color:var(--gold)">
+    <div class="sec">◆ ${stageLabel}</div>`;
+
+  // Show both leagues' series
+  ['a','b'].forEach(side=>{
+    const cs=league.postseason[stage][side];
+    if(!cs){
+      html+=`<div style="font-size:.82rem;color:var(--text3);margin:.4rem 0">${getLeagueName(side)}: ${lang==='ja'?'対象チーム不足':'Insufficient teams'}</div>`;
+      return;
+    }
+    const t1=teams.find(x=>x.id===cs.team1);
+    const t2=cs.team2!==null?teams.find(x=>x.id===cs.team2):null;
+    const needToWin=stage==='cs1'?2:4;  // best-of-3 needs 2 wins, best-of-6 needs 4
+    const t1Name=t1?.abbr||'?';
+    const t2Name=t2?.abbr||(cs.bye?'BYE':'?');
+    // Winner highlight
+    const t1IsWinner=cs.winner===cs.team1;
+    const t2IsWinner=cs.team2!==null&&cs.winner===cs.team2;
+    const trophyT1=t1IsWinner?'🏆 ':'';
+    const trophyT2=t2IsWinner?'🏆 ':'';
+    html+=`<div style="margin:.55rem 0;padding:.55rem .7rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)">
+      <div style="font-size:.78rem;color:var(--gold);margin-bottom:.3rem;letter-spacing:.05em">${getLeagueName(side)}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:.95rem">
+        <span><b>${trophyT1}${t1Name}</b></span>
+        <span style="font-size:1.05rem;font-weight:900;color:var(--gold)">${cs.wins1} - ${cs.wins2}</span>
+        <span><b>${trophyT2}${t2Name}</b></span>
+      </div>
+      <div style="font-size:.75rem;color:var(--text3);margin-top:.3rem;text-align:center">
+        ${cs.bye?(lang==='ja'?'※チーム不足のため不戦勝':'(Bye due to team count)')
+          :cs.winner!=null?(lang==='ja'?'シリーズ決着':'Series decided')
+          :(stage==='cs1'?(lang==='ja'?'3戦先勝 ('+t1Name+'ホーム)':'Best of 3 ('+t1Name+' home)')
+                         :(lang==='ja'?'4戦先勝 ('+t1Name+'に1勝アドバンテージ・ホーム)':'First to 4 ('+t1Name+' +1W advantage, home)'))}
+      </div>
+    </div>`;
+  });
+
+  // Action buttons for the next pending game
+  if(next){
+    const at=teams.find(x=>x.id===next.game.away);
+    const ht=teams.find(x=>x.id===next.game.home);
+    const gameLabel=lang==='ja'?`第${next.game.gameNum}戦`:`Game ${next.game.gameNum}`;
+    html+=`<div style="margin-top:.7rem;padding:.6rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--gold)">
+      <div style="text-align:center;font-size:.78rem;color:var(--gold);margin-bottom:.35rem">${getLeagueName(next.side)} - ${gameLabel}</div>
+      <div style="text-align:center;font-size:.85rem;margin-bottom:.55rem">
+        <b style="color:#4a90d9">${at?.name||'?'}</b>  <span style="color:var(--text3)">vs</span>  <b style="color:var(--gold)">${ht?.name||'?'}</b>
+      </div>
+      <div style="display:flex;gap:.4rem;margin-bottom:.4rem">
+        <button class="btn pri" style="flex:1" onclick="playPSGame()">${t('watch')}</button>
+        <button class="btn" style="flex:1" onclick="simPSGame()">${t('autoCon')}</button>
+      </div>
+      <button class="btn sm" style="width:100%" onclick="simAllPS()">${lang==='ja'?'シリーズまとめて消化':'Simulate to end of stage'}</button>
+    </div>`;
+  }
+  html+=`</div>`;
+  return html;
+}
+
+// Render Japan Series panel
+function renderJSPanel(){
+  const js=league.postseason.js;
+  if(!js)return '';
+  const next=getNextPSGame();
+  const tA=teams.find(x=>x.id===js.teamA),tB=teams.find(x=>x.id===js.teamB);
+  const aIsWinner=js.winner===js.teamA;
+  const bIsWinner=js.winner===js.teamB;
+  let html=`<div class="card" style="border-color:var(--gold);background:linear-gradient(180deg,var(--bg2),var(--bg))">
+    <div class="sec" style="text-align:center;font-size:1.05rem;color:var(--gold);letter-spacing:.1em">${lang==='ja'?'★ 日本シリーズ ★':'★ JAPAN SERIES ★'}</div>
+    <div style="margin:.7rem 0;padding:.7rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--gold)">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:1.05rem">
+        <span><b style="color:#4a90d9">${aIsWinner?'🏆 ':''}${tA?.abbr||'?'}</b></span>
+        <span style="font-size:1.3rem;font-weight:900;color:var(--gold)">${js.winsA} - ${js.winsB}</span>
+        <span><b style="color:#e07b3a">${bIsWinner?'🏆 ':''}${tB?.abbr||'?'}</b></span>
+      </div>
+      <div style="font-size:.78rem;color:var(--text3);margin-top:.4rem;text-align:center">
+        ${js.winner!=null?(lang==='ja'?'日本シリーズ決着':'Series decided')
+          :(lang==='ja'?'4戦先勝（最大7試合）':'Best of 7')}
+      </div>
+    </div>`;
+  if(next){
+    const at=teams.find(x=>x.id===next.game.away);
+    const ht=teams.find(x=>x.id===next.game.home);
+    html+=`<div style="margin-top:.5rem;padding:.6rem;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--gold)">
+      <div style="text-align:center;font-size:.78rem;color:var(--gold);margin-bottom:.35rem">${lang==='ja'?`第${next.game.gameNum}戦`:`Game ${next.game.gameNum}`}</div>
+      <div style="text-align:center;font-size:.85rem;margin-bottom:.55rem">
+        <b style="color:#4a90d9">${at?.name||'?'}</b>  <span style="color:var(--text3)">vs</span>  <b style="color:var(--gold)">${ht?.name||'?'}</b>
+      </div>
+      <div style="display:flex;gap:.4rem;margin-bottom:.4rem">
+        <button class="btn pri" style="flex:1" onclick="playPSGame()">${t('watch')}</button>
+        <button class="btn" style="flex:1" onclick="simPSGame()">${t('autoCon')}</button>
+      </div>
+      <button class="btn sm" style="width:100%" onclick="simAllPS()">${lang==='ja'?'シリーズまとめて消化':'Simulate to end of series'}</button>
+    </div>`;
+  }
+  html+=`</div>`;
+  return html;
+}
+
+// Render champion panel (final result)
+function renderChampionPanel(){
+  const champId=league.postseason.champion;
+  const ch=teams.find(x=>x.id===champId);
+  return `<div class="card" style="border-color:var(--gold);background:linear-gradient(180deg,#3a2f0a,var(--bg))">
+    <div style="text-align:center;padding:1rem 0">
+      <div style="font-size:1.1rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">★ ${lang==='ja'?'日本一':'CHAMPION'} ★</div>
+      <div style="font-size:1.7rem;font-weight:900;color:var(--gold);margin-bottom:.3rem">🏆 ${ch?.name||'?'}</div>
+      <div style="font-size:.82rem;color:var(--text2);margin-top:.5rem">${lang==='ja'?'シーズン完了':'Season Complete'}</div>
+    </div>
+  </div>`;
+}
+
+// === POSTSEASON GAME ACTIONS ===
+
+function startPostseason(){
+  initCS1();
+  // Auto-advance if any side has a bye
+  checkPostseasonProgress();
+  renderLSetup();renderSched();renderStandings();renderStats(curStatsType);
+}
+
+// Record a single postseason game result
+// Postseason should never tie; if it does (extreme rare case), the game is replayed
+function recPSGame(game,scoreA,scoreH){
+  // Tie protection: postseason cannot end in a tie. Leave game unmarked so it gets retried.
+  if(scoreA===scoreH){
+    console.warn('Postseason game ended in tie - retrying',game);
+    // Don't mark as done; the next sim call will replay this game
+    return;
+  }
+  game.done=true;game.scoreA=scoreA;game.scoreH=scoreH;
+  // Find which series this game belongs to
+  let series;
+  if(game.phase==='cs1')series=league.postseason.cs1[game.league];
+  else if(game.phase==='cs2')series=league.postseason.cs2[game.league];
+  else if(game.phase==='js')series=league.postseason.js;
+  if(!series)return;
+  // Update series win counts (note: home is team1 for CS, teamA may not be home in JS)
+  const homeWin=scoreH>scoreA;
+  if(game.phase==='js'){
+    const homeIsA=game.home===series.teamA;
+    if(homeWin){homeIsA?series.winsA++:series.winsB++;}
+    else{homeIsA?series.winsB++:series.winsA++;}
+    // JS: first to 4 wins
+    if(series.winsA>=4)series.winner=series.teamA;
+    else if(series.winsB>=4)series.winner=series.teamB;
+  }else{
+    // CS: team1 is always home
+    if(homeWin)series.wins1++;
+    else series.wins2++;
+    // CS1: best of 3 (2 wins to clinch); CS2: first to 4 wins (team1 has 1-win head start)
+    const needed=game.phase==='cs1'?2:4;
+    if(series.wins1>=needed)series.winner=series.team1;
+    else if(series.wins2>=needed)series.winner=series.team2;
+  }
+  // Also record team-level W/L into league.stats (postseason record kept separately from regular)
+  // We DON'T add to league.stats - postseason is tracked separately
+  checkPostseasonProgress();
+}
+
+// Watch the next postseason game (uses same flow as playLGame)
+function playPSGame(){
+  const next=getNextPSGame();
+  if(!next)return;
+  currentPSGame=next.game;
+  leagueGameId=-1;  // postseason games aren't in league.schedule
+  fromLeague=true;
+  selIds=[next.game.away,next.game.home];
+  gotoOrderScreen();
+}
+
+// Auto-simulate the next postseason game (one game)
+function simPSGame(){
+  const next=getNextPSGame();
+  if(!next)return;
+  quickSimNoTie=true;
+  let r;
+  try{r=quickSim(next.game.away,next.game.home);}finally{quickSimNoTie=false;}
+  recPSGame(next.game,r.a,r.h);
+  renderLSetup();renderSched();renderStandings();renderStats(curStatsType);
+}
+
+// Auto-simulate until the end of the current postseason stage
+async function simAllPS(){
+  if(!(await showConfirm(lang==='ja'?'現在のステージをまとめて消化しますか？':'Simulate all games in this stage?')))return;
+  let safetyMax=50;  // safety limit to prevent infinite loops
+  quickSimNoTie=true;
+  try{
+    while(safetyMax-->0){
+      const next=getNextPSGame();
+      if(!next)break;
+      // Stop simulating when phase changes (so user can see CS1 -> CS2 transition)
+      const phaseBefore=league.phase;
+      const r=quickSim(next.game.away,next.game.home);
+      recPSGame(next.game,r.a,r.h);
+      if(league.phase!==phaseBefore)break;  // phase advanced, pause here
+    }
+  }finally{quickSimNoTie=false;}
+  renderLSetup();renderSched();renderStandings();renderStats(curStatsType);
+}
+
+let currentPSGame=null;
+
 function renderSched(){
   const el=document.getElementById('lsched');
   const rem=league.schedule.filter(g=>!g.done),next=rem[0];
   let html='';
+  // Regular season has games remaining: show the standard "next game" UI
   if(next){
     const at=teams.find(x=>x.id===next.away),ht=teams.find(x=>x.id===next.home);
     const remCount=rem.length;
@@ -2615,7 +3751,10 @@ function renderSched(){
         <button class="btn sm" style="flex:1;min-width:60px" onclick="simN(50)" ${remCount<1?'disabled':''}>${lang==='ja'?'50試合':'50 games'}</button>
         <button class="btn sm" style="flex:1;min-width:60px" onclick="simAll()">${t('simAllBtn')}</button>
       </div></div>`;
-  }else{html+=`<div class="notice ok">${t('leagueEnd')}</div>`;}
+  }else{
+    // Regular season complete: show postseason UI
+    html+=renderPostseasonPanel();
+  }
   html+=`<div class="card" style="padding:.5rem .75rem"><div class="sec">${t('allSched')}</div><div class="sched-wrap">`;
   league.schedule.forEach((g,i)=>{
     const at=teams.find(x=>x.id===g.away),ht=teams.find(x=>x.id===g.home),isNext=!g.done&&rem[0]?.id===g.id;
@@ -2665,6 +3804,9 @@ function recLeague(gid,sa,sh,snapshot){
   if(sa>sh){as.w++;hs.l++;}else if(sh>sa){hs.w++;as.l++;}else{as.d++;hs.d++;}
 }
 
+// When true, quickSim plays until a decisive result (no 12-inning tie limit).
+// Used for postseason games where ties are not allowed.
+let quickSimNoTie=false;
 function quickSim(awayId,homeId){
   const at=dc(teams.find(x=>x.id===awayId)),ht=dc(teams.find(x=>x.id===homeId));
   // For league play: respect rest days when picking a starter
@@ -2706,14 +3848,18 @@ function quickSim(awayId,homeId){
     tm.pitchersAppeared=[tm.pitcher];
     // Track all batters who appeared per batting slot (for box score display when pinch-hit)
     tm.battersAppeared=tm.lineup.map(p=>[p]);
-    // Build bench pitchers from full staff excluding the starter
-    tm.benchPitchers=(tm.pitchers||[]).filter(p=>p.name!==tm.pitcher.name).map(p=>({...p}));
+    // Build bench pitchers from full staff excluding the starter, also excluding resting pitchers
+    const restMap=(league&&league.restDays&&league.restDays[tm.id])||{};
+    tm.benchPitchers=(tm.pitchers||[])
+      .filter(p=>p.name!==tm.pitcher.name)
+      .filter(p=>(restMap[p.name]||0)===0)
+      .map(p=>({...p}));
     // Build bench hitters from full roster excluding the starting lineup (for pinch hit)
     tm.benchHitters=(tm.roster||[]).filter(p=>!tm.usedHitters.has(p.name)).map(p=>({...p}));
     // Init RP rotation index from league state (carry over across games)
     tm.rpRotationIdx=(league&&league.rpRotation)?(league.rpRotation[tm.id]||0):0;
   });
-  let q={inning:1,half:0,outs:0,balls:0,strikes:0,bases:[false,false,false],score:[0,0],ilog:{away:Array(12).fill(null),home:Array(12).fill(null)},order:[0,0],over:false,leadChanges:[]};
+  let q={inning:1,half:0,outs:0,balls:0,strikes:0,bases:[false,false,false],baseRunners:[null,null,null],score:[0,0],ilog:{away:Array(12).fill(null),home:Array(12).fill(null)},order:[0,0],over:false,leadChanges:[]};
   const qbat=()=>q.half===0?at:ht,qfld=()=>q.half===0?ht:at,qoi=()=>q.half===0?0:1;
   const qcb=()=>qbat().lineup[q.order[qoi()]],qcp=()=>qfld().pitcher;
   const qnb=()=>{q.order[qoi()]=(q.order[qoi()]+1)%9;},qrc=()=>{q.balls=0;q.strikes=0;};
@@ -2746,12 +3892,22 @@ function quickSim(awayId,homeId){
       q.over=true;
     }
   };
-  const qar=(bt,hb,isHR)=>{const b=q.bases;let r=0;if(isHR){r=b.filter(Boolean).length+1;q.bases=[false,false,false];}else{const nb=[false,false,false];for(let i=2;i>=0;i--){if(b[i]){const d=i+hb;if(d>=3)r++;else nb[d]=true;}}if(hb===1)nb[0]=true;else if(hb===2)nb[1]=true;else if(hb===3)nb[2]=true;q.bases=nb;}if(r>0)qsr(bt,r);};
+  const qar=(bt,hb,isHR)=>{
+    const b=q.bases,br=q.baseRunners;let r=0;
+    if(isHR){r=b.filter(Boolean).length+1;q.bases=[false,false,false];q.baseRunners=[null,null,null];}
+    else{
+      const nb=[false,false,false],nbr=[null,null,null];
+      for(let i=2;i>=0;i--){if(b[i]){const d=i+hb;if(d>=3)r++;else{nb[d]=true;nbr[d]=br[i];}}}
+      if(hb===1){nb[0]=true;nbr[0]=bt;}else if(hb===2){nb[1]=true;nbr[1]=bt;}else if(hb===3){nb[2]=true;nbr[2]=bt;}
+      q.bases=nb;q.baseRunners=nbr;
+    }
+    if(r>0)qsr(bt,r);
+  };
   const qeh=()=>{
     const idx=q.inning-1,side=q.half===0?'away':'home';
     if(q.ilog[side][idx]===null||q.ilog[side][idx]===undefined)q.ilog[side][idx]=0;
     // IP is tracked per-out; stamina is now per-pitch (applyPitchToStamina), so nothing to do here
-    q.bases=[false,false,false];q.outs=0;qrc();
+    q.bases=[false,false,false];q.baseRunners=[null,null,null];q.outs=0;qrc();
     if(q.half===0){
       // Skip bottom of 9th+ if HOME already leads
       if(q.inning>=9&&q.score[1]>q.score[0]){q.over=true;return;}
@@ -2759,7 +3915,10 @@ function quickSim(awayId,homeId){
     }else{
       if(q.inning>=9&&q.score[1]>q.score[0]){q.over=true;return;}
       if(q.inning>=9&&q.score[0]!==q.score[1]){q.over=true;return;}
-      if(q.inning>=12){q.over=true;return;}
+      // Regular season caps at 12 innings (ties allowed). Postseason has no tie - extends as long as needed.
+      if(!quickSimNoTie&&q.inning>=12){q.over=true;return;}
+      // Safety cap even in postseason to prevent infinite loops (very deep extras)
+      if(quickSimNoTie&&q.inning>=20){q.over=true;return;}
       q.inning++;q.half=0;
     }
     // Auto-substitute pitchers between innings (silent: no log for quick sim)
@@ -2802,19 +3961,45 @@ function quickSim(awayId,homeId){
   let n=0;
   while(!q.over&&n<8000){
     n++;
-    // At the start of a new at-bat (count 0-0), consider pinch hit
-    if(q.balls===0&&q.strikes===0) qPinchHit();
+    // At the start of a new at-bat (count 0-0), consider pinch hit AND steal attempt
+    if(q.balls===0&&q.strikes===0){
+      qPinchHit();
+      // Steal attempt: same logic as live games, mutates q.bases / q.baseRunners / q.outs
+      // Pass the current pitcher so caught-stealing outs are credited to their IP
+      attemptSteal(q,qcp());
+      if(q.outs>=3){qeh();continue;}
+      if(q.over)break;
+    }
     const bt=qcb(),pt=qcp(),cf=pt.ctrl*(pt.curStam/pt.stam),r=Math.random();
     // Initialize pitcher stat counters if missing
     if(pt.h===undefined){pt.h=0;pt.k=0;pt.bb=0;}
     if(pt.ip===undefined)pt.ip=0;
     // Each iteration is one pitch: count it and reduce stamina
     applyPitchToStamina(pt);
-    if(q.balls===3&&r<Math.max(0.12,(100-cf)/480)){pt.bb++;bt.bb=(bt.bb||0)+1;const b=q.bases;if(b[0]&&b[1]&&b[2])qsr(bt,1);else if(b[0]&&b[1])b[2]=true;else if(b[0])b[1]=true;b[0]=true;qnb();qrc();continue;}
+    if(q.balls===3&&r<Math.max(0.12,(100-cf)/480)){
+      pt.bb++;bt.bb=(bt.bb||0)+1;
+      const b=q.bases,br=q.baseRunners;
+      if(b[0]&&b[1]&&b[2]){qsr(bt,1);}
+      else if(b[0]&&b[1]){b[2]=true;br[2]=br[1];}
+      else if(b[0]){b[1]=true;br[1]=br[0];}
+      b[0]=true;br[0]=bt;
+      qnb();qrc();continue;
+    }
     if(q.strikes===2&&r<Math.max(0.10,pt.spd/420)){pt.k++;bt.so=(bt.so||0)+1;bt.atbats++;q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();continue;}
     const rl=Math.random();
     // Calibrated for ~3.8 pitches/PA: 33% ball, 35% strike, 32% in-play
-    if(rl<0.33){q.balls++;if(q.balls>=4){pt.bb++;bt.bb=(bt.bb||0)+1;const b=q.bases;if(b[0]&&b[1]&&b[2])qsr(bt,1);else if(b[0]&&b[1])b[2]=true;else if(b[0])b[1]=true;b[0]=true;qnb();qrc();}}
+    if(rl<0.33){
+      q.balls++;
+      if(q.balls>=4){
+        pt.bb++;bt.bb=(bt.bb||0)+1;
+        const b=q.bases,br=q.baseRunners;
+        if(b[0]&&b[1]&&b[2]){qsr(bt,1);}
+        else if(b[0]&&b[1]){b[2]=true;br[2]=br[1];}
+        else if(b[0]){b[1]=true;br[1]=br[0];}
+        b[0]=true;br[0]=bt;
+        qnb();qrc();
+      }
+    }
     else if(rl<0.68){q.strikes++;if(q.strikes>=3){pt.k++;bt.so=(bt.so||0)+1;bt.atbats++;q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();}}
     else{
       // Ball in play — add 1-2 extra pitches to match real-world pitch counts
@@ -2832,30 +4017,8 @@ function quickSim(awayId,homeId){
   gs=q;awayT=at;homeT=ht;
   try{decidePitchingDecisions();}finally{gs=savedGs;awayT=savedAway;homeT=savedHome;}
   accBat(at,at.name);accBat(ht,ht.name);accPit(at,at.name);accPit(ht,ht.name);
-  // Update league rest days and RP rotation for next game
-  if(league&&league.restDays){
-    [at,ht].forEach(tm=>{
-      // Decrement all existing rest days by 1 (one game = one day passed)
-      const restMap=league.restDays[tm.id]||{};
-      Object.keys(restMap).forEach(name=>{
-        restMap[name]=Math.max(0,(restMap[name]||0)-1);
-      });
-      // Assign new rest days for pitchers who appeared in this game
-      (tm.pitchersAppeared||[]).forEach(p=>{
-        if(!p||!p.ip||p.ip===0)return;
-        const role=p.role||'';
-        if(role.startsWith('SP')) restMap[p.name]=4;          // starters: 4 days rest
-        else if(role==='CL') restMap[p.name]=1;               // closer: 1 day rest
-        else if(role==='SU') restMap[p.name]=1;               // setup: 1 day rest
-        else if(role.startsWith('RP')) restMap[p.name]=0;     // mid-relief: usable next day
-        else restMap[p.name]=1;
-      });
-      league.restDays[tm.id]=restMap;
-      // Save RP rotation index
-      if(!league.rpRotation) league.rpRotation={};
-      league.rpRotation[tm.id]=tm.rpRotationIdx||0;
-    });
-  }
+  // Update league rest days using the shared helper (same logic as watched games)
+  updateRestDays(at,ht);
   // Snapshot for history viewing (no play-by-play log for quick sim)
   const snapshot={
     away:dc(at),home:dc(ht),
@@ -2874,12 +4037,14 @@ function accBat(tm,tname){
     tm.lineup.forEach(p=>all.push(p));
   }
   all.forEach(p=>{
-    if(!p.atbats)return;
+    // Include the player if they had at-bats OR stole/got caught (a runner can steal without batting)
+    if(!p.atbats&&!p.sb&&!p.cs)return;
     const k=tname+':'+p.name;
-    if(!leagueBat[k])leagueBat[k]={name:p.name,team:tname,atbats:0,hits:0,hrs:0,rbi:0,doubles:0,triples:0,bb:0,so:0};
+    if(!leagueBat[k])leagueBat[k]={name:p.name,team:tname,atbats:0,hits:0,hrs:0,rbi:0,doubles:0,triples:0,bb:0,so:0,sb:0,cs:0};
     const s=leagueBat[k];
-    s.atbats+=p.atbats;s.hits+=p.hits;s.hrs+=p.hrs;s.rbi+=p.rbi;
+    s.atbats+=p.atbats||0;s.hits+=p.hits||0;s.hrs+=p.hrs||0;s.rbi+=p.rbi||0;
     s.doubles+=(p.doubles||0);s.triples+=(p.triples||0);s.bb+=(p.bb||0);s.so+=(p.so||0);
+    s.sb=(s.sb||0)+(p.sb||0);s.cs=(s.cs||0)+(p.cs||0);
   });
 }
 function accPit(tm,tname){
@@ -2916,199 +4081,150 @@ function accPit(tm,tname){
   });
 }
 
-// ═══ TEAM STATS MODAL ═══
-let teamStatsTeamId=null;
-let teamStatsTab='bat';
-let teamStatsSort={bat:{col:'avg',dir:-1},pit:{col:'era',dir:1}};
-
+// ═══ ORDER SCREEN ENTRY FROM STANDINGS ═══
+// When a team is clicked in the standings, open the Order screen in single-team mode.
+// The order edits there are saved on team.savedOrder and reused when the team is watched.
 function showTeamStats(teamId){
-  teamStatsTeamId=teamId;
-  teamStatsTab='bat';
-  document.getElementById('tstats-modal').style.display='flex';
-  document.getElementById('tstats-modal').classList.add('on');
-  renderTeamStatsModal();
-}
-function closeTeamStats(){
-  document.getElementById('tstats-modal').style.display='none';
-  document.getElementById('tstats-modal').classList.remove('on');
-}
-function setTeamStatsTab(tab){
-  teamStatsTab=tab;
-  document.getElementById('tstats-tab-bat').classList.toggle('on',tab==='bat');
-  document.getElementById('tstats-tab-pit').classList.toggle('on',tab==='pit');
-  renderTeamStatsModal();
-}
-function setTeamStatsSort(type,col){
-  const s=teamStatsSort[type];
-  if(s.col===col){s.dir=-s.dir;}
-  else{s.col=col;s.dir=(col==='era'||col==='name'||col==='pos')?1:-1;}
-  renderTeamStatsModal();
+  fromStandings=true;
+  fromLeague=false;  // we're NOT going to a watched game; we'll go back to league screen
+  const tm=teams.find(x=>x.id===teamId);
+  if(!tm)return;
+  ensureFullRoster(tm);
+  // Restore prior edits if present, else build initial order
+  orderData[0]=tm.savedOrder?restoreSavedOrder(tm):buildInitialOrder(tm);
+  orderData[1]=null;  // single-team mode
+  curOrderTeam=0;
+  renderOrderTabs();
+  renderOrderScreen();
+  gotoScreen('order-screen');
 }
 
-function renderTeamStatsModal(){
-  const tm=teams.find(x=>x.id===teamStatsTeamId);
-  if(!tm){closeTeamStats();return;}
-  document.getElementById('tstats-title').textContent=`${tm.abbr}  ${tm.name}`;
-  const ct=document.getElementById('tstats-content');
-  if(teamStatsTab==='bat'){
-    const minAB=qualifiedABThreshold();
-    // Show ALL batters for this team (rate stats marked "-" for non-qualifiers)
-    const bats=Object.values(leagueBat).filter(p=>p.team===tm.name&&p.atbats>0).map(p=>{
-      const ab=p.atbats,h=p.hits,bb=p.bb||0,d=p.doubles||0,t=p.triples||0,hr=p.hrs||0;
-      const singles=h-d-t-hr;
-      const tb=singles+d*2+t*3+hr*4;
-      const obp=(ab+bb)>0?(h+bb)/(ab+bb):0;
-      const slg=ab>0?tb/ab:0;
-      const qualified=ab>=minAB;
-      return{...p,avg:ab>0?h/ab:0,doubles:d,triples:t,obp,slg,ops:obp+slg,qualified};
-    });
-    if(bats.length===0){
-      ct.innerHTML=`<div class="notice" style="font-size:.84rem;color:var(--text3)">${lang==='ja'?'まだ試合データがありません':'No game data yet'}</div>`;
-      return;
-    }
-    const s=teamStatsSort.bat;
-    bats.sort((a,b)=>{
-      let av=a[s.col],bv=b[s.col];
-      if(typeof av==='string'){return s.dir*(av<bv?-1:av>bv?1:0);}
-      return s.dir*(bv-av);
-    });
-    const cols=[
-      {key:'name',ja:'打者',en:'Batter',L:true},
-      {key:'atbats',ja:'打数',en:'AB'},
-      {key:'hits',ja:'安打',en:'H'},
-      {key:'doubles',ja:'2B',en:'2B'},
-      {key:'triples',ja:'3B',en:'3B'},
-      {key:'hrs',ja:'HR',en:'HR'},
-      {key:'rbi',ja:'打点',en:'RBI'},
-      {key:'bb',ja:'四死球',en:'BB'},
-      {key:'so',ja:'三振',en:'K'},
-      {key:'avg',ja:'打率',en:'AVG'},
-      {key:'obp',ja:'出塁率',en:'OBP'},
-      {key:'slg',ja:'長打率',en:'SLG'},
-      {key:'ops',ja:'OPS',en:'OPS'},
-    ];
-    let h=`<table class="stats-tbl" style="font-size:.85rem"><tr>`;
-    cols.forEach(c=>{
-      const label=lang==='ja'?c.ja:c.en;
-      const arrow=s.col===c.key?(s.dir<0?' ▼':' ▲'):'';
-      const color=s.col===c.key?'color:var(--gold);':'';
-      h+=`<th class="${c.L?'L':''}" style="cursor:pointer;${color}user-select:none" onclick="setTeamStatsSort('bat','${c.key}')">${label}${arrow}</th>`;
-    });
-    h+=`</tr>`;
-    bats.forEach(p=>{
-      h+=`<tr>
-        <td class="L">${p.name}</td>
-        <td>${p.atbats}</td>
-        <td>${p.hits}</td>
-        <td>${p.doubles}</td>
-        <td>${p.triples}</td>
-        <td>${p.hrs}</td>
-        <td>${p.rbi}</td>
-        <td>${p.bb||0}</td>
-        <td>${p.so||0}</td>
-        <td>${bbAvg(p.avg)}</td>
-        <td>${bbAvg(p.obp)}</td>
-        <td>${bbAvg(p.slg)}</td>
-        <td>${bbAvg(p.ops)}</td>
-      </tr>`;
-    });
-    ct.innerHTML=h+'</table>';
-  }else{
-    // Pitchers
-    const minIP=qualifiedIPThreshold();
-    const pits=Object.values(leaguePit).filter(p=>p.team===tm.name&&p.ip>0).map(p=>{
-      const era=p.ip>0?p.er*27/p.ip:0;
-      const ipDisp=p.ip/3;
-      const whip=p.ip>0?((p.bb||0)+(p.ha||0))*3/p.ip:0;
-      const kbb=(p.bb||0)>0?(p.k||0)/p.bb:(p.k||0);
-      const qualified=p.ip>=minIP;
-      return{...p,era,ipDisp,whip,kbb,gs:p.gs||0,cg:p.cg||0,sho:p.sho||0,qs:p.qs||0,qualified};
-    });
-    if(pits.length===0){
-      ct.innerHTML=`<div class="notice" style="font-size:.84rem;color:var(--text3)">${lang==='ja'?'まだ試合データがありません':'No game data yet'}</div>`;
-      return;
-    }
-    const s=teamStatsSort.pit;
-    pits.sort((a,b)=>{
-      let av=a[s.col],bv=b[s.col];
-      if(typeof av==='string'){return s.dir*(av<bv?-1:av>bv?1:0);}
-      return s.dir*(bv-av);
-    });
-    const cols=[
-      {key:'name',ja:'投手',en:'Pitcher',L:true},
-      {key:'w',ja:'勝',en:'W'},
-      {key:'l',ja:'負',en:'L'},
-      {key:'s',ja:'S',en:'S'},
-      {key:'h',ja:'H',en:'H'},
-      {key:'g',ja:'登板',en:'G'},
-      {key:'gs',ja:'先発',en:'GS'},
-      {key:'cg',ja:'完投',en:'CG'},
-      {key:'sho',ja:'完封',en:'SHO'},
-      {key:'qs',ja:'QS',en:'QS'},
-      {key:'ipDisp',ja:'投球回',en:'IP'},
-      {key:'k',ja:'奪三振',en:'K'},
-      {key:'bb',ja:'四死球',en:'BB'},
-      {key:'era',ja:'ERA',en:'ERA'},
-      {key:'whip',ja:'WHIP',en:'WHIP'},
-      {key:'kbb',ja:'K/BB',en:'K/BB'},
-    ];
-    let h=`<table class="stats-tbl" style="font-size:.85rem"><tr>`;
-    cols.forEach(c=>{
-      const label=lang==='ja'?c.ja:c.en;
-      const arrow=s.col===c.key?(s.dir<0?' ▼':' ▲'):'';
-      const color=s.col===c.key?'color:var(--gold);':'';
-      h+=`<th class="${c.L?'L':''}" style="cursor:pointer;${color}user-select:none" onclick="setTeamStatsSort('pit','${c.key}')">${label}${arrow}</th>`;
-    });
-    h+=`</tr>`;
-    pits.forEach(p=>{
-      h+=`<tr>
-        <td class="L">${p.name}</td>
-        <td>${p.w}</td>
-        <td>${p.l}</td>
-        <td>${p.s||0}</td>
-        <td>${p.h||0}</td>
-        <td>${p.g}</td>
-        <td>${p.gs}</td>
-        <td>${p.cg}</td>
-        <td>${p.sho}</td>
-        <td>${p.qs}</td>
-        <td>${p.ipDisp.toFixed(1)}</td>
-        <td>${p.k||0}</td>
-        <td>${p.bb||0}</td>
-        <td>${p.era.toFixed(2)}</td>
-        <td>${p.whip.toFixed(2)}</td>
-        <td>${p.kbb.toFixed(2)}</td>
-      </tr>`;
-    });
-    ct.innerHTML=h+'</table>';
+// Rebuild an orderData entry from a team's previously-saved order
+function restoreSavedOrder(team){
+  const s=team.savedOrder;
+  // Match player references by name from the current full roster/pitchers
+  const findHitter=(name)=>team.roster.find(p=>p.name===name);
+  const findPitcher=(name)=>team.pitchers.find(p=>p.name===name);
+  let lineup=(s.lineup||[]).map(item=>{
+    const p=findHitter(item.name);
+    return p?{...p,pos:item.pos||p.pos}:null;
+  }).filter(Boolean);
+  // Pad lineup to 9 slots if needed (fall back to default order)
+  if(lineup.length<9){
+    const used=new Set(lineup.map(p=>p.name));
+    team.roster.forEach(p=>{if(lineup.length<9&&!used.has(p.name)){lineup.push({...p});used.add(p.name);}});
   }
+  const usedNames=new Set(lineup.map(p=>p.name));
+  const bench=team.roster.filter(p=>!usedNames.has(p.name)).map(p=>{const{pos:_p,...rest}=p;return rest;});
+  let pitcherIdx=team.pitchers.findIndex(p=>p.name===s.pitcherName);
+  if(pitcherIdx<0)pitcherIdx=0;
+  return{team,pitcherIdx,lineup,bench,selSlot:null};
+}
+
+// Persist the current orderData[0|1] into team.savedOrder
+function saveCurrentOrder(od){
+  if(!od||!od.team)return;
+  od.team.savedOrder={
+    pitcherName:od.team.pitchers[od.pitcherIdx]?.name,
+    lineup:od.lineup.map(p=>({name:p.name,pos:p.pos})),
+  };
+}
+
+
+// Current league tab for standings/stats view: 'a' | 'b'
+let curLeagueTab='a';
+
+// Get the display name for league A or B
+// Uses league.aName / league.bName if set, otherwise auto-derives from league.name
+function getLeagueName(side){
+  if(!league)return side==='a'?'A':'B';
+  if(side==='a'&&league.aName)return league.aName;
+  if(side==='b'&&league.bName)return league.bName;
+  const base=league.name||(lang==='ja'?'リーグ':'League');
+  return `${base} ${side.toUpperCase()}`;
+}
+
+function switchLeagueTab(side){
+  curLeagueTab=side;
+  document.querySelectorAll('.lg-tab').forEach(b=>b.classList.toggle('on',b.dataset.side===side));
+  renderStandings();
+  renderStats(curStatsType);
 }
 
 function renderStandings(){
-  if(!league.active){document.getElementById('stand-tbl').innerHTML=`<tr><td style="font-size:.78rem;color:var(--text3);padding:.65rem">${t('noLeague')}</td></tr>`;return;}
-  const rows=league.teamIds.map(id=>{
-    const tm=teams.find(x=>x.id===id),s=league.stats[id]||{w:0,l:0,d:0,ra:0,rh:0};
-    const g=s.w+s.l+s.d,pct=g>0?(s.w+s.d*.5)/g:0;
-    return{id,name:tm?.name||'?',abbr:tm?.abbr||'?',...s,g,pct,diff:s.ra-s.rh};
-  }).sort((a,b)=>b.pct-a.pct||b.diff-a.diff);
-  const top=rows[0];
-  const hd=lang==='ja'?['#','チーム','試','勝','負','分','勝率','差','得','失','得失差']
-                     :['#','Team','G','W','L','D','PCT','GB','RS','RA','DIFF'];
-  let h=`<tr>${hd.map((x,i)=>`<th class="sb-th ${i===1?'L':''}">${x}</th>`).join('')}</tr>`;
-  rows.forEach((r,i)=>{
-    // True game-back calculation: ((top.W - r.W) + (r.L - top.L)) / 2
-    const gb=i===0?'-':(((top.w-r.w)+(r.l-top.l))/2).toFixed(1);
-    h+=`<tr>
-      <td style="font-size:.84rem;color:var(--text3)">${i+1}</td>
-      <td class="L" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--border2)" onclick="showTeamStats(${r.id})">${i===0?'🏆 ':''}<b style="${i===0?'color:var(--gold)':''}">${r.abbr}</b><span style="font-size:.7rem;color:var(--text3);margin-left:.35rem">▸</span></td>
-      <td>${r.g}</td><td class="${i===0?'hi':''}">${r.w}</td><td>${r.l}</td><td>${r.d}</td>
-      <td class="${i===0?'hi':''}">${bbAvg(r.pct)}</td>
-      <td style="color:${i===0?'var(--gold)':'var(--text2)'}">${gb}</td>
-      <td>${r.ra}</td><td>${r.rh}</td>
-      <td style="color:${r.diff>0?'var(--gold)':r.diff<0?'#e24b4a':'var(--text3)'}">${r.diff>0?'+':''}${r.diff}</td>
-    </tr>`;
-  });
-  document.getElementById('stand-tbl').innerHTML=h;
+  const standEl=document.getElementById('stand-tbl');
+  if(!standEl)return;
+
+  // Get team's league (default to 'a' for backward compatibility)
+  const getTeamLeague=(id)=>{
+    const tm=teams.find(t=>t.id===id);
+    return (tm&&tm.league)||'a';
+  };
+
+  // Get or create the container holding tabs and tables
+  let container=document.getElementById('stand-container');
+  if(!container){
+    container=document.createElement('div');
+    container.id='stand-container';
+    standEl.parentElement.insertBefore(container,standEl);
+    standEl.style.display='none';
+  }
+
+  if(!league.active){
+    container.innerHTML=`<div style="font-size:.78rem;color:var(--text3);padding:.65rem">${t('noLeague')}</div>`;
+    return;
+  }
+
+  const hasA=league.teamIds.some(id=>getTeamLeague(id)==='a');
+  const hasB=league.teamIds.some(id=>getTeamLeague(id)==='b');
+
+  // Render standings table for one league side
+  const renderOneTable=(side)=>{
+    const teamIds=league.teamIds.filter(id=>getTeamLeague(id)===side);
+    if(teamIds.length===0)return '';
+    const rows=teamIds.map(id=>{
+      const tm=teams.find(x=>x.id===id),s=league.stats[id]||{w:0,l:0,d:0,ra:0,rh:0};
+      const g=s.w+s.l+s.d,pct=g>0?(s.w+s.d*.5)/g:0;
+      return{id,name:tm?.name||'?',abbr:tm?.abbr||'?',...s,g,pct,diff:s.ra-s.rh};
+    }).sort((a,b)=>b.pct-a.pct||b.diff-a.diff);
+    const top=rows[0];
+    const hd=lang==='ja'?['#','チーム','試','勝','負','分','勝率','差','得','失','得失差']
+                       :['#','Team','G','W','L','D','PCT','GB','RS','RA','DIFF'];
+    let h=`<table class="stand-tbl"><tr>${hd.map((x,i)=>`<th class="sb-th ${i===1?'L':''}">${x}</th>`).join('')}</tr>`;
+    rows.forEach((r,i)=>{
+      const gb=i===0?'-':(((top.w-r.w)+(r.l-top.l))/2).toFixed(1);
+      h+=`<tr>
+        <td style="font-size:.84rem;color:var(--text3)">${i+1}</td>
+        <td class="L" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--border2)" onclick="showTeamStats(${r.id})">${i===0?'🏆 ':''}<b style="${i===0?'color:var(--gold)':''}">${r.abbr}</b><span style="font-size:.7rem;color:var(--text3);margin-left:.35rem">▸</span></td>
+        <td>${r.g}</td><td class="${i===0?'hi':''}">${r.w}</td><td>${r.l}</td><td>${r.d}</td>
+        <td class="${i===0?'hi':''}">${bbAvg(r.pct)}</td>
+        <td style="color:${i===0?'var(--gold)':'var(--text2)'}">${gb}</td>
+        <td>${r.ra}</td><td>${r.rh}</td>
+        <td style="color:${r.diff>0?'var(--gold)':r.diff<0?'#e24b4a':'var(--text3)'}">${r.diff>0?'+':''}${r.diff}</td>
+      </tr>`;
+    });
+    return h+`</table>`;
+  };
+
+  // Build league tabs (only if both leagues have teams)
+  let tabsHtml='';
+  if(hasA&&hasB){
+    tabsHtml=`<div class="lg-tabs">
+      <button class="lg-tab ${curLeagueTab==='a'?'on':''}" data-side="a" onclick="switchLeagueTab('a')">${getLeagueName('a')}</button>
+      <button class="lg-tab ${curLeagueTab==='b'?'on':''}" data-side="b" onclick="switchLeagueTab('b')">${getLeagueName('b')}</button>
+    </div>`;
+  }
+
+  // Determine which table to show
+  let body='';
+  if(hasA&&hasB){
+    body=renderOneTable(curLeagueTab);
+  }else if(hasA){
+    body=`<div class="sec" style="font-size:.95rem;margin:0 0 .35rem 0">${getLeagueName('a')}</div>`+renderOneTable('a');
+  }else if(hasB){
+    body=`<div class="sec" style="font-size:.95rem;margin:0 0 .35rem 0">${getLeagueName('b')}</div>`+renderOneTable('b');
+  }
+  container.innerHTML=tabsHtml+body;
 }
 
 let statSort={bat:{col:'avg',dir:-1},pit:{col:'era',dir:1}};
@@ -3147,6 +4263,16 @@ function bbAvg(v){
   return v.toFixed(3).replace(/^0/,'');
 }
 
+// Format pitcher innings-pitched in baseball convention (X.0 / X.1 / X.2)
+// Internal `ip` is stored as number of outs (3 outs = 1 inning).
+//   ip=18 → 6.0, ip=19 → 6.1, ip=20 → 6.2, ip=21 → 7.0
+function fmtIP(outs){
+  if(!outs||outs<=0)return '0.0';
+  const full=Math.floor(outs/3);
+  const extra=outs%3;
+  return `${full}.${extra}`;
+}
+
 // ═══ QUALIFICATION THRESHOLDS ═══
 // Compute the number of games a team has played in the current league
 function leagueTeamGamesPlayed(){
@@ -3169,15 +4295,104 @@ function qualifiedIPThreshold(){
   return leagueTeamGamesPlayed()*3;
 }
 
+// ═══ TITLE RACE (打者・投手部門の上位3人を表示) ═══
+// Render top-3 leaders for each title category, for the currently-viewed league side.
+// Players array should already be filtered to that league.
+function renderTitleRace(type,players,minQualifier){
+  if(!players||!players.length)return '';
+  // Each title def: key (data field), label-ja/en, fmt (formatter), needsQualifier (true for rate stats)
+  const batTitles=[
+    {key:'avg',ja:'首位打者',en:'AVG Leader',fmt:bbAvg,needsQual:true},
+    {key:'hrs',ja:'本塁打王',en:'HR Leader',fmt:v=>v},
+    {key:'rbi',ja:'打点王',en:'RBI Leader',fmt:v=>v},
+    {key:'hits',ja:'最多安打',en:'Hits Leader',fmt:v=>v},
+    {key:'sb',ja:'盗塁王',en:'SB Leader',fmt:v=>v||0},
+    {key:'ops',ja:'最高OPS',en:'OPS Leader',fmt:bbAvg,needsQual:true},
+  ];
+  const pitTitles=[
+    {key:'w',ja:'最多勝',en:'Wins',fmt:v=>v},
+    {key:'era',ja:'最優秀防御率',en:'ERA',fmt:v=>v.toFixed(2),needsQual:true,asc:true},
+    {key:'k',ja:'最多奪三振',en:'Strikeouts',fmt:v=>v},
+    {key:'s',ja:'最多セーブ',en:'Saves',fmt:v=>v||0},
+    {key:'h',ja:'最多ホールド',en:'Holds',fmt:v=>v||0},
+    {key:'whip',ja:'最優秀WHIP',en:'WHIP',fmt:v=>v.toFixed(2),needsQual:true,asc:true},
+  ];
+  const titles=type==='bat'?batTitles:pitTitles;
+  let html=`<div class="title-race">`;
+  html+=`<div class="title-race-header">${lang==='ja'?'◆ タイトル争い':'◆ Title Race'}</div>`;
+  html+=`<div class="title-race-grid">`;
+  titles.forEach(td=>{
+    // Filter & sort
+    let pool=players.slice();
+    if(td.needsQual)pool=pool.filter(p=>p.qualified);
+    // For counting stats, exclude players with value 0 to avoid noise
+    if(!td.needsQual)pool=pool.filter(p=>(p[td.key]||0)>0);
+    if(td.asc){
+      pool.sort((a,b)=>(a[td.key]||0)-(b[td.key]||0));  // lower = better (ERA, WHIP)
+    }else{
+      pool.sort((a,b)=>(b[td.key]||0)-(a[td.key]||0));  // higher = better
+    }
+    const top3=pool.slice(0,3);
+    const label=lang==='ja'?td.ja:td.en;
+    html+=`<div class="title-card"><div class="title-card-label">${label}</div>`;
+    if(top3.length===0){
+      html+=`<div class="title-card-empty">${lang==='ja'?'-':'-'}</div>`;
+    }else{
+      top3.forEach((p,i)=>{
+        const rank=i+1;
+        const val=td.fmt(p[td.key]||0);
+        const rankMark=rank===1?'🥇':rank===2?'🥈':'🥉';
+        html+=`<div class="title-row">
+          <div class="title-row-top">
+            <span class="title-rank">${rankMark}</span>
+            <span class="title-name">${p.name}</span>
+          </div>
+          <div class="title-row-bot">
+            <span class="title-team">${abbrFor(p.team)}</span>
+            <span class="title-val">${val}</span>
+          </div>
+        </div>`;
+      });
+    }
+    html+=`</div>`;
+  });
+  html+=`</div></div>`;
+  return html;
+}
+
 function renderStats(type){
   curStatsType=type;
   const card=document.getElementById('stats-card');
   if(!league.active){card.innerHTML=`<div style="font-size:.78rem;color:var(--text3)">${t('noLeague')}</div>`;return;}
 
+  // Determine which teams belong to which league for filtering stats
+  const getTeamLeague=(id)=>{
+    const tm=teams.find(t=>t.id===id);
+    return (tm&&tm.league)||'a';
+  };
+  const aTeamNames=new Set(teams.filter(tm=>league.teamIds.includes(tm.id)&&getTeamLeague(tm.id)==='a').map(tm=>tm.name));
+  const bTeamNames=new Set(teams.filter(tm=>league.teamIds.includes(tm.id)&&getTeamLeague(tm.id)==='b').map(tm=>tm.name));
+  const hasA=aTeamNames.size>0,hasB=bTeamNames.size>0;
+  const showBothLeagues=hasA&&hasB;
+  // Filter function: when both leagues exist, restrict to current tab
+  const matchLeague=(teamName)=>{
+    if(!showBothLeagues)return true;
+    return curLeagueTab==='a'?aTeamNames.has(teamName):bTeamNames.has(teamName);
+  };
+
+  // Build league tabs (shown above the bat/pit table when both leagues exist)
+  let leagueTabsHtml='';
+  if(showBothLeagues){
+    leagueTabsHtml=`<div class="lg-tabs" style="margin-bottom:.6rem">
+      <button class="lg-tab ${curLeagueTab==='a'?'on':''}" data-side="a" onclick="switchLeagueTab('a')">${getLeagueName('a')}</button>
+      <button class="lg-tab ${curLeagueTab==='b'?'on':''}" data-side="b" onclick="switchLeagueTab('b')">${getLeagueName('b')}</button>
+    </div>`;
+  }
+
   if(type==='bat'){
     const minAB=qualifiedABThreshold();
     // Show ALL batters (rate stats like AVG/OPS will be displayed as "-" for non-qualifiers)
-    const bats=Object.values(leagueBat).filter(p=>p.atbats>0).map(p=>{
+    const bats=Object.values(leagueBat).filter(p=>p.atbats>0&&matchLeague(p.team)).map(p=>{
       const ab=p.atbats,h=p.hits,bb=p.bb||0,d=p.doubles||0,t=p.triples||0,hr=p.hrs||0;
       const singles=h-d-t-hr;
       const tb=singles+d*2+t*3+hr*4;  // total bases
@@ -3187,7 +4402,7 @@ function renderStats(type){
       return{...p,avg:h/ab,doubles:d,triples:t,obp,slg,ops:obp+slg,qualified};
     });
     if(!bats.length){
-      card.innerHTML=`<div style="font-size:.78rem;color:var(--text3)">${t('noGames')}</div>`;
+      card.innerHTML=leagueTabsHtml+`<div style="font-size:.78rem;color:var(--text3)">${t('noGames')}</div>`;
       return;
     }
     const s=statSort.bat;
@@ -3220,7 +4435,7 @@ function renderStats(type){
       if(typeof av==='string') return s.dir*av.localeCompare(bv);
       return s.dir*(av-bv);
     });
-    const top=bats2.slice(0,20);
+    const top=bats2.slice(0,10);
     const cols=[
       {key:'name',ja:'選手',en:'Player',sortable:true,L:true},
       {key:'team',ja:'チーム',en:'Team',sortable:true,L:true},
@@ -3231,13 +4446,14 @@ function renderStats(type){
       {key:'triples',ja:'3B',en:'3B',sortable:true},
       {key:'hrs',ja:'HR',en:'HR',sortable:true},
       {key:'rbi',ja:'打点',en:'RBI',sortable:true},
+      {key:'sb',ja:'盗塁',en:'SB',sortable:true},
       {key:'bb',ja:'四死球',en:'BB',sortable:true},
       {key:'so',ja:'三振',en:'K',sortable:true},
       {key:'obp',ja:'出塁率',en:'OBP',sortable:true},
       {key:'slg',ja:'長打率',en:'SLG',sortable:true},
       {key:'ops',ja:'OPS',en:'OPS',sortable:true},
     ];
-    let h=`<table class="stats-tbl"><tr>`;
+    let h=`<div class="box-card" style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="stats-tbl box-tbl"><tr>`;
     cols.forEach(c=>{
       const label=lang==='ja'?c.ja:c.en;
       const arrow=s.col===c.key?(s.dir<0?' ▼':' ▲'):'';
@@ -3258,6 +4474,7 @@ function renderStats(type){
         <td style="${dim}">${avgDisp}</td>
         <td>${p.doubles}</td><td>${p.triples}</td>
         <td>${p.hrs}</td><td>${p.rbi}</td>
+        <td>${p.sb||0}</td>
         <td>${p.bb||0}</td>
         <td>${p.so||0}</td>
         <td style="${dim}">${obpDisp}</td>
@@ -3267,23 +4484,26 @@ function renderStats(type){
     });
     const noteB=lang==='ja'?`※打率・出塁率・長打率・OPSは規定打席 ${minAB}（試合×3.1）未達は "-" で表示`
                           :`* AVG/OBP/SLG/OPS shown as "-" for batters below qualifying PAs (${minAB})`;
-    card.innerHTML=h+'</table><div style="font-size:.72rem;color:var(--text3);margin-top:.5rem;padding:0 .2rem">'+noteB+'</div>';
+    const titleRaceHtml=renderTitleRace('bat',bats);
+    card.innerHTML=leagueTabsHtml+titleRaceHtml+h+'</table></div><div style="font-size:.72rem;color:var(--text3);margin-top:.5rem;padding:0 .2rem">'+noteB+'</div>';
   }else{
     const minIP=qualifiedIPThreshold(); // in outs
-    const pits=Object.values(leaguePit).filter(p=>p.ip>0).map(p=>{
+    const pits=Object.values(leaguePit).filter(p=>p.ip>0&&matchLeague(p.team)).map(p=>{
       const ipDisp=p.ip/3;
+      const wins=p.w||0,losses=p.l||0;
       return {
         ...p,
         era:p.er*27/p.ip,
         ipDisp,
         whip:p.ip>0?((p.bb||0)+(p.ha||0))*3/p.ip:0,
         kbb:(p.bb||0)>0?(p.k||0)/p.bb:(p.k||0),
+        wpct:(wins+losses)>0?wins/(wins+losses):0,
         gs:p.gs||0, cg:p.cg||0, sho:p.sho||0, qs:p.qs||0,
         qualified:p.ip>=minIP,
       };
     });
     if(!pits.length){
-      card.innerHTML=`<div style="font-size:.78rem;color:var(--text3)">${t('noGames')}</div>`;
+      card.innerHTML=leagueTabsHtml+`<div style="font-size:.78rem;color:var(--text3)">${t('noGames')}</div>`;
       return;
     }
     const s=statSort.pit;
@@ -3300,7 +4520,7 @@ function renderStats(type){
     }
     if(!pits2.length){
       const msg=lang==='ja'?'該当する投手がいません':'No qualifying pitchers';
-      card.innerHTML=`<div style="font-size:.78rem;color:var(--text3);padding:.4rem">${msg}</div>`;
+      card.innerHTML=leagueTabsHtml+`<div style="font-size:.78rem;color:var(--text3);padding:.4rem">${msg}</div>`;
       return;
     }
     pits2.sort((a,b)=>{
@@ -3312,7 +4532,7 @@ function renderStats(type){
       if(typeof av==='string') return s.dir*av.localeCompare(bv);
       return s.dir*(av-bv);
     });
-    const top=pits2.slice(0,15);
+    const top=pits2.slice(0,10);
     const cols=[
       {key:'name',ja:'投手',en:'Pitcher',sortable:true,L:true},
       {key:'team',ja:'チーム',en:'Team',sortable:true,L:true},
@@ -3332,7 +4552,7 @@ function renderStats(type){
       {key:'whip',ja:'WHIP',en:'WHIP',sortable:true},
       {key:'kbb',ja:'K/BB',en:'K/BB',sortable:true},
     ];
-    let h=`<table class="stats-tbl"><tr>`;
+    let h=`<div class="box-card" style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="stats-tbl box-tbl"><tr>`;
     cols.forEach(c=>{
       const label=lang==='ja'?c.ja:c.en;
       const arrow=s.col===c.key?(s.dir<0?' ▼':' ▲'):'';
@@ -3355,7 +4575,7 @@ function renderStats(type){
         <td>${p.cg}</td>
         <td>${p.sho}</td>
         <td>${p.qs}</td>
-        <td>${p.ipDisp.toFixed(1)}</td>
+        <td>${fmtIP(p.ip)}</td>
         <td>${p.k||0}</td>
         <td>${p.bb||0}</td>
         <td style="${dim}">${eraDisp}</td>
@@ -3366,7 +4586,8 @@ function renderStats(type){
     const minIPInn=Math.floor(minIP/3);
     const noteP=lang==='ja'?`※ERA・WHIP・K/BBは規定投球回 ${minIPInn}（試合×1.0）未達は "-" で表示`
                           :`* ERA/WHIP/KBB shown as "-" for pitchers below qualifying IP (${minIPInn})`;
-    card.innerHTML=h+'</table><div style="font-size:.72rem;color:var(--text3);margin-top:.5rem;padding:0 .2rem">'+noteP+'</div>';
+    const titleRaceHtml=renderTitleRace('pit',pits);
+    card.innerHTML=leagueTabsHtml+titleRaceHtml+h+'</table></div><div style="font-size:.72rem;color:var(--text3);margin-top:.5rem;padding:0 .2rem">'+noteP+'</div>';
   }
 }
 
