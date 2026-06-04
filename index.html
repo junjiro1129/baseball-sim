@@ -4,19 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚾ BASEBALL SIM — Spectator Edition</title>
-<meta name="description" content="観戦専用の野球シミュレーター。12球団・2リーグ・140試合のペナントレース、クライマックスシリーズ、日本シリーズまで楽しめます。全選手・全球団は架空のものです。">
+<meta name="description" content="観戦専用の野球シミュレーター。12球団・2リーグ・140試合のペナントレース、クライマックスシリーズ、日本シリーズまで楽しめます。チーム編集・データ保存も自由に使えるショーケース版。全選手・全球団は架空のものです。">
 <meta name="author" content="BASEBALL SIM">
 <meta name="theme-color" content="#0f0f0f">
-<!-- Open Graph (SNSシェア用) -->
 <meta property="og:title" content="⚾ BASEBALL SIM — Spectator Edition">
-<meta property="og:description" content="観戦専用の野球シミュレーター。12球団2リーグ140試合 + ポストシーズン。">
+<meta property="og:description" content="観戦専用の野球シミュレーター。12球団2リーグ140試合 + ポストシーズン。チーム編集・データ保存可。">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ja_JP">
-<!-- Twitter Card -->
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="⚾ BASEBALL SIM — Spectator Edition">
 <meta name="twitter:description" content="観戦専用の野球シミュレーター">
-<!-- Favicon (inline SVG for portability) -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BE%3C/text%3E%3C/svg%3E">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -38,6 +35,19 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-family:'Courie
 .btn.block{display:block;width:100%;margin:.3rem 0}.btn.sm{padding:.35rem .75rem;font-size:.82rem}.btn:disabled{opacity:.35;cursor:not-allowed}
 input[type=text],input[type=number],input[type=password],select{background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Courier New',monospace;font-size:.92rem;padding:.45rem .7rem;outline:none;transition:border-color .1s}
 input:focus,select:focus{border-color:#888}
+/* Editor input cells - more visible borders for editing context */
+.ed-cell{border:2px solid #888!important;background:#1a1a1a!important;font-weight:700}
+.ed-cell:focus{border-color:var(--gold)!important;background:#222!important}
+/* Wide cells (team name, abbrev) - generous padding */
+.ed-cell-wide{font-size:1rem!important;padding:.55rem .8rem!important}
+/* Compact cells (stats, names in rows) - minimal padding to fit in narrow columns */
+.ed-cell.prow input,.ed-cell.prow select{padding:.32rem .35rem!important;font-size:.85rem!important}
+.prow .ed-cell{padding:.35rem .4rem!important;font-size:.85rem!important;text-align:center}
+.prow input.ed-cell[type="text"]{text-align:left;font-size:.88rem!important;padding:.35rem .55rem!important}
+.prow select.ed-cell{padding:.35rem .15rem!important;font-size:.82rem!important;text-align:center;text-align-last:center}
+.ed-label{display:block;font-size:.85rem;color:var(--text2);margin-bottom:.3rem;font-weight:700;letter-spacing:.04em}
+/* Fixed pitcher role badge (non-editable) */
+.ed-role-fixed{font-size:.88rem;font-weight:900;text-align:center;padding:.35rem .3rem;border:1.5px dashed var(--border2);border-radius:var(--radius);background:var(--bg2);letter-spacing:.04em}
 select option{background:var(--bg3)}
 label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-spacing:.04em}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:1rem 1.2rem;margin-bottom:.75rem}
@@ -192,6 +202,11 @@ label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-
 
   /* テキスト入力 (iOSのズーム防止のため16px以上を維持) */
   input[type="text"],input[type="number"],select,textarea{font-size:16px!important}
+  /* エディタの行は狭いので、padding を切り詰めて16pxフォントを収める */
+  .prow input.ed-cell[type="number"]{padding:.3rem 2px!important;text-align:center}
+  .prow input.ed-cell[type="text"]{padding:.3rem .4rem!important}
+  .prow select.ed-cell{padding:.3rem 0!important}
+  .prow{gap:.2rem!important}
 
   /* リーグ管理画面の情報行 */
   .card{font-size:.95rem}
@@ -219,10 +234,10 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 .tsel{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem}
 .ttab{padding:.35rem .8rem;font-family:'Courier New',monospace;font-size:.8rem;font-weight:700;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text2);transition:all .1s}
 .ttab.on{border-color:var(--gold);color:var(--gold)}
-.prow{display:grid;grid-template-columns:1fr 36px 56px 56px 56px 56px 30px;gap:.3rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border)}
+.prow{display:grid;grid-template-columns:1fr 38px 52px 52px 52px 52px 24px;gap:.2rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border)}
 .prow:last-child{border-bottom:none}.prow input{padding:.32rem .42rem;font-size:.8rem}
-.phdr{display:grid;grid-template-columns:1fr 36px 56px 56px 56px 56px 30px;gap:.3rem;padding:.28rem 0;margin-bottom:.28rem}
-.phdr span{font-size:.82rem;color:var(--text3);letter-spacing:.04em;text-align:center}.phdr span:first-child{text-align:left}
+.phdr{display:grid;grid-template-columns:1fr 38px 52px 52px 52px 52px 24px;gap:.2rem;padding:.28rem 0;margin-bottom:.28rem}
+.phdr span{font-size:.78rem;color:var(--text3);letter-spacing:.02em;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.phdr span:first-child{text-align:left}
 /* LEAGUE */
 .ltabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:.9rem}
 .ltab{padding:.5rem 1rem;font-family:'Courier New',monospace;font-size:.85rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--text3);border-bottom:2px solid transparent;transition:color .1s}
@@ -396,25 +411,23 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   <div class="menu-list">
     <button class="btn pri block" onclick="gotoLeague()" data-ja="◈ リーグモード" data-en="◈ League Mode">◈ リーグモード</button>
     <button class="btn green block" onclick="gotoSelect()" data-ja="▶ クイック観戦" data-en="▶ Quick Game">▶ クイック観戦</button>
+    <button class="btn block" id="edit-btn" onclick="gotoEditor()" data-ja="✎ チーム編集" data-en="✎ Edit Teams">✎ チーム編集</button>
+    <div style="display:flex;gap:.4rem;margin-top:.3rem">
+      <button class="btn sm" style="flex:1" onclick="saveData()" data-ja="💾 データ保存" data-en="💾 Save Data">💾 データ保存</button>
+      <button class="btn sm" style="flex:1" onclick="loadData()" data-ja="📂 データ読込" data-en="📂 Load Data">📂 データ読込</button>
+    </div>
+    <input type="file" id="load-file" accept=".json" style="display:none" onchange="onFileLoad(event)">
   </div>
 
   <div class="showcase-disclaimer">
     <div class="showcase-disclaimer-title" data-ja="📢 本作について" data-en="📢 About this work">📢 本作について</div>
-    <p data-ja="本作は野球観戦をテーマとしたシミュレーションゲームです。" data-en="This is a baseball spectator simulation game.">本作は野球観戦をテーマとしたシミュレーションゲームです。</p>
-    <p data-ja="登場するチーム名、選手名、地域名はすべて架空のものであり、実在の団体・個人・地名とは一切関係ありません。" data-en="All team names, player names, and regional names appearing in this work are entirely fictional and bear no relation to any real organizations, individuals, or places.">登場するチーム名、選手名、地域名はすべて架空のものであり、実在の団体・個人・地名とは一切関係ありません。</p>
-    <p data-ja="このゲームはライセンスフリーで提供されており、改変・再配布が可能です。" data-en="This game is provided license-free and may be modified and redistributed.">このゲームはライセンスフリーで提供されており、改変・再配布が可能です。</p>
+    <p data-ja="本作はライセンスフリーのショーケース版です。全機能を自由にお試しいただけます。" data-en="This is a license-free showcase build. All features are unlocked for free.">本作はライセンスフリーのショーケース版です。全機能を自由にお試しいただけます。</p>
+    <p data-ja="登場するチーム名・選手名・地域名はすべて架空のものであり、実在の団体・個人・地名とは一切関係ありません。" data-en="All team names, player names, and regional names are entirely fictional and bear no relation to any real organizations, individuals, or places.">登場するチーム名・選手名・地域名はすべて架空のものであり、実在の団体・個人・地名とは一切関係ありません。</p>
   </div>
 </div>
 <style>
-.showcase-disclaimer{
-  margin-top:1.5rem;padding:.9rem 1rem;background:var(--bg2);
-  border:1px solid var(--border);border-left:3px solid var(--gold);
-  border-radius:var(--radius);font-size:.82rem;color:var(--text2);
-  line-height:1.6;letter-spacing:.02em
-}
-.showcase-disclaimer-title{
-  color:var(--gold);font-weight:700;margin-bottom:.4rem;font-size:.9rem
-}
+.showcase-disclaimer{margin-top:1.5rem;padding:.9rem 1rem;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);font-size:.82rem;color:var(--text2);line-height:1.6;letter-spacing:.02em}
+.showcase-disclaimer-title{color:var(--gold);font-weight:700;margin-bottom:.4rem;font-size:.9rem}
 .showcase-disclaimer p{margin:.3rem 0}
 @media (max-width:480px){
   .showcase-disclaimer{font-size:.86rem!important;padding:.85rem .9rem!important}
@@ -422,10 +435,9 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 }
 </style>
 
-<!-- PRO (kept for compatibility but unused in showcase) -->
 <div id="pro-screen" class="screen">
   <div class="fb mb"><div class="sec" style="margin:0">🔑 ライセンス認証</div><button class="btn sm" onclick="gotoScreen('menu-screen')">← 戻る</button></div>
-  <div class="card"><div class="notice info">このショーケース版ではライセンス認証は不要です。すべての機能をご利用いただけます。</div></div>
+  <div class="card"><div class="notice info">このショーケース版では、ライセンス認証なしで全機能を利用できます。</div></div>
 </div>
 
 <!-- SELECT -->
@@ -578,8 +590,14 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
     <div class="tsel" id="esel0"></div>
     <div class="card">
       <div class="g2" style="gap:.65rem">
-        <div><label data-ja="チーム名" data-en="Team Name">チーム名</label><input type="text" id="e-nm" style="width:100%" oninput="updTeam('name',this.value)"></div>
-        <div><label data-ja="略称（〜5文字）" data-en="Abbrev (≤5)">略称（〜5文字）</label><input type="text" id="e-ab" maxlength="5" style="width:100%" oninput="updTeam('abbr',this.value)"></div>
+        <div>
+          <label class="ed-label" data-ja="チーム名" data-en="Team Name">チーム名</label>
+          <input type="text" id="e-nm" class="ed-cell ed-cell-wide" style="width:100%" oninput="updTeam('name',this.value)">
+        </div>
+        <div>
+          <label class="ed-label" data-ja="略称（〜5文字）" data-en="Abbrev (≤5)">略称（〜5文字）</label>
+          <input type="text" id="e-ab" class="ed-cell ed-cell-wide" maxlength="5" style="width:100%" oninput="updTeam('abbr',this.value)">
+        </div>
       </div>
       <div class="flex mt">
         <button class="btn sm dan" onclick="delTeam()" data-ja="このチームを削除" data-en="Delete Team">このチームを削除</button>
@@ -591,12 +609,12 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   <div id="ep1" style="display:none">
     <div class="tsel" id="esel1"></div>
     <div class="card" style="padding:.65rem .8rem">
-      <div class="phdr" style="grid-template-columns:1fr 56px 56px 56px 56px 36px">
-        <span data-ja="投手名" data-en="Pitcher Name">投手名</span>
+      <div class="phdr" style="grid-template-columns:1fr 44px 52px 52px 52px 24px">
+        <span data-ja="投手名" data-en="Name">投手名</span>
         <span data-ja="役割" data-en="Role">役割</span>
         <span data-ja="球速" data-en="SPD">球速</span>
-        <span data-ja="制球" data-en="CTRL">制球</span>
-        <span data-ja="スタミナ" data-en="STAM">スタミナ</span>
+        <span data-ja="制球" data-en="CTL">制球</span>
+        <span data-ja="体力" data-en="STM">体力</span>
         <span>#</span>
       </div>
       <div id="pitchers-rows"></div>
@@ -606,12 +624,17 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
     <div class="tsel" id="esel2"></div>
     <div class="card" style="padding:.65rem .8rem">
       <div class="phdr">
-        <span data-ja="名前" data-en="Name">名前</span><span data-ja="守備" data-en="Pos">守備</span>
-        <span data-ja="ミート" data-en="CON">ミート</span><span data-ja="パワー" data-en="PWR">パワー</span>
-        <span data-ja="走力" data-en="SPD">走力</span><span data-ja="守備力" data-en="DEF">守備力</span><span>#</span>
+        <span data-ja="選手名" data-en="Name">選手名</span><span data-ja="守備" data-en="Pos">守備</span>
+        <span data-ja="ミート" data-en="MET">ミート</span><span data-ja="パワー" data-en="PWR">パワー</span>
+        <span data-ja="走力" data-en="SPD">走力</span><span data-ja="守備" data-en="DEF">守備</span><span>#</span>
       </div>
       <div id="hitters-rows"></div>
     </div>
+  </div>
+
+  <!-- Save & Done button (shown on all tabs) -->
+  <div style="margin-top:1rem;padding-bottom:.5rem">
+    <button class="btn pri block" onclick="finishEditing()" data-ja="✓ 編集を保存して完了" data-en="✓ Save &amp; Done">✓ 編集を保存して完了</button>
   </div>
 </div>
 
@@ -1078,7 +1101,7 @@ const DT=TEAM_BASE.map(tb=>{
 
 // ═══ STATE ═══
 let teams=JSON.parse(JSON.stringify(DT));
-let isPro=false,selIds=[],edTabIdx=0,edTeamIdx=0;
+let isPro=true,selIds=[],edTabIdx=0,edTeamIdx=0;
 let gs=null,awayT,homeT,logs=[],autoOn=false,autoTmr=null;
 let league={active:false,name:"",gpp:2,teamIds:[],schedule:[],stats:{}};
 let leagueBat={},leaguePit={};
@@ -1107,18 +1130,20 @@ function activateLic(){
     m.className='notice ok';m.textContent=t('proActive');updPro();
   }else{m.className='notice warn';m.textContent=t('proInvalid');}
 }
-async function revokeLic(){if(!(await showConfirm(lang==='ja'?'PRO認証を解除しますか？':'Revoke PRO activation?')))return;isPro=false;localStorage.removeItem('bsim_pro');updPro();}
+async function revokeLic(){
+  await showConfirm(lang==='ja'?'ショーケース版ではPRO機能は常時有効です。':'PRO features are always enabled in the showcase build.');
+}
 function updPro(){
-  document.getElementById('pro-badge').textContent=isPro?'PRO':'FREE';
-  document.getElementById('pro-badge').className='badge '+(isPro?'pro':'free');
-  document.getElementById('revoke-area').style.display=isPro?'block':'none';
-  document.getElementById('pro-lbl').textContent=isPro?t('proStatus'):t('freeStatus');
-  // hide PRO promo section if already PRO
+  const badge=document.getElementById('pro-badge');
+  if(badge){badge.textContent=isPro?'PRO':'FREE';badge.className='badge '+(isPro?'pro':'free');}
+  const rev=document.getElementById('revoke-area');
+  if(rev)rev.style.display=isPro?'block':'none';
+  const lbl=document.getElementById('pro-lbl');
+  if(lbl)lbl.textContent=isPro?t('proStatus'):t('freeStatus');
   const promo=document.querySelector('.pro-promo');
-  if(promo) promo.style.display=isPro?'none':'block';
-  // also update divider label
+  if(promo)promo.style.display=isPro?'none':'block';
   const dl=document.getElementById('pro-divider-label');
-  if(dl) dl.style.color=isPro?'var(--green)':'var(--gold)';
+  if(dl)dl.style.color=isPro?'var(--green)':'var(--gold)';
 }
 
 // ═══ SCREENS ═══
@@ -2917,61 +2942,92 @@ function loadEdTeam(i){
   const benchPositions=['C','IF','OF'];
 
   // Pitchers tab: 13 pitchers
+  // Role is fixed by slot position: 5 SP, 6 RP, 1 SU, 1 CL
+  const fixedRole=(pi)=>{
+    if(pi<5)return 'SP';
+    if(pi<11)return 'RP';
+    if(pi===11)return 'SU';
+    return 'CL';
+  };
   const prows=document.getElementById('pitchers-rows');
   if(prows){
     prows.innerHTML=tm.pitchers.map((p,pi)=>{
-      // Normalize legacy role (e.g. SP1, RP3) → base role (SP, RP)
-      const normalizedRole=normalizePitcherRole(p.role);
+      // Force normalize role to the slot's fixed role
+      const role=fixedRole(pi);
+      if(p.role!==role)p.role=role;
+      const roleColor=role==='SP'?'#f5e642':role==='CL'?'#e74c3c':role==='SU'?'#9b59b6':'#5dade2';
       return `
-      <div class="prow" style="grid-template-columns:1fr 56px 56px 56px 56px 36px">
-        <input type="text" value="${p.name}" oninput="updPitcher(${i},${pi},'name',this.value)">
-        <select style="text-align:center;padding:4px;width:100%" onchange="updPitcher(${i},${pi},'role',this.value)">${buildOpts(pitcherRoles,normalizedRole)}</select>
-        <input type="number" value="${p.spd}" min="1" max="99" oninput="updPitcher(${i},${pi},'spd',+this.value)">
-        <input type="number" value="${p.ctrl}" min="1" max="99" oninput="updPitcher(${i},${pi},'ctrl',+this.value)">
-        <input type="number" value="${p.stam}" min="1" max="99" oninput="updPitcher(${i},${pi},'stam',+this.value)">
+      <div class="prow" style="grid-template-columns:1fr 44px 52px 52px 52px 24px">
+        <input type="text" class="ed-cell" value="${p.name}" oninput="updPitcher(${i},${pi},'name',this.value)">
+        <div class="ed-role-fixed" style="color:${roleColor}">${role}</div>
+        <input type="number" class="ed-cell" value="${p.spd}" min="1" max="99" oninput="updPitcher(${i},${pi},'spd',+this.value)">
+        <input type="number" class="ed-cell" value="${p.ctrl}" min="1" max="99" oninput="updPitcher(${i},${pi},'ctrl',+this.value)">
+        <input type="number" class="ed-cell" value="${p.stam}" min="1" max="99" oninput="updPitcher(${i},${pi},'stam',+this.value)">
         <div style="font-size:.84rem;color:var(--text3);text-align:center">${pi+1}</div>
       </div>`;
     }).join('');
   }
 
-  // Hitters tab: 13 hitters (first 8 are starters with specific positions, 9-13 are bench with C/IF/OF)
+  // Hitters tab: 13 hitters (first 9 are starters with unique positions, 10-13 are bench)
+  // Auto-deduplicate starter positions first (so display is consistent)
+  ensureUniqueStarterPositions(tm);
+
   const hrows=document.getElementById('hitters-rows');
   if(hrows){
     hrows.innerHTML=tm.roster.map((p,pi)=>{
-      // First 9 are starters (with 9th typically DH); 10-13 are bench
       const isBench=pi>=9;
-      const optList=isBench?benchPositions:starterPositions;
-      // Make sure current pos is in the list; if not, normalize it
-      let curPos=p.pos;
-      if(!optList.includes(curPos)){
-        // Map legacy positions to valid ones
-        if(isBench){
-          // For bench: map 1B/2B/3B/SS to IF, LF/CF/RF to OF
-          if(['1B','2B','3B','SS'].includes(curPos))curPos='IF';
-          else if(['LF','CF','RF'].includes(curPos))curPos='OF';
-          else if(curPos==='DH')curPos='IF';
-          else if(!benchPositions.includes(curPos))curPos='IF';
-        }else{
-          // For starters: keep if valid, else default
-          if(!starterPositions.includes(curPos)){
-            if(curPos==='IF')curPos='2B';
-            else if(curPos==='OF')curPos='CF';
-            else curPos='2B';
-          }
-        }
-      }
       const slotLabel=pi<9?`${pi+1}<div style="font-size:.6rem;color:var(--gold)">SP</div>`:`${pi+1}`;
+      if(isBench){
+        // Bench: no position selector (bench players don't carry a fixed position)
+        return `
+        <div class="prow" style="grid-template-columns:1fr 52px 52px 52px 52px 24px">
+          <input type="text" class="ed-cell" value="${p.name}" oninput="updHitter(${i},${pi},'name',this.value)">
+          <input type="number" class="ed-cell" value="${p.meet}" min="1" max="99" oninput="updHitter(${i},${pi},'meet',+this.value)">
+          <input type="number" class="ed-cell" value="${p.power}" min="1" max="99" oninput="updHitter(${i},${pi},'power',+this.value)">
+          <input type="number" class="ed-cell" value="${p.speed}" min="1" max="99" oninput="updHitter(${i},${pi},'speed',+this.value)">
+          <input type="number" class="ed-cell" value="${p.def}" min="1" max="99" oninput="updHitter(${i},${pi},'def',+this.value)">
+          <div style="font-size:.84rem;color:var(--text3);text-align:center">${slotLabel}</div>
+        </div>`;
+      }
+      // Starter: position selector (uniqueness enforced via updHitter swap logic)
+      const curPos=starterPositions.includes(p.pos)?p.pos:'2B';
       return `
       <div class="prow">
-        <input type="text" value="${p.name}" oninput="updHitter(${i},${pi},'name',this.value)">
-        <select style="text-align:center;padding:4px;width:100%" onchange="updHitter(${i},${pi},'pos',this.value)">${buildOpts(optList,curPos)}</select>
-        <input type="number" value="${p.meet}" min="1" max="99" oninput="updHitter(${i},${pi},'meet',+this.value)">
-        <input type="number" value="${p.power}" min="1" max="99" oninput="updHitter(${i},${pi},'power',+this.value)">
-        <input type="number" value="${p.speed}" min="1" max="99" oninput="updHitter(${i},${pi},'speed',+this.value)">
-        <input type="number" value="${p.def}" min="1" max="99" oninput="updHitter(${i},${pi},'def',+this.value)">
+        <input type="text" class="ed-cell" value="${p.name}" oninput="updHitter(${i},${pi},'name',this.value)">
+        <select class="ed-cell" style="text-align:center;padding:.45rem;width:100%" onchange="updHitter(${i},${pi},'pos',this.value)">${buildOpts(starterPositions,curPos)}</select>
+        <input type="number" class="ed-cell" value="${p.meet}" min="1" max="99" oninput="updHitter(${i},${pi},'meet',+this.value)">
+        <input type="number" class="ed-cell" value="${p.power}" min="1" max="99" oninput="updHitter(${i},${pi},'power',+this.value)">
+        <input type="number" class="ed-cell" value="${p.speed}" min="1" max="99" oninput="updHitter(${i},${pi},'speed',+this.value)">
+        <input type="number" class="ed-cell" value="${p.def}" min="1" max="99" oninput="updHitter(${i},${pi},'def',+this.value)">
         <div style="font-size:.84rem;color:var(--text3);text-align:center">${slotLabel}</div>
       </div>`;
     }).join('');
+  }
+}
+
+// Make sure the 9 starters have 9 unique positions (C/1B/2B/3B/SS/LF/CF/RF/DH).
+// Resolves duplicates by reassigning the offender to the first missing position.
+function ensureUniqueStarterPositions(tm){
+  const ALL=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
+  const seen=new Set();
+  const starters=tm.roster.slice(0,9);
+  // First pass: keep first occurrence of each position
+  starters.forEach((p,i)=>{
+    if(!ALL.includes(p.pos))p.pos=null;
+    if(p.pos&&!seen.has(p.pos))seen.add(p.pos);
+    else p.pos=null;  // duplicate or invalid → mark for reassignment
+  });
+  // Second pass: fill missing positions from leftovers
+  const missing=ALL.filter(pos=>!seen.has(pos));
+  let mi=0;
+  starters.forEach(p=>{
+    if(!p.pos){
+      p.pos=missing[mi++]||'DH';
+    }
+  });
+  // Bench (pi >= 9): no position
+  for(let i=9;i<tm.roster.length;i++){
+    if(tm.roster[i].pos)delete tm.roster[i].pos;
   }
 }
 
@@ -3059,6 +3115,16 @@ function ensureFullRoster(tm){
 }
 
 function updTeam(f,v){teams[edTeamIdx][f]=v;renderEdSels();}
+
+// Finalize editing: ensure data integrity, then return to menu
+function finishEditing(){
+  // Ensure every team has unique starter positions and no bench positions
+  teams.forEach(tm=>{
+    ensureFullRoster(tm);
+    ensureUniqueStarterPositions(tm);
+  });
+  gotoScreen('menu-screen');
+}
 function updPitcher(ti,pi,f,v){
   teams[ti].pitchers[pi][f]=v;
   // Keep backward-compatible "current pitcher" reference in sync with the first pitcher in the roster
@@ -3068,10 +3134,31 @@ function updPitcher(ti,pi,f,v){
   }
 }
 function updHitter(ti,pi,f,v){
-  teams[ti].roster[pi][f]=v;
+  const tm=teams[ti];
+  // Position change for a starter (pi < 9): enforce uniqueness by swapping with whoever currently holds that pos
+  if(f==='pos'&&pi<9){
+    const newPos=v;
+    // Find another starter (different slot) who currently has newPos
+    const otherIdx=tm.roster.slice(0,9).findIndex((p,idx)=>idx!==pi&&p.pos===newPos);
+    if(otherIdx>=0){
+      // Swap positions: the other slot gets this slot's old position
+      const oldPos=tm.roster[pi].pos;
+      tm.roster[otherIdx].pos=oldPos;
+    }
+    tm.roster[pi].pos=newPos;
+    // Mirror to lineup if backward-compat array exists
+    if(tm.lineup){
+      if(tm.lineup[pi])tm.lineup[pi].pos=newPos;
+      if(otherIdx>=0&&tm.lineup[otherIdx])tm.lineup[otherIdx].pos=tm.roster[otherIdx].pos;
+    }
+    // Re-render to reflect the swap
+    loadEdTeam(ti);
+    return;
+  }
+  tm.roster[pi][f]=v;
   // Keep backward-compatible lineup (first 8 hitters = starting batters)
-  if(pi<8&&teams[ti].lineup&&teams[ti].lineup[pi]){
-    teams[ti].lineup[pi][f]=v;
+  if(pi<8&&tm.lineup&&tm.lineup[pi]){
+    tm.lineup[pi][f]=v;
   }
 }
 function addTeam(){
@@ -4621,7 +4708,7 @@ function onFileLoad(e){
 }
 
 // ═══ INIT ═══
-if(localStorage.getItem('bsim_pro'))isPro=true;
+isPro=true;
 updPro();
 </script>
 </body>
