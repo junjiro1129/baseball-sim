@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
 <title>⚾ BASEBALL SIM — Spectator Edition</title>
 <meta name="description" content="観戦専用の野球シミュレーター。12球団・2リーグ・140試合のペナントレース、クライマックスシリーズ、日本シリーズまで楽しめます。チーム編集・データ保存も自由に使えるショーケース版。全選手・全球団は架空のものです。">
 <meta name="author" content="BASEBALL SIM">
@@ -25,6 +26,7 @@
   --red:#c0392b;--green:#27ae60;
   --radius:6px;--radius2:10px;
 }
+html{background:var(--bg);color-scheme:dark}
 body{background:var(--bg);color:var(--text);min-height:100vh;font-family:'Courier New',monospace;font-size:15px}
 #app{max-width:740px;margin:0 auto;padding:.75rem}
 .screen{display:none}.screen.active{display:block}
@@ -93,6 +95,20 @@ label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-
 .tcard .role.away{color:#4a90d9}.tcard .role.home{color:var(--gold)}
 /* SCOREBOARD */
 .scoreboard{background:#000;border:1px solid #1a1a1a;border-radius:var(--radius);padding:.65rem;margin-bottom:.6rem;overflow-x:auto}
+/* Game-result summary (W/L/S/HR) — between scoreboard and tabs */
+.r-summary{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.65rem .85rem;margin-bottom:.75rem;font-size:.88rem;line-height:1.65;text-align:left}
+.r-summary:empty{display:none}
+.r-summary .rs-row{display:flex;align-items:baseline;gap:.5rem;padding:2px 0}
+.r-summary .rs-label{color:var(--gold);font-weight:800;letter-spacing:.04em;min-width:4.5em;flex-shrink:0;font-size:.85rem}
+.r-summary .rs-body{color:var(--text);font-weight:600;flex:1}
+.r-summary .rs-name{font-weight:800}
+.r-summary .rs-meta{color:var(--text3);font-size:.82rem;margin-left:.3rem;font-weight:500}
+.r-summary .rs-team{color:var(--text3);font-size:.78rem;font-weight:700;margin-right:.3rem;letter-spacing:.04em}
+@media (max-width:480px){
+  .r-summary{font-size:.92rem!important;padding:.7rem .8rem!important}
+  .r-summary .rs-label{font-size:.88rem!important;min-width:4.2em!important}
+  .r-summary .rs-meta{font-size:.85rem!important}
+}
 .sb-table{width:100%;border-collapse:collapse;min-width:480px}
 .sb-th{font-size:.75rem;color:#aaa;text-align:center;padding:3px 4px}.sb-th.L{text-align:left}
 .sb-td{font-size:.88rem;color:var(--gold);text-align:center;padding:4px 4px;font-weight:700}
@@ -208,6 +224,9 @@ label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-
   .prow select.ed-cell{padding:.3rem 0!important}
   .prow{gap:.2rem!important}
 
+  /* チーム編集画面のカードはモバイルではpaddingを詰めて行幅を確保 */
+  #editor-screen .card[style*="padding"]{padding:.5rem .45rem!important}
+
   /* リーグ管理画面の情報行 */
   .card{font-size:.95rem}
 }
@@ -234,9 +253,12 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 .tsel{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem}
 .ttab{padding:.35rem .8rem;font-family:'Courier New',monospace;font-size:.8rem;font-weight:700;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text2);transition:all .1s}
 .ttab.on{border-color:var(--gold);color:var(--gold)}
-.prow{display:grid;grid-template-columns:1fr 38px 52px 52px 52px 52px 24px;gap:.2rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border)}
-.prow:last-child{border-bottom:none}.prow input{padding:.32rem .42rem;font-size:.8rem}
-.phdr{display:grid;grid-template-columns:1fr 38px 52px 52px 52px 52px 24px;gap:.2rem;padding:.28rem 0;margin-bottom:.28rem}
+.prow{display:grid;grid-template-columns:28px 200px 38px 56px 56px 56px 56px;gap:.25rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border)}
+.prow:last-child{border-bottom:none}.prow input{padding:.32rem .42rem;font-size:.8rem;min-width:0}
+.phdr{display:grid;grid-template-columns:28px 200px 38px 56px 56px 56px 56px;gap:.25rem;padding:.28rem 0;margin-bottom:.28rem}
+/* Editor rows live inside a horizontally-scrollable wrapper */
+.ed-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -.45rem;padding:0 .45rem}
+.ed-scroll .phdr,.ed-scroll .prow{min-width:max-content}
 .phdr span{font-size:.78rem;color:var(--text3);letter-spacing:.02em;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.phdr span:first-child{text-align:left}
 /* LEAGUE */
 .ltabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:.9rem}
@@ -545,6 +567,9 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   <!-- Box score scoreboard -->
   <div class="scoreboard" style="margin-bottom:.75rem"><table class="sb-table" id="r-sb"></table></div>
 
+  <!-- Game summary (W/L/S/HR) -->
+  <div id="r-summary" class="r-summary"></div>
+
   <!-- Tabs -->
   <div class="etabs" style="margin-bottom:.65rem">
     <button class="etab on" onclick="rTab(0)" data-ja="投打成績" data-en="Box Score">投打成績</button>
@@ -609,26 +634,31 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   <div id="ep1" style="display:none">
     <div class="tsel" id="esel1"></div>
     <div class="card" style="padding:.65rem .8rem">
-      <div class="phdr" style="grid-template-columns:1fr 44px 52px 52px 52px 24px">
-        <span data-ja="投手名" data-en="Name">投手名</span>
-        <span data-ja="役割" data-en="Role">役割</span>
-        <span data-ja="球速" data-en="SPD">球速</span>
-        <span data-ja="制球" data-en="CTL">制球</span>
-        <span data-ja="体力" data-en="STM">体力</span>
-        <span>#</span>
+      <div class="ed-scroll">
+        <div class="phdr" style="grid-template-columns:28px 200px 44px 56px 56px 56px">
+          <span>#</span>
+          <span data-ja="投手名" data-en="Name">投手名</span>
+          <span data-ja="役割" data-en="Role">役割</span>
+          <span data-ja="球速" data-en="SPD">球速</span>
+          <span data-ja="制球" data-en="CTL">制球</span>
+          <span data-ja="体力" data-en="STM">体力</span>
+        </div>
+        <div id="pitchers-rows"></div>
       </div>
-      <div id="pitchers-rows"></div>
     </div>
   </div>
   <div id="ep2" style="display:none">
     <div class="tsel" id="esel2"></div>
     <div class="card" style="padding:.65rem .8rem">
-      <div class="phdr">
-        <span data-ja="選手名" data-en="Name">選手名</span><span data-ja="守備" data-en="Pos">守備</span>
-        <span data-ja="ミート" data-en="MET">ミート</span><span data-ja="パワー" data-en="PWR">パワー</span>
-        <span data-ja="走力" data-en="SPD">走力</span><span data-ja="守備" data-en="DEF">守備</span><span>#</span>
+      <div class="ed-scroll">
+        <div class="phdr">
+          <span>#</span>
+          <span data-ja="選手名" data-en="Name">選手名</span><span data-ja="守備" data-en="Pos">守備</span>
+          <span data-ja="ミート" data-en="MET">ミート</span><span data-ja="パワー" data-en="PWR">パワー</span>
+          <span data-ja="走力" data-en="SPD">走力</span><span data-ja="守備" data-en="DEF">守備</span>
+        </div>
+        <div id="hitters-rows"></div>
       </div>
-      <div id="hitters-rows"></div>
     </div>
   </div>
 
@@ -2007,10 +2037,13 @@ function endGame(){
     // Update league rest days based on who actually pitched in this watched game
     updateRestDays(awayT,homeT);
     // Snapshot full game data for history viewing
+    // Build summary AFTER accBat/accPit so season totals (leaguePit) include this game
+    const summary=buildResultSummary(awayT,homeT);
     const snapshot={
       away:dc(awayT),home:dc(homeT),
       ilog:dc(gs.ilog),inning:gs.inning,score:[a,h],
-      logs:dc(logs)
+      logs:dc(logs),
+      summary:summary
     };
     // Postseason game (watched via playPSGame): record into postseason series
     if(currentPSGame){
@@ -2247,6 +2280,8 @@ function showResult(){
 
   // Scoreboard on result screen
   renderResultScoreboard();
+  // Game summary (W/L/S/HR)
+  renderResultSummary();
   // Team-grouped stats (pitcher + batters per team)
   renderResultTeamStats();
   // Play-by-play log
@@ -2278,7 +2313,7 @@ function viewGameHistory(gid){
   // Swap globals to render snapshot data using existing renderers
   awayT=snap.away;homeT=snap.home;
   gs={inning:snap.inning,half:0,outs:0,balls:0,strikes:0,bases:[false,false,false],
-      score:snap.score,ilog:snap.ilog,order:[0,0],over:true};
+      score:snap.score,ilog:snap.ilog,order:[0,0],over:true,_snapshotSummary:snap.summary||null};
   logs=snap.logs||[];
   viewingHistory=true;
 
@@ -2289,6 +2324,7 @@ function viewGameHistory(gid){
   document.getElementById('r-teams').textContent=`${awayT.name}  vs  ${homeT.name}   |   ${verdict}`;
 
   renderResultScoreboard();
+  renderResultSummary();
   renderResultTeamStats();
   renderResultLog();
 
@@ -2330,6 +2366,104 @@ function renderResultScoreboard(){
     h+=`<td class="sb-td run">${gs.score[ti]}</td><td class="sb-td">${hits}</td><td class="sb-td">0</td></tr>`;
   });
   document.getElementById('r-sb').innerHTML=h;
+}
+
+// ═══ RESULT SUMMARY (W/L/S/HR lines under the scoreboard) ═══
+// Build a frozen-in-time summary object at game-end. Stored with the snapshot
+// so that viewing historical games shows that game's correct season totals.
+function buildResultSummary(awayTeam,homeTeam){
+  const seasonRec=(team,p)=>{
+    if(!league||!league.active)return null;
+    const k=team.name+':'+p.name;
+    const s=leaguePit&&leaguePit[k];
+    if(!s)return null;
+    return {w:s.w||0,l:s.l||0,s:s.s||0};
+  };
+  let wPit=null,wTeam=null,lPit=null,lTeam=null,sPit=null,sTeam=null;
+  [awayTeam,homeTeam].forEach(tm=>{
+    (tm.pitchersAppeared||[]).forEach(p=>{
+      if(p.gW){wPit=p;wTeam=tm;}
+      if(p.gL){lPit=p;lTeam=tm;}
+      if(p.gS){sPit=p;sTeam=tm;}
+    });
+  });
+  // HR list — show season total (after accBat has been called)
+  const hrList=[];
+  [awayTeam,homeTeam].forEach(tm=>{
+    const seen=new Set();
+    const collect=p=>{
+      if(!p||seen.has(p.name))return;
+      seen.add(p.name);
+      if((p.hrs||0)>0){
+        // p.hrs is THIS game's HR count. Look up season total from leaguePit's sibling, leagueBat.
+        let displayN=p.hrs||0;
+        if(league&&league.active&&leagueBat){
+          const k=tm.name+':'+p.name;
+          if(leagueBat[k])displayN=leagueBat[k].hrs||displayN;
+        }
+        hrList.push({teamAbbr:tm.abbr,name:p.name,n:displayN});
+      }
+    };
+    (tm.lineup||[]).forEach(collect);
+    (tm.battersAppeared||[]).forEach(slot=>{
+      if(Array.isArray(slot))slot.forEach(collect);
+    });
+    (tm.benchHitters||[]).forEach(collect);
+  });
+  return {
+    win:wPit?{teamAbbr:wTeam.abbr,name:wPit.name,rec:seasonRec(wTeam,wPit)}:null,
+    loss:lPit?{teamAbbr:lTeam.abbr,name:lPit.name,rec:seasonRec(lTeam,lPit)}:null,
+    save:sPit?{teamAbbr:sTeam.abbr,name:sPit.name,rec:seasonRec(sTeam,sPit)}:null,
+    hrs:hrList,
+  };
+}
+
+// Render the summary from a pre-built summary object (used by both live result and history view)
+function renderResultSummaryFrom(summary){
+  const box=document.getElementById('r-summary');
+  if(!box)return;
+  box.innerHTML='';
+  if(!summary)return;
+  const rows=[];
+  if(summary.win){
+    const w=summary.win;
+    const meta=w.rec?`(${w.rec.w}${lang==='ja'?'勝':'W'}${w.rec.l}${lang==='ja'?'敗':'L'})`:'';
+    rows.push({label:lang==='ja'?'勝利':'WIN',
+      body:`<span class="rs-team">${w.teamAbbr}</span><span class="rs-name">${w.name}</span><span class="rs-meta">${meta}</span>`});
+  }
+  if(summary.loss){
+    const l=summary.loss;
+    const meta=l.rec?`(${l.rec.w}${lang==='ja'?'勝':'W'}${l.rec.l}${lang==='ja'?'敗':'L'})`:'';
+    rows.push({label:lang==='ja'?'敗戦':'LOSS',
+      body:`<span class="rs-team">${l.teamAbbr}</span><span class="rs-name">${l.name}</span><span class="rs-meta">${meta}</span>`});
+  }
+  if(summary.save){
+    const s=summary.save;
+    const meta=s.rec?`(${s.rec.s}${lang==='ja'?'S':'S'})`:'';
+    rows.push({label:lang==='ja'?'セーブ':'SAVE',
+      body:`<span class="rs-team">${s.teamAbbr}</span><span class="rs-name">${s.name}</span><span class="rs-meta">${meta}</span>`});
+  }
+  if(summary.hrs&&summary.hrs.length>0){
+    const hrText=summary.hrs.map(o=>{
+      const nLabel=lang==='ja'?`${o.n}号`:`#${o.n}`;
+      return `<span class="rs-team">${o.teamAbbr}</span><span class="rs-name">${o.name}</span><span class="rs-meta">${nLabel}</span>`;
+    }).join(' / ');
+    rows.push({label:lang==='ja'?'本塁打':'HR',body:hrText});
+  }
+  if(rows.length===0)return;
+  box.innerHTML=rows.map(r=>`<div class="rs-row"><span class="rs-label">${r.label}</span><span class="rs-body">${r.body}</span></div>`).join('');
+}
+
+// Live result (after a game just ended): compute and render summary using current state
+function renderResultSummary(){
+  if(!awayT||!homeT)return;
+  // Use the snapshot's stored summary if we're viewing history; else build fresh
+  if(viewingHistory&&gs&&gs._snapshotSummary){
+    renderResultSummaryFrom(gs._snapshotSummary);
+    return;
+  }
+  const summary=buildResultSummary(awayT,homeT);
+  renderResultSummaryFrom(summary);
 }
 
 function renderResultTeamStats(){
@@ -2957,13 +3091,13 @@ function loadEdTeam(i){
       if(p.role!==role)p.role=role;
       const roleColor=role==='SP'?'#f5e642':role==='CL'?'#e74c3c':role==='SU'?'#9b59b6':'#5dade2';
       return `
-      <div class="prow" style="grid-template-columns:1fr 44px 52px 52px 52px 24px">
+      <div class="prow" style="grid-template-columns:28px 200px 44px 56px 56px 56px">
+        <div style="font-size:.84rem;color:var(--text3);text-align:center">${pi+1}</div>
         <input type="text" class="ed-cell" value="${p.name}" oninput="updPitcher(${i},${pi},'name',this.value)">
         <div class="ed-role-fixed" style="color:${roleColor}">${role}</div>
         <input type="number" class="ed-cell" value="${p.spd}" min="1" max="99" oninput="updPitcher(${i},${pi},'spd',+this.value)">
         <input type="number" class="ed-cell" value="${p.ctrl}" min="1" max="99" oninput="updPitcher(${i},${pi},'ctrl',+this.value)">
         <input type="number" class="ed-cell" value="${p.stam}" min="1" max="99" oninput="updPitcher(${i},${pi},'stam',+this.value)">
-        <div style="font-size:.84rem;color:var(--text3);text-align:center">${pi+1}</div>
       </div>`;
     }).join('');
   }
@@ -2980,26 +3114,26 @@ function loadEdTeam(i){
       if(isBench){
         // Bench: no position selector (bench players don't carry a fixed position)
         return `
-        <div class="prow" style="grid-template-columns:1fr 52px 52px 52px 52px 24px">
+        <div class="prow" style="grid-template-columns:28px 200px 56px 56px 56px 56px">
+          <div style="font-size:.84rem;color:var(--text3);text-align:center">${slotLabel}</div>
           <input type="text" class="ed-cell" value="${p.name}" oninput="updHitter(${i},${pi},'name',this.value)">
           <input type="number" class="ed-cell" value="${p.meet}" min="1" max="99" oninput="updHitter(${i},${pi},'meet',+this.value)">
           <input type="number" class="ed-cell" value="${p.power}" min="1" max="99" oninput="updHitter(${i},${pi},'power',+this.value)">
           <input type="number" class="ed-cell" value="${p.speed}" min="1" max="99" oninput="updHitter(${i},${pi},'speed',+this.value)">
           <input type="number" class="ed-cell" value="${p.def}" min="1" max="99" oninput="updHitter(${i},${pi},'def',+this.value)">
-          <div style="font-size:.84rem;color:var(--text3);text-align:center">${slotLabel}</div>
         </div>`;
       }
       // Starter: position selector (uniqueness enforced via updHitter swap logic)
       const curPos=starterPositions.includes(p.pos)?p.pos:'2B';
       return `
       <div class="prow">
+        <div style="font-size:.84rem;color:var(--text3);text-align:center">${slotLabel}</div>
         <input type="text" class="ed-cell" value="${p.name}" oninput="updHitter(${i},${pi},'name',this.value)">
         <select class="ed-cell" style="text-align:center;padding:.45rem;width:100%" onchange="updHitter(${i},${pi},'pos',this.value)">${buildOpts(starterPositions,curPos)}</select>
         <input type="number" class="ed-cell" value="${p.meet}" min="1" max="99" oninput="updHitter(${i},${pi},'meet',+this.value)">
         <input type="number" class="ed-cell" value="${p.power}" min="1" max="99" oninput="updHitter(${i},${pi},'power',+this.value)">
         <input type="number" class="ed-cell" value="${p.speed}" min="1" max="99" oninput="updHitter(${i},${pi},'speed',+this.value)">
         <input type="number" class="ed-cell" value="${p.def}" min="1" max="99" oninput="updHitter(${i},${pi},'def',+this.value)">
-        <div style="font-size:.84rem;color:var(--text3);text-align:center">${slotLabel}</div>
       </div>`;
     }).join('');
   }
@@ -4065,6 +4199,8 @@ function quickSim(awayId,homeId){
     applyPitchToStamina(pt);
     if(q.balls===3&&r<Math.max(0.12,(100-cf)/480)){
       pt.bb++;bt.bb=(bt.bb||0)+1;
+      if(!bt.history)bt.history=[];
+      bt.history.push({result:t('shBB'),cls:'walk',inning:q.inning});
       const b=q.bases,br=q.baseRunners;
       if(b[0]&&b[1]&&b[2]){qsr(bt,1);}
       else if(b[0]&&b[1]){b[2]=true;br[2]=br[1];}
@@ -4072,13 +4208,15 @@ function quickSim(awayId,homeId){
       b[0]=true;br[0]=bt;
       qnb();qrc();continue;
     }
-    if(q.strikes===2&&r<Math.max(0.10,pt.spd/420)){pt.k++;bt.so=(bt.so||0)+1;bt.atbats++;q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();continue;}
+    if(q.strikes===2&&r<Math.max(0.10,pt.spd/420)){pt.k++;bt.so=(bt.so||0)+1;bt.atbats++;if(!bt.history)bt.history=[];bt.history.push({result:t('shK'),cls:'out',inning:q.inning});q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();continue;}
     const rl=Math.random();
     // Calibrated for ~3.8 pitches/PA: 33% ball, 35% strike, 32% in-play
     if(rl<0.33){
       q.balls++;
       if(q.balls>=4){
         pt.bb++;bt.bb=(bt.bb||0)+1;
+        if(!bt.history)bt.history=[];
+        bt.history.push({result:t('shBB'),cls:'walk',inning:q.inning});
         const b=q.bases,br=q.baseRunners;
         if(b[0]&&b[1]&&b[2]){qsr(bt,1);}
         else if(b[0]&&b[1]){b[2]=true;br[2]=br[1];}
@@ -4087,12 +4225,30 @@ function quickSim(awayId,homeId){
         qnb();qrc();
       }
     }
-    else if(rl<0.68){q.strikes++;if(q.strikes>=3){pt.k++;bt.so=(bt.so||0)+1;bt.atbats++;q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();}}
+    else if(rl<0.68){q.strikes++;if(q.strikes>=3){pt.k++;bt.so=(bt.so||0)+1;bt.atbats++;if(!bt.history)bt.history=[];bt.history.push({result:t('shK'),cls:'out',inning:q.inning});q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();}}
     else{
       // Ball in play — add 1-2 extra pitches to match real-world pitch counts
       const fouled=1+Math.floor(Math.random()*2);
       for(let i=0;i<fouled;i++) applyPitchToStamina(pt);
-      if(Math.random()<hProb(pt,bt)){pt.h++;bt.atbats++;bt.hits++;const rv=Math.random(),hrP=bt.power/900,triP=bt.speed/750,dblP=(bt.meet+bt.power)/1100;let bases;if(rv<hrP){bases=4;bt.hrs++;}else if(rv<hrP+triP){bases=3;bt.triples=(bt.triples||0)+1;}else if(rv<hrP+triP+dblP){bases=2;bt.doubles=(bt.doubles||0)+1;}else{bases=1;}qar(bt,bases,bases===4);qnb();qrc();}else{bt.atbats++;q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();}
+      if(Math.random()<hProb(pt,bt)){
+        pt.h++;bt.atbats++;bt.hits++;
+        const rv=Math.random(),hrP=bt.power/900,triP=bt.speed/750,dblP=(bt.meet+bt.power)/1100;
+        let bases,histResult,histCls;
+        if(rv<hrP){bases=4;bt.hrs++;histResult=t('shHR');histCls='hr';}
+        else if(rv<hrP+triP){bases=3;bt.triples=(bt.triples||0)+1;histResult=t('sh3B');histCls='hit3';}
+        else if(rv<hrP+triP+dblP){bases=2;bt.doubles=(bt.doubles||0)+1;histResult=t('sh2B');histCls='hit2';}
+        else{bases=1;histResult=t('shH');histCls='hit';}
+        if(!bt.history)bt.history=[];
+        bt.history.push({result:histResult,cls:histCls,inning:q.inning});
+        qar(bt,bases,bases===4);qnb();qrc();
+      }else{
+        bt.atbats++;
+        // Random ground/fly distribution for out-in-play (no strikeout)
+        const isGround=Math.random()<0.55;
+        if(!bt.history)bt.history=[];
+        bt.history.push({result:isGround?t('shGO'):t('shFO'),cls:'out',inning:q.inning});
+        q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();
+      }
     }
   }
   const[a,h]=q.score;
@@ -4107,10 +4263,13 @@ function quickSim(awayId,homeId){
   // Update league rest days using the shared helper (same logic as watched games)
   updateRestDays(at,ht);
   // Snapshot for history viewing (no play-by-play log for quick sim)
+  // Build summary now — accBat/accPit have already run above
+  const summary=buildResultSummary(at,ht);
   const snapshot={
     away:dc(at),home:dc(ht),
     ilog:dc(q.ilog),inning:q.inning,score:[a,h],
-    logs:null // quick sim has no log
+    logs:null, // quick sim has no log
+    summary:summary
   };
   return{a:q.score[0],h:q.score[1],snapshot};
 }
