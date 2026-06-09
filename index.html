@@ -2605,13 +2605,27 @@ function rMatch(){
   const stamPct=p.curStam/p.stam;
   const warn=stamPct<0.5?` <span style="color:${stamPct<0.3?'#e74c3c':'#f0b429'};font-size:.85em">⚠</span>`:'';
   document.getElementById('mp').innerHTML=p.name+warn;
-  const era=p.ip>0?(p.er*27/p.ip).toFixed(2):'0.00';
+  // Compute display ERA: prefer season cumulative (prior leaguePit + current game) when in league context
+  let eraEr=p.er,eraIp=p.ip;
+  if(fromLeague&&league&&league.active&&leaguePit){
+    const ka=awayT.name+':'+p.name,kh=homeT.name+':'+p.name;
+    const lp=leaguePit[ka]||leaguePit[kh];
+    if(lp){eraEr+=(lp.er||0);eraIp+=(lp.ip||0);}
+  }
+  const era=eraIp>0?(eraEr*27/eraIp).toFixed(2):'0.00';
   const pitches=p.pitches||0;
   const pitchLbl=lang==='ja'?'球':'P';
   document.getElementById('mps').textContent=`${pitches}${pitchLbl}  ${t('stam')}:${Math.round(p.curStam)}  ${t('era')}:${era}`;
   document.getElementById('mb').textContent=`${bt.name} [${bt.pos}]`;
-  const avg=bt.atbats>0?bbAvg(bt.hits/bt.atbats):'---';
-  document.getElementById('mbs').textContent=`${t('avg')}:${avg}  HR:${bt.hrs}  RBI:${bt.rbi}`;
+  // Compute display AVG/HR/RBI: prefer season cumulative when in league context
+  let bAB=bt.atbats,bH=bt.hits,bHR=bt.hrs,bRBI=bt.rbi;
+  if(fromLeague&&league&&league.active&&leagueBat){
+    const ka=awayT.name+':'+bt.name,kh=homeT.name+':'+bt.name;
+    const lb=leagueBat[ka]||leagueBat[kh];
+    if(lb){bAB+=(lb.atbats||0);bH+=(lb.hits||0);bHR+=(lb.hrs||0);bRBI+=(lb.rbi||0);}
+  }
+  const avg=bAB>0?bbAvg(bH/bAB):'---';
+  document.getElementById('mbs').textContent=`${t('avg')}:${avg}  HR:${bHR}  RBI:${bRBI}`;
 }
 function nextPitch(){if(!gs||gs.over)return;simPitch();}
 function toggleAuto(){if(autoOn)stopAuto();else startAuto();}
