@@ -1680,18 +1680,16 @@ function startGame(overA,overH){
     // Track all batters who appeared per batting slot (for box score display when pinch-hit)
     // battersAppeared[slotIdx] = [starter, ph1, ph2, ...] — each is a reference to the player object
     tm.battersAppeared=tm.lineup.map(p=>[p]);
-    // Ensure bench arrays exist (deep copy from roster, excluding starting lineup)
-    if(!tm.benchHitters){
-      tm.benchHitters=(tm.roster||[]).filter(p=>!tm.usedHitters.has(p.name)).map(p=>({...p}));
-    }
-    if(!tm.benchPitchers){
-      // Filter out pitchers who are currently resting (rest > 0 in league.restDays)
-      const restMap=(fromLeague&&league&&league.restDays&&league.restDays[tm.id])||{};
-      tm.benchPitchers=(tm.pitchers||[])
-        .filter(p=>p.name!==tm.pitcher.name)
-        .filter(p=>(restMap[p.name]||0)===0)  // exclude resting pitchers
-        .map(p=>({...p}));
-    }
+    // ALWAYS rebuild bench arrays from current roster/pitchers so any edits to the
+    // team (e.g. renaming bench players) are reflected. Previously we only built these
+    // when they were missing, which let stale data persist across edits/loads.
+    tm.benchHitters=(tm.roster||[]).filter(p=>!tm.usedHitters.has(p.name)).map(p=>({...p}));
+    // Filter out pitchers who are currently resting (rest > 0 in league.restDays)
+    const restMap=(fromLeague&&league&&league.restDays&&league.restDays[tm.id])||{};
+    tm.benchPitchers=(tm.pitchers||[])
+      .filter(p=>p.name!==tm.pitcher.name)
+      .filter(p=>(restMap[p.name]||0)===0)  // exclude resting pitchers
+      .map(p=>({...p}));
   });
   awayT=at;homeT=ht;
   gs={inning:1,half:0,outs:0,balls:0,strikes:0,bases:[false,false,false],baseRunners:[null,null,null],score:[0,0],ilog:{away:Array(12).fill(null),home:Array(12).fill(null)},order:[0,0],over:false,
@@ -2778,7 +2776,7 @@ function renderSubHitter(ct,batT){
       html+=`<div class="sub-card" onclick="doHitterSub(${i})" style="${isRec?'border-color:var(--gold);background:#1a1900':''}">
         <div class="sub-card-info">
           <div class="sub-card-name">${p.name} ${isRec?'<span style="color:var(--gold);font-size:.7rem">★ 推奨</span>':''}</div>
-          <div class="sub-card-role">${p.pos}</div>
+          ${p.pos?`<div class="sub-card-role">${p.pos}</div>`:''}
           <div class="sub-card-stats">${rStat('CON',p.meet)}  ${rStat('PWR',p.power)}  ${rStat('SPD',p.speed)}  ${rStat('DEF',p.def)}</div>
         </div>
         <div class="sub-card-action">${lang==='ja'?'代打':'PH'} →</div>
