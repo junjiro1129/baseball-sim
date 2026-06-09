@@ -1202,27 +1202,33 @@ function gotoOrderScreen(){
   gotoScreen('order-screen');
 }
 
+// Pick the best available starting pitcher index, considering rest days.
+// Returns the index in team.pitchers[] of the strongest SP with rest=0;
+// if all SPs need rest, returns the SP with lowest rest. Falls back to 0.
+function pickFreshStarterIdx(team,restMap){
+  if(!team.pitchers||team.pitchers.length===0)return 0;
+  const sps=team.pitchers
+    .map((p,i)=>({p,i}))
+    .filter(x=>x.p.role&&x.p.role.startsWith('SP'));
+  if(sps.length===0)return 0;
+  const sortedSPs=sps.slice().sort((a,b)=>{
+    return ((b.p.spd||0)+(b.p.ctrl||0)+(b.p.stam||0))-((a.p.spd||0)+(a.p.ctrl||0)+(a.p.stam||0));
+  });
+  // First, an SP with rest=0 (preferring strongest)
+  let chosen=sortedSPs.find(x=>(restMap[x.p.name]||0)===0);
+  if(!chosen){
+    // All SPs need rest -> pick the one with lowest rest
+    chosen=sortedSPs.slice().sort((a,b)=>(restMap[a.p.name]||0)-(restMap[b.p.name]||0))[0];
+  }
+  return chosen?chosen.i:0;
+}
+
 function buildInitialOrder(team){
   // Choose default starter: highest-ability SP with rest=0, mirroring quickSim's logic.
   // Falls back to lowest-rest SP, then to index 0.
   const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
   const restMap=(inLeagueCtx&&league.restDays&&league.restDays[team.id])||{};
-  let defaultPitcherIdx=0;
-  if(team.pitchers&&team.pitchers.length>0){
-    const sps=team.pitchers
-      .map((p,i)=>({p,i}))
-      .filter(x=>x.p.role&&x.p.role.startsWith('SP'));
-    const sortedSPs=sps.slice().sort((a,b)=>{
-      return ((b.p.spd||0)+(b.p.ctrl||0)+(b.p.stam||0))-((a.p.spd||0)+(a.p.ctrl||0)+(a.p.stam||0));
-    });
-    // First, an SP with rest=0 (preferring strongest)
-    let chosen=sortedSPs.find(x=>(restMap[x.p.name]||0)===0);
-    if(!chosen){
-      // All SPs need rest -> pick the one with lowest rest
-      chosen=sortedSPs.slice().sort((a,b)=>(restMap[a.p.name]||0)-(restMap[b.p.name]||0))[0];
-    }
-    if(chosen)defaultPitcherIdx=chosen.i;
-  }
+  const defaultPitcherIdx=pickFreshStarterIdx(team,restMap);
 
   // DH-system lineup: 9 hitters bat, no pitcher in batting order.
   //
@@ -4370,6 +4376,14 @@ function restoreSavedOrder(team){
   const bench=team.roster.filter(p=>!usedNames.has(p.name)).map(p=>{const{pos:_p,...rest}=p;return rest;});
   let pitcherIdx=team.pitchers.findIndex(p=>p.name===s.pitcherName);
   if(pitcherIdx<0)pitcherIdx=0;
+  // If the saved pitcher is currently resting, pick a fresh SP instead
+  // (preserves user intent on day 0 but auto-rotates on the next visit).
+  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  const restMap=(inLeagueCtx&&league.restDays&&league.restDays[team.id])||{};
+  const savedPitcher=team.pitchers[pitcherIdx];
+  if(savedPitcher&&(restMap[savedPitcher.name]||0)>0){
+    pitcherIdx=pickFreshStarterIdx(team,restMap);
+  }
   return{team,pitcherIdx,lineup,bench,selSlot:null};
 }
 
