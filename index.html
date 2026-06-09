@@ -2059,6 +2059,9 @@ function endGame(){
       recLeague(leagueGameId,a,h,snapshot);
     }
   }
+  // Save after each watched game (covers quick games and ensures league state is persisted
+  // even if recLeague was skipped). Cheap because it's a single write per game.
+  autoSave();
   setTimeout(showResult,1200);
 }
 
@@ -2773,10 +2776,11 @@ function renderSubHitter(ct,batT){
     const recommended=available.slice().sort((a,b)=>(b.meet+b.power)-(a.meet+a.power))[0];
     available.forEach((p,i)=>{
       const isRec=p.name===recommended.name;
+      const posLabel=(p.pos&&p.pos!=='undefined')?`<div class="sub-card-role">${p.pos}</div>`:'';
       html+=`<div class="sub-card" onclick="doHitterSub(${i})" style="${isRec?'border-color:var(--gold);background:#1a1900':''}">
         <div class="sub-card-info">
           <div class="sub-card-name">${p.name} ${isRec?'<span style="color:var(--gold);font-size:.7rem">★ 推奨</span>':''}</div>
-          ${p.pos?`<div class="sub-card-role">${p.pos}</div>`:''}
+          ${posLabel}
           <div class="sub-card-stats">${rStat('CON',p.meet)}  ${rStat('PWR',p.power)}  ${rStat('SPD',p.speed)}  ${rStat('DEF',p.def)}</div>
         </div>
         <div class="sub-card-action">${lang==='ja'?'代打':'PH'} →</div>
@@ -3954,6 +3958,7 @@ async function simAllPS(){
   if(!(await showConfirm(lang==='ja'?'現在のステージをまとめて消化しますか？':'Simulate all games in this stage?')))return;
   let safetyMax=50;  // safety limit to prevent infinite loops
   quickSimNoTie=true;
+  suppressAutoSave=true;
   try{
     while(safetyMax-->0){
       const next=getNextPSGame();
@@ -3964,7 +3969,8 @@ async function simAllPS(){
       recPSGame(next.game,r.a,r.h);
       if(league.phase!==phaseBefore)break;  // phase advanced, pause here
     }
-  }finally{quickSimNoTie=false;}
+  }finally{quickSimNoTie=false;suppressAutoSave=false;}
+  autoSave();  // Single write at end
   renderLSetup();renderSched();renderStandings();renderStats(curStatsType);
 }
 
@@ -4024,7 +4030,22 @@ function simLGame(gid){
   const game=league.schedule.find(g=>g.id===gid);if(!game||game.done)return;
   const r=quickSim(game.away,game.home);recLeague(gid,r.a,r.h,r.snapshot);renderLSetup();renderStandings();renderStats(curStatsType);
 }
-async function simAll(){if(!(await showConfirm(t('simAll'))))return;league.schedule.filter(g=>!g.done).forEach(g=>{const r=quickSim(g.away,g.home);recLeague(g.id,r.a,r.h,r.snapshot);});renderLSetup();renderStandings();renderStats(curStatsType);}
+async function simAll(){
+  if(!(await showConfirm(t('simAll'))))return;
+  // Suppress per-game autoSave to keep UI responsive on mobile.
+  // localStorage writes are expensive (full JSON serialize per game = 100s of writes).
+  suppressAutoSave=true;
+  try{
+    league.schedule.filter(g=>!g.done).forEach(g=>{
+      const r=quickSim(g.away,g.home);
+      recLeague(g.id,r.a,r.h,r.snapshot);
+    });
+  }finally{
+    suppressAutoSave=false;
+  }
+  autoSave();  // Single write at end
+  renderLSetup();renderStandings();renderStats(curStatsType);
+}
 
 function simN(rounds){
   const rem=league.schedule.filter(g=>!g.done);
@@ -4033,10 +4054,17 @@ function simN(rounds){
   const startRound=rem[0].round||1;
   const endRound=startRound+rounds-1;
   const toSim=rem.filter(g=>(g.round||1)<=endRound);
-  toSim.forEach(g=>{
-    const r=quickSim(g.away,g.home);
-    recLeague(g.id,r.a,r.h,r.snapshot);
-  });
+  // Suppress per-game autoSave during batch — single write at end
+  suppressAutoSave=true;
+  try{
+    toSim.forEach(g=>{
+      const r=quickSim(g.away,g.home);
+      recLeague(g.id,r.a,r.h,r.snapshot);
+    });
+  }finally{
+    suppressAutoSave=false;
+  }
+  autoSave();
   renderLSetup();renderStandings();renderStats(curStatsType);
 }
 function recLeague(gid,sa,sh,snapshot){
@@ -4881,7 +4909,11 @@ function saveData(){
 // without manually downloading/uploading JSON every time. Manual save/load remain
 // available as a backup-and-transfer mechanism.
 const AUTOSAVE_KEY='bsim_autosave_v1';
+// When true, autoSave() is suppressed (used during batch operations like simAll
+// to avoid 800+ JSON.stringify + localStorage writes that freeze the UI on mobile).
+let suppressAutoSave=false;
 function autoSave(){
+  if(suppressAutoSave)return;
   try{
     const data={version:4,lang,isPro,teams,league,leagueBat,leaguePit,savedAt:Date.now()};
     localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(data));
