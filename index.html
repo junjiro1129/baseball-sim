@@ -266,6 +266,11 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 .ltab.on{color:var(--gold);border-bottom-color:var(--gold)}
 .lpanel{display:none}.lpanel.on{display:block}
 .stand-tbl{width:100%;border-collapse:collapse}
+/* Wrapper enables horizontal scroll on narrow screens so long team names don't wrap */
+.stand-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stand-wrap .stand-tbl{min-width:max-content}
+.stand-tbl td.L,.stand-tbl th.L{white-space:nowrap}
+.stand-tbl td:not(.L),.stand-tbl th:not(.L){white-space:nowrap}
 .lg-tabs{display:flex;gap:.4rem;margin-bottom:.65rem}
 .lg-tab{flex:1;background:var(--bg2);color:var(--text2);border:1px solid var(--border);padding:.45rem .5rem;font-size:.85rem;font-weight:700;border-radius:var(--radius);cursor:pointer;letter-spacing:.02em}
 .lg-tab.on{background:var(--gold);color:#111;border-color:var(--gold2)}
@@ -4496,7 +4501,7 @@ function renderStandings(){
     const top=rows[0];
     const hd=lang==='ja'?['#','チーム','試','勝','負','分','勝率','差','得','失','得失差']
                        :['#','Team','G','W','L','D','PCT','GB','RS','RA','DIFF'];
-    let h=`<table class="stand-tbl"><tr>${hd.map((x,i)=>`<th class="sb-th ${i===1?'L':''}">${x}</th>`).join('')}</tr>`;
+    let h=`<div class="stand-wrap"><table class="stand-tbl"><tr>${hd.map((x,i)=>`<th class="sb-th ${i===1?'L':''}">${x}</th>`).join('')}</tr>`;
     rows.forEach((r,i)=>{
       const gb=i===0?'-':(((top.w-r.w)+(r.l-top.l))/2).toFixed(1);
       h+=`<tr>
@@ -4509,7 +4514,7 @@ function renderStandings(){
         <td style="color:${r.diff>0?'var(--gold)':r.diff<0?'#e24b4a':'var(--text3)'}">${r.diff>0?'+':''}${r.diff}</td>
       </tr>`;
     });
-    return h+`</table>`;
+    return h+`</table></div>`;
   };
 
   // Build league tabs (only if both leagues have teams)
