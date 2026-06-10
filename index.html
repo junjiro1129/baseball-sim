@@ -443,6 +443,7 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
       <button class="btn sm" style="flex:1" onclick="saveData()" data-ja="💾 データ保存" data-en="💾 Save Data">💾 データ保存</button>
       <button class="btn sm" style="flex:1" onclick="loadData()" data-ja="📂 データ読込" data-en="📂 Load Data">📂 データ読込</button>
     </div>
+    <div id="autosave-status" style="margin-top:.5rem;font-size:.74rem;color:var(--text3);text-align:center;letter-spacing:.02em"></div>
     <input type="file" id="load-file" accept=".json" style="display:none" onchange="onFileLoad(event)">
   </div>
 
@@ -1183,7 +1184,12 @@ function updPro(){
 }
 
 // ═══ SCREENS ═══
-function gotoScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function gotoScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // Refresh the "last auto-saved" indicator whenever we return to the menu screen
+  if(id==='menu-screen')updateAutoSaveStatus();
+}
 function gotoSelect(){stopAuto();fromLeague=false;selIds=[];renderTGrid();document.getElementById('sel-status').textContent='';document.getElementById('start-btn').style.display='none';gotoScreen('select-screen');}
 function gotoEditor(){if(!isPro){alert(lang==='ja'?'PRO版ライセンスが必要です。':'PRO license required.');return;}edTabIdx=0;edTeamIdx=0;renderEdSels();loadEdTeam(0);gotoScreen('editor-screen');}
 
@@ -4922,10 +4928,29 @@ function autoSave(){
   try{
     const data={version:4,lang,isPro,teams,league,leagueBat,leaguePit,savedAt:Date.now()};
     localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(data));
+    updateAutoSaveStatus();
   }catch(e){
     // QuotaExceededError or storage disabled — fail silently so gameplay isn't disrupted
     console.warn('Auto-save failed:',e);
+    const el=document.getElementById('autosave-status');
+    if(el)el.textContent=lang==='ja'?'⚠ 自動保存に失敗しました':'⚠ Auto-save failed';
   }
+}
+// Update the "Last auto-saved" indicator on the menu screen.
+// Called after every autoSave() and on initial load.
+function updateAutoSaveStatus(){
+  const el=document.getElementById('autosave-status');
+  if(!el)return;
+  try{
+    const raw=localStorage.getItem(AUTOSAVE_KEY);
+    if(!raw){el.textContent='';return;}
+    const d=JSON.parse(raw);
+    if(!d.savedAt){el.textContent='';return;}
+    const dt=new Date(d.savedAt);
+    const pad=n=>String(n).padStart(2,'0');
+    const ts=`${dt.getFullYear()}/${pad(dt.getMonth()+1)}/${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`;
+    el.textContent=(lang==='ja'?'💾 最終自動保存: ':'💾 Last auto-saved: ')+ts;
+  }catch(e){el.textContent='';}
 }
 function autoLoad(){
   try{
@@ -4977,6 +5002,7 @@ updPro();
 // Auto-restore prior session from localStorage (if any)
 autoLoad();
 applyLang();
+updateAutoSaveStatus();
 </script>
 </body>
 </html>
