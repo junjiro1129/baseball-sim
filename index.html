@@ -4926,14 +4926,52 @@ let suppressAutoSave=false;
 function autoSave(){
   if(suppressAutoSave)return;
   try{
-    const data={version:4,lang,isPro,teams,league,leagueBat,leaguePit,savedAt:Date.now()};
+    // Strip game snapshots before saving to localStorage. Snapshots can be MBs each
+    // (full team deep-copies + play-by-play logs) and exceed iOS Safari's 5MB quota
+    // by the mid-season. They're only used to replay past games within the current
+    // session — the manual save (💾) still preserves them for full backups.
+    let leagueSlim=league;
+    if(league&&league.schedule){
+      const scheduleSlim=league.schedule.map(g=>{
+        if(g.snapshot){const{snapshot,...rest}=g;return rest;}
+        return g;
+      });
+      // Also strip snapshots from postseason games if present
+      let postseasonSlim=league.postseason;
+      if(league.postseason){
+        postseasonSlim={};
+        for(const k in league.postseason){
+          const stage=league.postseason[k];
+          if(Array.isArray(stage)){
+            postseasonSlim[k]=stage.map(g=>{
+              if(g&&g.snapshot){const{snapshot,...rest}=g;return rest;}
+              return g;
+            });
+          }else{postseasonSlim[k]=stage;}
+        }
+      }
+      leagueSlim={...league,schedule:scheduleSlim,postseason:postseasonSlim};
+    }
+    const data={version:4,lang,isPro,teams,league:leagueSlim,leagueBat,leaguePit,savedAt:Date.now()};
     localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(data));
     updateAutoSaveStatus();
   }catch(e){
-    // QuotaExceededError or storage disabled — fail silently so gameplay isn't disrupted
-    console.warn('Auto-save failed:',e);
-    const el=document.getElementById('autosave-status');
-    if(el)el.textContent=lang==='ja'?'⚠ 自動保存に失敗しました':'⚠ Auto-save failed';
+    // QuotaExceededError or storage disabled — try one more time with even less data
+    console.warn('Auto-save failed (attempt 1):',e);
+    try{
+      // Fallback: save without league.schedule (recoverable on next game)
+      const minimal={version:4,lang,isPro,teams,leagueBat,leaguePit,
+        league:league?{active:league.active,name:league.name,gpp:league.gpp,teamIds:league.teamIds,stats:league.stats,restDays:league.restDays,consecAppear:league.consecAppear}:undefined,
+        savedAt:Date.now()};
+      localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(minimal));
+      updateAutoSaveStatus();
+      const el=document.getElementById('autosave-status');
+      if(el)el.textContent+=lang==='ja'?'  (簡易保存)':'  (minimal)';
+    }catch(e2){
+      console.warn('Auto-save failed (attempt 2):',e2);
+      const el=document.getElementById('autosave-status');
+      if(el)el.textContent=lang==='ja'?'⚠ 自動保存に失敗しました（容量超過）':'⚠ Auto-save failed (quota exceeded)';
+    }
   }
 }
 // Update the "Last auto-saved" indicator on the menu screen.
