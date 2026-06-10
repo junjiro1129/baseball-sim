@@ -1375,7 +1375,8 @@ function getPitStatsLine(teamName,playerName){
   if(!s||!s.ip)return '';
   const era=s.ip>0?s.er*27/s.ip:0;
   const whip=s.ip>0?((s.bb||0)+(s.ha||0))*3/s.ip:0;
-  return `<div class="ord-record">${s.w||0}-${s.l||0} · H ${s.h||0} · S ${s.s||0} · K ${s.k||0} · WHIP ${whip.toFixed(2)} · ERA ${era.toFixed(2)}</div>`;
+  const gLabel=lang==='ja'?'登':'G';
+  return `<div class="ord-record">${gLabel} ${s.g||0} · ${s.w||0}-${s.l||0} · H ${s.h||0} · S ${s.s||0} · K ${s.k||0} · WHIP ${whip.toFixed(2)} · ERA ${era.toFixed(2)}</div>`;
 }
 
 function renderOrderPitchers(od){
