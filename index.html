@@ -1631,7 +1631,18 @@ function confirmOrderAndStart(){
   const homeForGame=buildTeamForGame(orderData[1]);
   startGame(awayForGame,homeForGame);
 }
-function gotoLeague(){renderLSetup();renderStandings();renderStats('bat');gotoScreen('league-screen');}
+function gotoLeague(){
+  renderLSetup();renderStandings();
+  // Render and sync tab UI to the previously-selected stats type
+  // (Before, this always rendered 'bat' but left the tab UI on whichever
+  // tab the user last clicked — causing a visual desync.)
+  renderStats(curStatsType);
+  document.querySelectorAll('.stab').forEach(b=>{
+    const oc=b.getAttribute('onclick')||'';
+    b.classList.toggle('on',oc.includes(`'${curStatsType}'`));
+  });
+  gotoScreen('league-screen');
+}
 function backFromGame(){stopAuto();if(fromLeague)gotoLeague();else gotoSelect();}
 function backFromOrder(){
   // Standings -> Order: save edits before leaving, then return to league screen
@@ -4094,6 +4105,21 @@ function recLeague(gid,sa,sh,snapshot){
 let quickSimNoTie=false;
 function quickSim(awayId,homeId){
   const at=dc(teams.find(x=>x.id===awayId)),ht=dc(teams.find(x=>x.id===homeId));
+  // Apply saved lineup edits (e.g., bench→starter swaps) made via the Order screen.
+  // Without this, quickSim would always use roster[0..8] and ignore the user's lineup edits.
+  // (Pitcher is still chosen automatically below to respect rest days during auto-sim.)
+  [at,ht].forEach(tm=>{
+    const so=tm.savedOrder;
+    if(so&&Array.isArray(so.lineup)&&so.lineup.length===9){
+      const newLineup=[];
+      let allFound=true;
+      so.lineup.forEach(slot=>{
+        const p=(tm.roster||[]).find(rp=>rp.name===slot.name);
+        if(p){newLineup.push({...p,pos:slot.pos});}else{allFound=false;}
+      });
+      if(allFound&&newLineup.length===9){tm.lineup=newLineup;}
+    }
+  });
   // For league play: respect rest days when picking a starter
   // Rotation: SP1...SP5 with required rest. We pick the SP with 0 rest days, preferring the lowest SP number.
   [at,ht].forEach(tm=>{
