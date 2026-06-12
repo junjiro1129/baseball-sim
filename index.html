@@ -3531,22 +3531,54 @@ function createLeague(){
   };
 
   // Generate schedule for one league (Central or Pacific)
-  // Returns array of games for that league
+  // Returns array of games for that league.
+  // === Series-based schedule (NPB-style) ===
+  // Each pair plays in 3-game series (火・水・木 / 金・土・日), not scattered single games.
+  // gpp = total games per pair (preserved from previous design).
+  //   - First we run `floor(gpp/3)` full 3-game series for every pair.
+  //   - Any remainder (gpp % 3 == 1 or 2) is appended at the END of the season
+  //     as concentrated single/double games per pair (per user spec).
+  // Home/away flips per full series so each pair alternates home advantage.
   const buildLeagueSchedule=(leagueIds,roundOffset)=>{
     const games=[];
     if(leagueIds.length<2)return {games,nextRound:roundOffset};
     let roundNum=roundOffset;
-    for(let c=0;c<gpp;c++){
+    const SERIES_LEN=3;
+    const fullSeries=Math.floor(gpp/SERIES_LEN);
+    const leftover=gpp%SERIES_LEN;
+
+    // Phase 1: full 3-game series, repeated `fullSeries` times
+    for(let s=0;s<fullSeries;s++){
       const cycle=buildCycle(leagueIds);
       cycle.forEach(round=>{
-        roundNum++;
-        round.forEach(pair=>{
-          const homeIsA=(c%2===0);
-          const home=homeIsA?pair.a:pair.b;
-          const away=homeIsA?pair.b:pair.a;
-          games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
-                      phase:'regular',league:getTeamLeague(home)});
-        });
+        // Each pair in this round plays 3 consecutive games
+        for(let g=0;g<SERIES_LEN;g++){
+          roundNum++;
+          round.forEach(pair=>{
+            const homeIsA=(s%2===0);  // home/away flips between full series
+            const home=homeIsA?pair.a:pair.b;
+            const away=homeIsA?pair.b:pair.a;
+            games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
+                        phase:'regular',league:getTeamLeague(home)});
+          });
+        }
+      });
+    }
+    // Phase 2: leftover games concentrated at season's end (gpp%3 == 1 or 2)
+    // Opposite home-advantage from the last full series for fairness
+    if(leftover>0){
+      const cycle=buildCycle(leagueIds);
+      cycle.forEach(round=>{
+        for(let g=0;g<leftover;g++){
+          roundNum++;
+          round.forEach(pair=>{
+            const homeIsA=(fullSeries%2===0);
+            const home=homeIsA?pair.a:pair.b;
+            const away=homeIsA?pair.b:pair.a;
+            games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
+                        phase:'regular',league:getTeamLeague(home)});
+          });
+        }
       });
     }
     return {games,nextRound:roundNum};
