@@ -2250,13 +2250,18 @@ function decidePitchingDecisions(){
     if(finisher!==wP&&finisher.entry){
       const leadAtEntry=finisher.entry.scoreSelf-finisher.entry.scoreOpp;
       const outsPitched=finisher.ip;
-      // Save situation conditions
-      const cond_a=leadAtEntry>0&&leadAtEntry<=3&&outsPitched>=3; // lead <=3, pitched 1+ inning
-      const cond_b=leadAtEntry>=0&&(finisher.entry.bases.some(b=>b)||true)&&leadAtEntry<=4;
-      // ↑ Simplified: tying/go-ahead on base — we approximate by "lead <= 4 with runners or <=3 always"
-      // For simplicity we only use cond_a and cond_c here (cond_b requires detailed analysis)
-      const cond_c=outsPitched>=9; // 3+ innings
-      if(cond_a||cond_c){
+      // MLB save rule — any ONE of:
+      //   (a) Entered with lead of 1-3 runs AND pitched at least 1 inning (3 outs)
+      //   (b) Entered with the tying run on base, at bat, or on deck (regardless of IP).
+      //       Formally: the next two batters could tie/take the lead with back-to-back HRs.
+      //       Max runs from two consecutive HRs: 1st HR = (runners + 1), 2nd HR = 1
+      //       → potential damage = runners + 2. Save situation if lead <= runners + 2.
+      //   (c) Pitched at least 3 innings effectively (9+ outs).
+      const runners=finisher.entry.bases?finisher.entry.bases.filter(b=>b).length:0;
+      const cond_a=leadAtEntry>0&&leadAtEntry<=3&&outsPitched>=3;
+      const cond_b=leadAtEntry>0&&leadAtEntry<=runners+2;
+      const cond_c=outsPitched>=9;
+      if(cond_a||cond_b||cond_c){
         finisher.gS=1;
       }
     }
@@ -2339,7 +2344,47 @@ function rTab(i){
 let viewingHistory=false;
 function viewGameHistory(gid){
   const game=league.schedule.find(g=>g.id===gid);
-  if(!game||!game.done||!game.snapshot)return;
+  if(!game||!game.done)return;
+
+  // Snapshot may be missing if the data was reloaded from auto-save (we strip snapshots
+  // from localStorage to fit iOS Safari's 5MB quota). Fall back to a minimal view.
+  if(!game.snapshot){
+    const at=teams.find(x=>x.id===game.away);
+    const ht=teams.find(x=>x.id===game.home);
+    if(!at||!ht)return;
+    awayT=dc(at);homeT=dc(ht);
+    // Build a pseudo game-state with just final scores; renderers below check _noSnapshot
+    gs={inning:9,half:1,outs:0,balls:0,strikes:0,bases:[false,false,false],
+        score:[game.scoreA,game.scoreH],ilog:null,order:[0,0],over:true,
+        _snapshotSummary:null,_noSnapshot:true};
+    logs=[];
+    viewingHistory=true;
+
+    const [a,h]=[game.scoreA,game.scoreH];
+    document.getElementById('r-score').textContent=`${a}  —  ${h}`;
+    const w=a>h?awayT.name:h>a?homeT.name:t('draw');
+    const verdict=a===h?t('draw'):w+' '+t('win');
+    document.getElementById('r-teams').textContent=`${awayT.name}  vs  ${homeT.name}   |   ${verdict}`;
+
+    renderResultScoreboard();
+    renderResultSummary();
+    renderResultTeamStats();
+
+    const noteMsg=lang==='ja'
+      ?'⚠ この試合の詳細データ（イニング別スコア・ログ・個人成績）は、自動保存対象外のため記録されていません。詳細を残したい場合は「💾 データ保存」でJSONバックアップをご利用ください。'
+      :'⚠ Detailed data (inning scores, play-by-play log, individual stats) is not preserved across auto-saves. Use "💾 Save Data" for a full JSON backup if you want to keep these details.';
+    document.getElementById('r-logbox').innerHTML=`<div class="le" style="color:var(--text3);padding:1rem;text-align:center;line-height:1.6">${noteMsg}</div>`;
+
+    rTab(0);
+
+    const lb=document.getElementById('result-lbtn');
+    lb.innerHTML=`<button class="btn grn block" onclick="exitGameHistory()">${t('backLeague')}</button>`;
+    document.querySelectorAll('#result-screen > button').forEach(b=>b.style.display='none');
+    gotoScreen('result-screen');
+    window.scrollTo(0,0);
+    return;
+  }
+
   const snap=game.snapshot;
   // Swap globals to render snapshot data using existing renderers
   awayT=snap.away;homeT=snap.home;
@@ -2385,16 +2430,23 @@ function exitGameHistory(){
 
 function renderResultScoreboard(){
   // Determine total innings played (min 9, expand if extra innings)
-  const totalInn=Math.max(9,gs.inning);
+  const totalInn=Math.max(9,gs.inning||9);
   let h=`<tr><th class="sb-th L" style="min-width:68px"></th>`;
   for(let i=1;i<=totalInn;i++)h+=`<th class="sb-th">${i}</th>`;
   h+=`<th class="sb-th">R</th><th class="sb-th">H</th><th class="sb-th">E</th></tr>`;
   [awayT,homeT].forEach((tm,ti)=>{
-    const side=ti===0?'away':'home',log=gs.ilog[side];
+    const side=ti===0?'away':'home';
+    const log=gs.ilog?gs.ilog[side]:null;  // ilog may be null when viewing snapshot-less past games
     h+=`<tr><td class="sb-td nm">${tm.abbr}</td>`;
-    for(let i=0;i<totalInn;i++){const v=log[i]!==null&&log[i]!==undefined?log[i]:'-';h+=`<td class="sb-td${v==='-'?' dim':''}">${v}</td>`;}
-    const hits=tm.lineup.reduce((s,p)=>s+p.hits,0);
-    h+=`<td class="sb-td run">${gs.score[ti]}</td><td class="sb-td">${hits}</td><td class="sb-td">0</td></tr>`;
+    if(log){
+      for(let i=0;i<totalInn;i++){const v=log[i]!==null&&log[i]!==undefined?log[i]:'-';h+=`<td class="sb-td${v==='-'?' dim':''}">${v}</td>`;}
+    }else{
+      // No inning-by-inning data available — show all as '-'
+      for(let i=0;i<totalInn;i++)h+=`<td class="sb-td dim">-</td>`;
+    }
+    const hits=tm.lineup?tm.lineup.reduce((s,p)=>s+(p.hits||0),0):0;
+    const hitsDisp=gs._noSnapshot?'-':hits;
+    h+=`<td class="sb-td run">${gs.score[ti]}</td><td class="sb-td">${hitsDisp}</td><td class="sb-td">0</td></tr>`;
   });
   document.getElementById('r-sb').innerHTML=h;
 }
@@ -3531,54 +3583,22 @@ function createLeague(){
   };
 
   // Generate schedule for one league (Central or Pacific)
-  // Returns array of games for that league.
-  // === Series-based schedule (NPB-style) ===
-  // Each pair plays in 3-game series (火・水・木 / 金・土・日), not scattered single games.
-  // gpp = total games per pair (preserved from previous design).
-  //   - First we run `floor(gpp/3)` full 3-game series for every pair.
-  //   - Any remainder (gpp % 3 == 1 or 2) is appended at the END of the season
-  //     as concentrated single/double games per pair (per user spec).
-  // Home/away flips per full series so each pair alternates home advantage.
+  // Returns array of games for that league
   const buildLeagueSchedule=(leagueIds,roundOffset)=>{
     const games=[];
     if(leagueIds.length<2)return {games,nextRound:roundOffset};
     let roundNum=roundOffset;
-    const SERIES_LEN=3;
-    const fullSeries=Math.floor(gpp/SERIES_LEN);
-    const leftover=gpp%SERIES_LEN;
-
-    // Phase 1: full 3-game series, repeated `fullSeries` times
-    for(let s=0;s<fullSeries;s++){
+    for(let c=0;c<gpp;c++){
       const cycle=buildCycle(leagueIds);
       cycle.forEach(round=>{
-        // Each pair in this round plays 3 consecutive games
-        for(let g=0;g<SERIES_LEN;g++){
-          roundNum++;
-          round.forEach(pair=>{
-            const homeIsA=(s%2===0);  // home/away flips between full series
-            const home=homeIsA?pair.a:pair.b;
-            const away=homeIsA?pair.b:pair.a;
-            games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
-                        phase:'regular',league:getTeamLeague(home)});
-          });
-        }
-      });
-    }
-    // Phase 2: leftover games concentrated at season's end (gpp%3 == 1 or 2)
-    // Opposite home-advantage from the last full series for fairness
-    if(leftover>0){
-      const cycle=buildCycle(leagueIds);
-      cycle.forEach(round=>{
-        for(let g=0;g<leftover;g++){
-          roundNum++;
-          round.forEach(pair=>{
-            const homeIsA=(fullSeries%2===0);
-            const home=homeIsA?pair.a:pair.b;
-            const away=homeIsA?pair.b:pair.a;
-            games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
-                        phase:'regular',league:getTeamLeague(home)});
-          });
-        }
+        roundNum++;
+        round.forEach(pair=>{
+          const homeIsA=(c%2===0);
+          const home=homeIsA?pair.a:pair.b;
+          const away=homeIsA?pair.b:pair.a;
+          games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
+                      phase:'regular',league:getTeamLeague(home)});
+        });
       });
     }
     return {games,nextRound:roundNum};
