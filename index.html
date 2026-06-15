@@ -2477,14 +2477,19 @@ function buildResultSummary(awayTeam,homeTeam){
     const collect=p=>{
       if(!p||seen.has(p.name))return;
       seen.add(p.name);
-      if((p.hrs||0)>0){
-        // p.hrs is THIS game's HR count. Look up season total from leaguePit's sibling, leagueBat.
-        let displayN=p.hrs||0;
+      const gameHrs=p.hrs||0;
+      if(gameHrs>0){
+        // p.hrs is THIS game's HR count. Look up season total to compute numbers.
+        let seasonTotal=gameHrs;
         if(league&&league.active&&leagueBat){
           const k=tm.name+':'+p.name;
-          if(leagueBat[k])displayN=leagueBat[k].hrs||displayN;
+          if(leagueBat[k])seasonTotal=leagueBat[k].hrs||seasonTotal;
         }
-        hrList.push({teamAbbr:tm.abbr,name:p.name,n:displayN});
+        // If player hit N HRs this game and now has season total T,
+        // the numbers for THIS game's HRs are (T-N+1) ... T
+        const nums=[];
+        for(let i=gameHrs-1;i>=0;i--){nums.push(seasonTotal-i);}
+        hrList.push({teamAbbr:tm.abbr,name:p.name,nums:nums});
       }
     };
     (tm.lineup||[]).forEach(collect);
@@ -2528,7 +2533,11 @@ function renderResultSummaryFrom(summary){
   }
   if(summary.hrs&&summary.hrs.length>0){
     const hrText=summary.hrs.map(o=>{
-      const nLabel=lang==='ja'?`${o.n}号`:`#${o.n}`;
+      // Support both new format (nums array) and legacy format (single n) for backward compat
+      const nums=o.nums||(o.n?[o.n]:[]);
+      const nLabel=lang==='ja'
+        ?nums.map(n=>`${n}号`).join('、')
+        :nums.map(n=>`#${n}`).join(', ');
       return `<span class="rs-team">${o.teamAbbr}</span><span class="rs-name">${o.name}</span><span class="rs-meta">${nLabel}</span>`;
     }).join(' / ');
     rows.push({label:lang==='ja'?'本塁打':'HR',body:hrText});
