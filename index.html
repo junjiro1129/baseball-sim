@@ -1990,10 +1990,11 @@ function scrRun(bt,n){
     // in the previous defensive half is still the "current" pitcher).
     if(!gs.leadChanges)gs.leadChanges=[];
     gs.leadChanges.push({
-      inning:gs.inning,half:gs.half,
+      inning:gs.inning,half:gs.half,outs:gs.outs,
       team:scoringSide,
       pitcher:scoringTeam.pitcher.name,
-      pitcherRef:scoringTeam.pitcher  // also store direct reference for safer lookup
+      pitcherRef:scoringTeam.pitcher,  // scoring team's pitcher (relief-W candidate)
+      concededRef:cP()                 // fielding team's pitcher who gave up the go-ahead run (loss charge)
     });
   }
   // Walk-off: in bottom of 9th or later, if HOME takes the lead, game ends immediately
@@ -2061,9 +2062,13 @@ function endGame(){
   decidePitchingDecisions();
   addLog(`${t('gameOver')}  ${awayT.abbr} ${a}  —  ${h} ${homeT.abbr}`,'run');
   if(fromLeague){
-    accBat(awayT,awayT.name);accBat(homeT,homeT.name);accPit(awayT,awayT.name);accPit(homeT,homeT.name);
-    // Update league rest days based on who actually pitched in this watched game
-    updateRestDays(awayT,homeT);
+    // Skip stat accumulation for postseason games — postseason stats are kept separate
+    // (or not tracked at all, per NPB convention where titles are regular-season only).
+    if(!currentPSGame){
+      accBat(awayT,awayT.name);accBat(homeT,homeT.name);accPit(awayT,awayT.name);accPit(homeT,homeT.name);
+      // Update league rest days based on who actually pitched in this watched game
+      updateRestDays(awayT,homeT);
+    }
     // Snapshot full game data for history viewing
     // Build summary AFTER accBat/accPit so season totals (leaguePit) include this game
     const summary=buildResultSummary(awayT,homeT);
@@ -2105,10 +2110,10 @@ function updateRestDays(awayTm,homeTm){
     // Build a set of pitcher names who actually appeared in this game (ip > 0)
     const appearedNames=new Set();
     (tm.pitchersAppeared||[]).forEach(p=>{
-      if(p&&p.ip>0)appearedNames.add(p.name);
+      if(pitcherAppeared(p))appearedNames.add(p.name);
     });
     // Defensive: also include the starting pitcher if not already in pitchersAppeared
-    if(tm.pitcher&&tm.pitcher.name&&tm.pitcher.ip>0)appearedNames.add(tm.pitcher.name);
+    if(tm.pitcher&&tm.pitcher.name&&pitcherAppeared(tm.pitcher))appearedNames.add(tm.pitcher.name);
 
     // Step 1: Decrement existing rest days by 1 (one game = one day passed)
     Object.keys(restMap).forEach(name=>{
@@ -2120,7 +2125,7 @@ function updateRestDays(awayTm,homeTm){
     });
     // Step 3: For pitchers who DID appear, assign new rest days based on role
     (tm.pitchersAppeared||[]).concat([tm.pitcher]).forEach(p=>{
-      if(!p||!p.name||!p.ip||p.ip===0)return;
+      if(!p||!p.name||!pitcherAppeared(p))return;
       if(!appearedNames.has(p.name))return; // already processed via duplicate
       const role=p.role||'';
       if(role.startsWith('SP')){
@@ -2229,9 +2234,19 @@ function decidePitchingDecisions(){
     const winLeadChanges=leadChanges.filter(lc=>lc.team===winSide);
     if(winLeadChanges.length>0){
       const lastLC=winLeadChanges[winLeadChanges.length-1];
-      // Find losing team's pitcher who was pitching at that moment (in the losing team's half = winning team's offense)
-      // Look through losing team's pitchersAppeared and find who was active at that inning/half/outs
-      const losePitcherAtMoment=findActivePitcherAt(loseTeam,lastLC.inning,lastLC.half,lastLC.outs);
+      // The loss is charged to the pitcher who gave up the go-ahead (decisive) run.
+      // Preferred: the conceding pitcher recorded directly at the moment the lead was taken.
+      // (A pitcher can take the loss even with 0 outs recorded, so check the FULL appeared list,
+      //  not just pitchers with ip>0.)
+      const allLosePitchers=loseTeam.pitchersAppeared||[];
+      let losePitcherAtMoment=null;
+      if(lastLC.concededRef&&allLosePitchers.includes(lastLC.concededRef)){
+        losePitcherAtMoment=lastLC.concededRef;
+      }
+      // Fallback (e.g. legacy data without concededRef): reconstruct from inning/half/outs.
+      if(!losePitcherAtMoment){
+        losePitcherAtMoment=findActivePitcherAt(loseTeam,lastLC.inning,lastLC.half,lastLC.outs);
+      }
       if(losePitcherAtMoment){
         losePitcherAtMoment.gL=1;
       }else if(losePitchers.length>0){
@@ -2287,20 +2302,31 @@ function decidePitchingDecisions(){
   });
 }
 
+// True if a pitcher actually appeared in the game (faced >=1 batter / threw >=1 pitch),
+// even if they recorded 0 outs. A reliever who is subbed in but the game/inning ends
+// before they throw a pitch has all-zero stats and is NOT counted.
+function pitcherAppeared(p){
+  if(!p)return false;
+  return (p.ip||0)>0||(p.pitches||0)>0||(p.h||0)>0||(p.bb||0)>0||(p.k||0)>0||(p.er||0)>0||(p.r||0)>0;
+}
 // Find which pitcher of `team` was active at a given inning/half/outs
 function findActivePitcherAt(team,inning,half,outs){
   const all=team.pitchersAppeared||[];
   if(all.length===0)return null;
   if(all.length===1)return all[0];
-  // Walk through and find the pitcher whose entry is <= target and exit is > target (or no exit)
+  // Find the last pitcher who entered at or before the target moment.
+  // IMPORTANT: include `outs` in the comparison — when multiple pitchers appear in the
+  // same half-inning, ignoring outs would wrongly return the LATER pitcher (e.g. crediting
+  // a reliever who entered after the decisive run had already scored against the previous pitcher).
+  const targetTime=inning*1000+half*100+(outs||0);
   for(let i=all.length-1;i>=0;i--){
     const p=all[i];
     if(!p.entry){
-      // Starter — active from inning 1
+      // Starter — active from the very start of the game
       return p;
     }
-    const entryTime=p.entry.inning*10+p.entry.half;
-    const targetTime=inning*10+half;
+    const e=p.entry;
+    const entryTime=e.inning*1000+e.half*100+(e.outs||0);
     if(entryTime<=targetTime){
       return p;
     }
@@ -2444,11 +2470,24 @@ function renderResultScoreboard(){
       // No inning-by-inning data available — show all as '-'
       for(let i=0;i<totalInn;i++)h+=`<td class="sb-td dim">-</td>`;
     }
-    const hits=tm.lineup?tm.lineup.reduce((s,p)=>s+(p.hits||0),0):0;
-    const hitsDisp=gs._noSnapshot?'-':hits;
+    const hitsDisp=gs._noSnapshot?'-':sumTeamHits(tm);
     h+=`<td class="sb-td run">${gs.score[ti]}</td><td class="sb-td">${hitsDisp}</td><td class="sb-td">0</td></tr>`;
   });
   document.getElementById('r-sb').innerHTML=h;
+}
+
+// Sum all hits for a team across every batter who appeared (starters + pinch hitters).
+// Without this, lineup-only summing would miss pinch hitters' hits since the lineup
+// reference is replaced when a pinch hitter takes a slot.
+function sumTeamHits(tm){
+  if(tm.battersAppeared&&tm.battersAppeared.length){
+    let total=0;
+    tm.battersAppeared.forEach(slot=>{
+      if(Array.isArray(slot))slot.forEach(p=>{total+=(p.hits||0);});
+    });
+    return total;
+  }
+  return tm.lineup?tm.lineup.reduce((s,p)=>s+(p.hits||0),0):0;
 }
 
 // ═══ RESULT SUMMARY (W/L/S/HR lines under the scoreboard) ═══
@@ -2589,8 +2628,10 @@ function renderResultTeamStats(){
         <tr>${phd.map((x,i)=>`<th class="${i===1?'L':''}">${x}</th>`).join('')}</tr>`;
     // List all pitchers who appeared (fallback: just the current pitcher for legacy data)
     const allP=tm.pitchersAppeared&&tm.pitchersAppeared.length>0?tm.pitchersAppeared:[tm.pitcher];
-    // Filter out pitchers who never recorded an out (0 IP) — they were subbed in but the game ended
-    const pitchersToShow=allP.filter((pi,idx)=>idx===0||pi.ip>0);
+    // Show every pitcher who actually appeared (faced >=1 batter), even with 0 outs recorded —
+    // e.g. a reliever who gives up a HR to the only batter he faces. Only a pitcher who was
+    // subbed in but never threw a pitch (all-zero stats) is hidden.
+    const pitchersToShow=allP.filter((pi,idx)=>idx===0||pitcherAppeared(pi));
     pitchersToShow.forEach((pi,idx)=>{
       const ipP=fmtIP(pi.ip);
       // Build decision badge from individual pitcher's gW/gL/gS/gH
@@ -2664,7 +2705,7 @@ function rSB(){
     const side=ti===0?'away':'home',log=gs.ilog[side];
     h+=`<tr><td class="sb-td nm">${tm.abbr}</td>`;
     for(let i=0;i<totalInn;i++){const isC=(i===ci)&&((ti===0&&gs.half===0)||(ti===1&&gs.half===1));const v=log[i]!==null&&log[i]!==undefined?log[i]:'-';h+=`<td class="sb-td${isC?' cur':v==='-'?' dim':''}">${v}</td>`;}
-    const hits=tm.lineup.reduce((s,p)=>s+p.hits,0);
+    const hits=sumTeamHits(tm);
     h+=`<td class="sb-td run">${gs.score[ti]}</td><td class="sb-td">${hits}</td><td class="sb-td">0</td></tr>`;
   });
   document.getElementById('sb').innerHTML=h;
@@ -3592,22 +3633,54 @@ function createLeague(){
   };
 
   // Generate schedule for one league (Central or Pacific)
-  // Returns array of games for that league
+  // Returns array of games for that league.
+  // === Series-based schedule (NPB-style) ===
+  // Each pair plays in 3-game series (火・水・木 / 金・土・日), not scattered single games.
+  // gpp = total games per pair (preserved from previous design).
+  //   - First we run `floor(gpp/3)` full 3-game series for every pair.
+  //   - Any remainder (gpp % 3 == 1 or 2) is appended at the END of the season
+  //     as concentrated single/double games per pair (per user spec).
+  // Home/away flips per full series so each pair alternates home advantage.
   const buildLeagueSchedule=(leagueIds,roundOffset)=>{
     const games=[];
     if(leagueIds.length<2)return {games,nextRound:roundOffset};
     let roundNum=roundOffset;
-    for(let c=0;c<gpp;c++){
+    const SERIES_LEN=3;
+    const fullSeries=Math.floor(gpp/SERIES_LEN);
+    const leftover=gpp%SERIES_LEN;
+
+    // Phase 1: full 3-game series, repeated `fullSeries` times
+    for(let s=0;s<fullSeries;s++){
       const cycle=buildCycle(leagueIds);
       cycle.forEach(round=>{
-        roundNum++;
-        round.forEach(pair=>{
-          const homeIsA=(c%2===0);
-          const home=homeIsA?pair.a:pair.b;
-          const away=homeIsA?pair.b:pair.a;
-          games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
-                      phase:'regular',league:getTeamLeague(home)});
-        });
+        // Each pair in this round plays 3 consecutive games
+        for(let g=0;g<SERIES_LEN;g++){
+          roundNum++;
+          round.forEach(pair=>{
+            const homeIsA=(s%2===0);  // home/away flips between full series
+            const home=homeIsA?pair.a:pair.b;
+            const away=homeIsA?pair.b:pair.a;
+            games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
+                        phase:'regular',league:getTeamLeague(home)});
+          });
+        }
+      });
+    }
+    // Phase 2: leftover games concentrated at season's end (gpp%3 == 1 or 2)
+    // Opposite home-advantage from the last full series for fairness
+    if(leftover>0){
+      const cycle=buildCycle(leagueIds);
+      cycle.forEach(round=>{
+        for(let g=0;g<leftover;g++){
+          roundNum++;
+          round.forEach(pair=>{
+            const homeIsA=(fullSeries%2===0);
+            const home=homeIsA?pair.a:pair.b;
+            const away=homeIsA?pair.b:pair.a;
+            games.push({id:gid++,away,home,done:false,scoreA:0,scoreH:0,round:roundNum,
+                        phase:'regular',league:getTeamLeague(home)});
+          });
+        }
       });
     }
     return {games,nextRound:roundNum};
@@ -4248,7 +4321,8 @@ function quickSim(awayId,homeId){
       q.leadChanges.push({
         inning:q.inning,half:q.half,outs:q.outs,
         team:scoringSide,pitcher:scoringTeam.pitcher.name,
-        pitcherRef:scoringTeam.pitcher
+        pitcherRef:scoringTeam.pitcher,
+        concededRef:qcp()  // pitcher who gave up the go-ahead run (loss charge)
       });
     }
     // Walk-off: in bottom of 9th or later, if HOME takes the lead, game ends immediately
@@ -4410,9 +4484,12 @@ function quickSim(awayId,homeId){
   const savedGs=gs,savedAway=awayT,savedHome=homeT;
   gs=q;awayT=at;homeT=ht;
   try{decidePitchingDecisions();}finally{gs=savedGs;awayT=savedAway;homeT=savedHome;}
-  accBat(at,at.name);accBat(ht,ht.name);accPit(at,at.name);accPit(ht,ht.name);
-  // Update league rest days using the shared helper (same logic as watched games)
-  updateRestDays(at,ht);
+  // Skip stat accumulation in postseason (quickSimNoTie=true is set during postseason auto-sim)
+  if(!quickSimNoTie){
+    accBat(at,at.name);accBat(ht,ht.name);accPit(at,at.name);accPit(ht,ht.name);
+    // Update league rest days using the shared helper (same logic as watched games)
+    updateRestDays(at,ht);
+  }
   // Snapshot for history viewing (no play-by-play log for quick sim)
   // Build summary now — accBat/accPit have already run above
   const summary=buildResultSummary(at,ht);
@@ -4448,7 +4525,7 @@ function accPit(tm,tname){
   // Accumulate ALL pitchers who appeared in the game (not just the final pitcher)
   const all=tm.pitchersAppeared||[tm.pitcher];
   all.forEach(p=>{
-    if(!p||!p.ip)return; // skip 0-IP pitchers
+    if(!pitcherAppeared(p))return; // skip pitchers who never actually faced a batter
     const k=tname+':'+p.name;
     if(!leaguePit[k])leaguePit[k]={name:p.name,team:tname,ip:0,er:0,w:0,l:0,s:0,h:0,g:0,gs:0,cg:0,sho:0,qs:0,bb:0,k:0,ha:0};
     const s=leaguePit[k];
@@ -4593,11 +4670,53 @@ function renderStandings(){
       return{id,name:tm?.name||'?',abbr:tm?.abbr||'?',...s,g,pct,diff:s.ra-s.rh};
     }).sort((a,b)=>b.pct-a.pct||b.diff-a.diff);
     const top=rows[0];
+
+    // === Pennant-race magic number (NPB-style) ===
+    // Conditions for the magic to "light up" (per NPB convention):
+    //   (1) No other team can still WIN the pennant on their own (i.e., every rival's
+    //       max possible wins, even running the table, does not exceed the leader's
+    //       current wins).
+    //   (2) i.e., the leader cannot be passed by any single rival's self-sustaining run.
+    // Magic number M = (max rival's potential wins) - (leader's current wins) + 1
+    //   = how many more wins the leader needs to clinch.
+    // If M ≤ 0 (or the leader has no games left), the title is already clinched
+    // and we show "優勝" / "CHAMP" instead of a number.
+    const totalGames=league.gpp*(teamIds.length-1);
+    const calcMagic=()=>{
+      if(rows.length<2)return null;
+      const topRemaining=totalGames-top.g;
+      if(topRemaining<=0)return 'CHAMP';  // season over
+      let maxRivalWins=0;
+      let anyRivalCanCatchUp=false;
+      for(let i=1;i<rows.length;i++){
+        const r=rows[i];
+        const rRemaining=totalGames-r.g;
+        const rMaxWins=r.w+rRemaining;
+        // "Self-sustained pennant possibility": rival can pass the leader on their own
+        if(rMaxWins>top.w)anyRivalCanCatchUp=true;
+        if(rMaxWins>maxRivalWins)maxRivalWins=rMaxWins;
+      }
+      if(anyRivalCanCatchUp)return null;  // not yet lit
+      const M=maxRivalWins-top.w+1;
+      if(M<=0)return 'CHAMP';  // already clinched
+      return M;
+    };
+    const topMagic=calcMagic();
+
     const hd=lang==='ja'?['#','チーム','試','勝','負','分','勝率','差','得','失','得失差']
                        :['#','Team','G','W','L','D','PCT','GB','RS','RA','DIFF'];
     let h=`<div class="stand-wrap"><table class="stand-tbl"><tr>${hd.map((x,i)=>`<th class="sb-th ${i===1?'L':''}">${x}</th>`).join('')}</tr>`;
     rows.forEach((r,i)=>{
-      const gb=i===0?'-':(((top.w-r.w)+(r.l-top.l))/2).toFixed(1);
+      // Top row: magic number, "優勝/CHAMP" if clinched, or "-" if not lit yet.
+      // Other rows: games-behind (negative wins differential vs the leader).
+      let gb;
+      if(i===0){
+        if(topMagic==='CHAMP')gb=(lang==='ja'?'優勝':'CHAMP');
+        else if(topMagic!==null)gb=`M${topMagic}`;
+        else gb='-';
+      }else{
+        gb=(((top.w-r.w)+(r.l-top.l))/2).toFixed(1);
+      }
       h+=`<tr>
         <td style="font-size:.84rem;color:var(--text3)">${i+1}</td>
         <td class="L" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--border2)" onclick="showTeamStats(${r.id})">${i===0?'🏆 ':''}<b style="${i===0?'color:var(--gold)':''}">${r.abbr}</b><span style="font-size:.7rem;color:var(--text3);margin-left:.35rem">▸</span></td>
