@@ -777,6 +777,7 @@ const T={
     watch:'▶ 観戦する',autoCon:'⚡ 自動消化',simAllBtn:'≫ 全消化',
     backLeague:'◈ リーグへ戻る',
     shH:'安',sh2B:'二',sh3B:'三',shHR:'本',shBB:'四球',shK:'三振',shGO:'ゴロ',shFO:'飛',
+    shSF:'犠飛',shDP:'併',sacFly:'犠牲フライ',gidp:'ゲッツー！',ifFly:'内野フライ',ofFly:'外野フライ',
     tabLog:'試合経過',tabStats:'投打成績',
     pitcherStats:'投手成績',batterStats:'打者成績',
     cWin:'勝',cLose:'負',cName:'投手名',cERA:'防御率',cIP:'回',cH:'安打',cK:'三振',cBB:'四死球',cR:'失点',
@@ -804,6 +805,7 @@ const T={
     watch:'▶ Watch',autoCon:'⚡ Auto',simAllBtn:'≫ All',
     backLeague:'◈ Back to League',
     shH:'1B',sh2B:'2B',sh3B:'3B',shHR:'HR',shBB:'BB',shK:'K',shGO:'GO',shFO:'FO',
+    shSF:'SF',shDP:'DP',sacFly:'Sac Fly',gidp:'Double Play!',ifFly:'Infield Fly',ofFly:'Flyout',
     tabLog:'Play-by-Play',tabStats:'Box Score',
     pitcherStats:'Pitching',batterStats:'Batting',
     cWin:'W/L',cLose:'L',cName:'Pitcher',cERA:'ERA',cIP:'IP',cH:'H',cK:'K',cBB:'BB',cR:'R',
@@ -1686,7 +1688,7 @@ function startGame(overA,overH){
   [at,ht].forEach((tm,ti)=>{
     tm.lineup.forEach(p=>{
       p.atbats=0;p.hits=0;p.hrs=0;p.rbi=0;
-      p.doubles=0;p.triples=0;p.bb=0;p.so=0;p.sb=0;
+      p.doubles=0;p.triples=0;p.bb=0;p.so=0;p.sb=0;p.sf=0;p.gidp=0;
       p.history=[]; // 各打席結果の配列 {result, cls, inning}
     });
     tm.pitcher.ip=0;tm.pitcher.er=0;tm.pitcher.curStam=tm.pitcher.stam;tm.pitcher.gW=0;tm.pitcher.gL=0;
@@ -1894,7 +1896,7 @@ function simPitch(){
     // batter fouled off / took before making contact this at-bat.
     const fouled=1+Math.floor(Math.random()*2); // 1 or 2 extra pitches
     for(let i=0;i<fouled;i++) applyPitchToStamina(pt);
-    if(Math.random()<hProb(pt,bt))doHit(bt);else doOut(bt,Math.random()<.54?t('groundout'):t('flyout'));
+    if(Math.random()<hProb(pt,bt))doHit(bt);else doBattedOut(bt,Math.random()<.54);
   }
   updUI();
 }
@@ -1926,6 +1928,60 @@ function doOut(bt,type){
   // Always advance batter (next inning starts with the batter after the one who made the final out)
   nxtB();rstC();
   if(gs.outs>=3)endHalf();
+}
+function doBattedOut(bt,isGround){
+  // Resolves a ball-in-play OUT (not a strikeout) with sacrifice-fly and double-play logic.
+  // All run-scoring routes through scrRun() so lead-change / loss-pitcher / walk-off tracking is preserved.
+  const b=gs.bases,br=gs.baseRunners;
+  if(isGround){
+    // --- Double play: runner on 1B and fewer than 2 outs ---
+    if(b[0]&&gs.outs<2){
+      let dpProb=0.50-(bt.speed-65)*0.004;      // ~50% base, faster batters break it up more often
+      dpProb=Math.max(0.30,Math.min(0.65,dpProb));
+      if(Math.random()<dpProb){
+        bt.atbats++;bt.gidp=(bt.gidp||0)+1;
+        bt.history.push({result:t('shDP'),cls:'out',inning:gs.inning});
+        addLog(`  ${bt.name}  ${t('gidp')}`,'imp');
+        b[0]=false;br[0]=null;                  // lead runner forced out at 2B
+        gs.outs+=2;cP().ip=(cP().ip||0)+2;      // batter out at 1B + force = 2 outs
+        if(b[2]&&gs.outs<3){b[2]=false;br[2]=null;scrRun(bt,1,true);if(gs.over)return;}  // GIDP run: no RBI
+        nxtB();rstC();
+        if(gs.outs>=3)endHalf();
+        return;
+      }
+    }
+    // --- Normal ground out ---
+    bt.atbats++;
+    bt.history.push({result:t('shGO'),cls:'out',inning:gs.inning});
+    addLog(`  ${bt.name}  ${t('groundout')}`);
+    gs.outs++;cP().ip=(cP().ip||0)+1;
+    if(b[2]&&gs.outs<3){b[2]=false;br[2]=null;scrRun(bt,1);if(gs.over)return;}  // RBI groundout
+    nxtB();rstC();
+    if(gs.outs>=3)endHalf();
+    return;
+  }else{
+    // --- Fly out: infield (30%) vs outfield (70%) ---
+    const isInfield=Math.random()<0.30;
+    if(!isInfield&&b[2]&&gs.outs<2){
+      bt.sf=(bt.sf||0)+1;                        // SACRIFICE FLY: not an at-bat; SF + RBI
+      bt.history.push({result:t('shSF'),cls:'out',inning:gs.inning});
+      addLog(`  ${bt.name}  ${t('sacFly')}`,'imp');
+      b[2]=false;br[2]=null;
+      gs.outs++;cP().ip=(cP().ip||0)+1;
+      scrRun(bt,1);if(gs.over)return;
+      nxtB();rstC();
+      if(gs.outs>=3)endHalf();
+      return;
+    }
+    // --- Normal fly out (infield fly, or no 3B runner, or 2 outs) ---
+    bt.atbats++;
+    bt.history.push({result:t('shFO'),cls:'out',inning:gs.inning});
+    addLog(`  ${bt.name}  ${isInfield?t('ifFly'):t('ofFly')}`);
+    gs.outs++;cP().ip=(cP().ip||0)+1;
+    nxtB();rstC();
+    if(gs.outs>=3)endHalf();
+    return;
+  }
 }
 function doWalk(bt){
   bt.bb++;cP().bb++;
@@ -1967,9 +2023,10 @@ function advR(bt,hb,isHR){
   }
   if(runs>0)scrRun(bt,runs);
 }
-function scrRun(bt,n){
+function scrRun(bt,n,noRBI){
   const beforeDiff=gs.score[0]-gs.score[1]; // positive: AWAY leads, negative: HOME leads, 0: tied
-  bt.rbi+=n;gs.score[gs.half]+=n;cP().er+=n;cP().r=(cP().r||0)+n;
+  if(!noRBI)bt.rbi+=n;
+  gs.score[gs.half]+=n;cP().er+=n;cP().r=(cP().r||0)+n;
   const idx=gs.inning-1,side=gs.half===0?'away':'home';
   gs.ilog[side][idx]=(gs.ilog[side][idx]||0)+n;
   addLog(`★ ${n}${t('scored')}  ${awayT.abbr} ${gs.score[0]}  -  ${gs.score[1]} ${homeT.abbr}`,'run');
@@ -2922,7 +2979,7 @@ function doHitterSub(benchIdx){
   // Target slot is the next-up batter (current at-bat or upcoming)
   const slotIdx=batT===awayT?gs.order[0]:gs.order[1];
   const oldH=batT.lineup[slotIdx];
-  const newHCopy={...newH,pos:oldH.pos,atbats:0,hits:0,hrs:0,rbi:0,doubles:0,triples:0,bb:0,so:0,sb:0,history:[]};
+  const newHCopy={...newH,pos:oldH.pos,atbats:0,hits:0,hrs:0,rbi:0,doubles:0,triples:0,bb:0,so:0,sb:0,sf:0,gidp:0,history:[]};
   oldH.subbed=true;
   batT.lineup[slotIdx]=newHCopy;
   if(!batT.battersAppeared) batT.battersAppeared=batT.lineup.map(p=>[p]);
@@ -2983,7 +3040,7 @@ function aiAutoPinchHit(){
 function performAutoPinchHit(batT,slotIdx,bestPH){
   const oldH=batT.lineup[slotIdx];
   // The pinch hitter takes over this batting slot, keeping the existing position
-  const newHCopy={...bestPH,pos:oldH.pos,atbats:0,hits:0,hrs:0,rbi:0,doubles:0,triples:0,bb:0,so:0,sb:0,history:[]};
+  const newHCopy={...bestPH,pos:oldH.pos,atbats:0,hits:0,hrs:0,rbi:0,doubles:0,triples:0,bb:0,so:0,sb:0,sf:0,gidp:0,history:[]};
   oldH.subbed=true;
   batT.lineup[slotIdx]=newHCopy;
   if(!batT.battersAppeared) batT.battersAppeared=batT.lineup.map(p=>[p]);
@@ -3054,7 +3111,7 @@ function aiAutoSubPitcher(team,inning,scoreDiff,silent,gameState,scoringTeams){
     const outsPitched=cur.ip||0;
     if(outsPitched>=reliefMaxOuts){
       shouldSwap=true;
-      if(inn>=9&&myLead>0&&myLead<=2) situation='CL_save';
+      if(inn>=9&&myLead>0&&myLead<=3) situation='CL_save';
       else if(inn>=8&&myLead>0&&myLead<=3) situation='SU_save';
       else situation='mid_relief';
     }
@@ -3073,20 +3130,20 @@ function aiAutoSubPitcher(team,inning,scoreDiff,silent,gameState,scoringTeams){
   // Absolute pitch ceiling — every pitcher must come out
   if(!shouldSwap&&pitches>=pitchLimit+15){
     shouldSwap=true;
-    if(inn>=9&&myLead>0&&myLead<=2) situation='CL_save';
+    if(inn>=9&&myLead>0&&myLead<=3) situation='CL_save';
     else if(inn>=7&&myLead>0&&myLead<=3) situation='SU_save';
     else situation='mid_relief';
   }
   // Approaching pitch limit + late inning: bring in matchup specialist
   else if(!shouldSwap&&pitches>=pitchLimit&&inn>=7){
     shouldSwap=true;
-    if(inn>=9&&myLead>0&&myLead<=2) situation='CL_save';
+    if(inn>=9&&myLead>0&&myLead<=3) situation='CL_save';
     else if(inn>=7&&myLead>0&&myLead<=3) situation='SU_save';
     else situation='mid_relief';
   }
 
   // --- SAVE SITUATIONS ---
-  if(!shouldSwap&&inn>=9&&myLead>0&&myLead<=2&&cur.role!=='CL'){
+  if(!shouldSwap&&inn>=9&&myLead>0&&myLead<=3&&cur.role!=='CL'){
     // 9th inning save situation: bring in closer
     shouldSwap=true;situation='CL_save';
   }
@@ -3099,7 +3156,7 @@ function aiAutoSubPitcher(team,inning,scoreDiff,silent,gameState,scoringTeams){
   // Avoid the old "always sub at 5th inning" trap by requiring real evidence of fatigue
   if(!shouldSwap&&stamPct<0.25&&pitches>=70){
     shouldSwap=true;
-    if(inn>=9&&myLead>0&&myLead<=2) situation='CL_save';
+    if(inn>=9&&myLead>0&&myLead<=3) situation='CL_save';
     else if(inn>=7&&myLead>0&&myLead<=3) situation='SU_save';
     else situation='mid_relief';
   }
@@ -4308,9 +4365,10 @@ function quickSim(awayId,homeId){
   const qbat=()=>q.half===0?at:ht,qfld=()=>q.half===0?ht:at,qoi=()=>q.half===0?0:1;
   const qcb=()=>qbat().lineup[q.order[qoi()]],qcp=()=>qfld().pitcher;
   const qnb=()=>{q.order[qoi()]=(q.order[qoi()]+1)%9;},qrc=()=>{q.balls=0;q.strikes=0;};
-  const qsr=(bt,n)=>{
+  const qsr=(bt,n,noRBI)=>{
     const beforeDiff=q.score[0]-q.score[1];
-    bt.rbi+=n;q.score[q.half]+=n;qcp().er+=n;
+    if(!noRBI)bt.rbi+=n;
+    q.score[q.half]+=n;qcp().er+=n;
     const idx=q.inning-1,side=q.half===0?'away':'home';
     q.ilog[side][idx]=(q.ilog[side][idx]||0)+n;
     const afterDiff=q.score[0]-q.score[1];
@@ -4467,12 +4525,46 @@ function quickSim(awayId,homeId){
         bt.history.push({result:histResult,cls:histCls,inning:q.inning});
         qar(bt,bases,bases===4);qnb();qrc();
       }else{
-        bt.atbats++;
-        // Random ground/fly distribution for out-in-play (no strikeout)
+        // Ball-in-play OUT with sacrifice-fly and double-play logic (mirrors live doBattedOut)
         const isGround=Math.random()<0.55;
+        const b=q.bases,br=q.baseRunners;
         if(!bt.history)bt.history=[];
-        bt.history.push({result:isGround?t('shGO'):t('shFO'),cls:'out',inning:q.inning});
-        q.outs++;pt.ip++;qnb();qrc();if(q.outs>=3)qeh();
+        if(isGround){
+          let didDP=false;
+          if(b[0]&&q.outs<2){
+            let dpProb=0.50-(bt.speed-65)*0.004;dpProb=Math.max(0.30,Math.min(0.65,dpProb));
+            if(Math.random()<dpProb){
+              didDP=true;
+              bt.atbats++;bt.gidp=(bt.gidp||0)+1;
+              bt.history.push({result:t('shDP'),cls:'out',inning:q.inning});
+              b[0]=false;br[0]=null;
+              q.outs+=2;pt.ip+=2;
+              if(b[2]&&q.outs<3){b[2]=false;br[2]=null;qsr(bt,1,true);}
+              qnb();qrc();if(!q.over&&q.outs>=3)qeh();
+            }
+          }
+          if(!didDP){
+            bt.atbats++;
+            bt.history.push({result:t('shGO'),cls:'out',inning:q.inning});
+            q.outs++;pt.ip++;
+            if(b[2]&&q.outs<3){b[2]=false;br[2]=null;qsr(bt,1);}
+            qnb();qrc();if(!q.over&&q.outs>=3)qeh();
+          }
+        }else{
+          const isInfield=Math.random()<0.30;
+          if(!isInfield&&b[2]&&q.outs<2){
+            bt.sf=(bt.sf||0)+1;
+            bt.history.push({result:t('shSF'),cls:'out',inning:q.inning});
+            b[2]=false;br[2]=null;
+            q.outs++;pt.ip++;
+            qsr(bt,1);
+            qnb();qrc();if(!q.over&&q.outs>=3)qeh();
+          }else{
+            bt.atbats++;
+            bt.history.push({result:t('shFO'),cls:'out',inning:q.inning});
+            q.outs++;pt.ip++;qnb();qrc();if(!q.over&&q.outs>=3)qeh();
+          }
+        }
       }
     }
   }
@@ -4512,13 +4604,14 @@ function accBat(tm,tname){
   }
   all.forEach(p=>{
     // Include the player if they had at-bats OR stole/got caught (a runner can steal without batting)
-    if(!p.atbats&&!p.sb&&!p.cs)return;
+    if(!p.atbats&&!p.sb&&!p.cs&&!p.sf)return;
     const k=tname+':'+p.name;
-    if(!leagueBat[k])leagueBat[k]={name:p.name,team:tname,atbats:0,hits:0,hrs:0,rbi:0,doubles:0,triples:0,bb:0,so:0,sb:0,cs:0};
+    if(!leagueBat[k])leagueBat[k]={name:p.name,team:tname,atbats:0,hits:0,hrs:0,rbi:0,doubles:0,triples:0,bb:0,so:0,sb:0,cs:0,sf:0,gidp:0};
     const s=leagueBat[k];
     s.atbats+=p.atbats||0;s.hits+=p.hits||0;s.hrs+=p.hrs||0;s.rbi+=p.rbi||0;
     s.doubles+=(p.doubles||0);s.triples+=(p.triples||0);s.bb+=(p.bb||0);s.so+=(p.so||0);
     s.sb=(s.sb||0)+(p.sb||0);s.cs=(s.cs||0)+(p.cs||0);
+    s.sf=(s.sf||0)+(p.sf||0);s.gidp=(s.gidp||0)+(p.gidp||0);
   });
 }
 function accPit(tm,tname){
@@ -4973,6 +5066,8 @@ function renderStats(type){
       {key:'sb',ja:'盗塁',en:'SB',sortable:true},
       {key:'bb',ja:'四死球',en:'BB',sortable:true},
       {key:'so',ja:'三振',en:'K',sortable:true},
+      {key:'sf',ja:'犠飛',en:'SF',sortable:true},
+      {key:'gidp',ja:'併殺',en:'GIDP',sortable:true},
       {key:'obp',ja:'出塁率',en:'OBP',sortable:true},
       {key:'slg',ja:'長打率',en:'SLG',sortable:true},
       {key:'ops',ja:'OPS',en:'OPS',sortable:true},
