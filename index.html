@@ -2060,9 +2060,6 @@ function scrRun(bt,n,noRBI){
   // Walk-off: in bottom of 9th or later, if HOME takes the lead, game ends immediately
   if(gs.half===1&&gs.inning>=9&&gs.score[1]>gs.score[0]){
     addLog(`🎉 ${homeT.name}  ${lang==='ja'?'サヨナラ勝ち！':'Walk-off win!'}`,'run');
-    const remOuts=3-gs.outs;
-    if(remOuts>0&&remOuts<3) cP().ip=(cP().ip||0)+remOuts;
-    else if(remOuts===3) cP().ip=(cP().ip||0)+3;
     endGame();
   }
 }
@@ -4388,14 +4385,6 @@ function quickSim(awayId,homeId){
     }
     // Walk-off: in bottom of 9th or later, if HOME takes the lead, game ends immediately
     if(q.half===1&&q.inning>=9&&q.score[1]>q.score[0]){
-      // Credit remaining outs (treat partial inning as full IP for the current pitcher)
-      const remOuts=3-q.outs;
-      const cur=qcp();
-      if(cur){
-        if(cur.ip===undefined)cur.ip=0;
-        if(remOuts>0&&remOuts<3) cur.ip+=remOuts;
-        else if(remOuts===3) cur.ip+=3;
-      }
       q.over=true;
     }
   };
