@@ -2,20 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <meta name="color-scheme" content="dark">
 <title>⚾ BASEBALL SIM — Spectator Edition</title>
-<meta name="description" content="観戦専用の野球シミュレーター。12球団・2リーグ・140試合のペナントレース、クライマックスシリーズ、日本シリーズまで楽しめます。チーム編集・データ保存も自由に使えるショーケース版。全選手・全球団は架空のものです。">
-<meta name="author" content="BASEBALL SIM">
-<meta name="theme-color" content="#0f0f0f">
-<meta property="og:title" content="⚾ BASEBALL SIM — Spectator Edition">
-<meta property="og:description" content="観戦専用の野球シミュレーター。12球団2リーグ140試合 + ポストシーズン。チーム編集・データ保存可。">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="ja_JP">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="⚾ BASEBALL SIM — Spectator Edition">
-<meta name="twitter:description" content="観戦専用の野球シミュレーター">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BE%3C/text%3E%3C/svg%3E">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -27,7 +16,9 @@
   --radius:6px;--radius2:10px;
 }
 html{background:var(--bg);color-scheme:dark}
-body{background:var(--bg);color:var(--text);min-height:100vh;font-family:'Courier New',monospace;font-size:15px}
+body{background:var(--bg);color:var(--text);min-height:100vh;font-family:'Courier New',monospace;font-size:15px;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button,select,input{touch-action:manipulation}
+html{background:var(--bg)}
 #app{max-width:740px;margin:0 auto;padding:.75rem}
 .screen{display:none}.screen.active{display:block}
 .btn{display:inline-block;padding:.55rem 1rem;font-family:'Courier New',monospace;font-size:.95rem;font-weight:700;letter-spacing:.04em;cursor:pointer;border-radius:var(--radius);border:1.5px solid var(--border2);background:var(--bg3);color:var(--text);transition:background .1s;text-align:center;line-height:1}
@@ -438,8 +429,11 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   <div class="gtitle">BASEBALL SIM</div>
   <div class="gsub" data-ja="SPECTATOR EDITION" data-en="SPECTATOR EDITION">SPECTATOR EDITION</div>
   <div class="menu-list">
+    <!-- FREE版で使える機能 -->
     <button class="btn pri block" onclick="gotoLeague()" data-ja="◈ リーグモード" data-en="◈ League Mode">◈ リーグモード</button>
     <button class="btn green block" onclick="gotoSelect()" data-ja="▶ クイック観戦" data-en="▶ Quick Game">▶ クイック観戦</button>
+
+    <!-- PRO版機能 -->
     <button class="btn block" id="edit-btn" onclick="gotoEditor()" data-ja="✎ チーム編集" data-en="✎ Edit Teams">✎ チーム編集</button>
     <div style="display:flex;gap:.4rem;margin-top:.3rem">
       <button class="btn sm" style="flex:1" onclick="saveData()" data-ja="💾 データ保存" data-en="💾 Save Data">💾 データ保存</button>
@@ -449,25 +443,8 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
     <input type="file" id="load-file" accept=".json" style="display:none" onchange="onFileLoad(event)">
   </div>
 
-  <div class="showcase-disclaimer">
-    <div class="showcase-disclaimer-title" data-ja="📢 本作について" data-en="📢 About this work">📢 本作について</div>
-    <p data-ja="本作はライセンスフリーのショーケース版です。全機能を自由にお試しいただけます。" data-en="This is a license-free showcase build. All features are unlocked for free.">本作はライセンスフリーのショーケース版です。全機能を自由にお試しいただけます。</p>
-    <p data-ja="登場するチーム名・選手名・地域名はすべて架空のものであり、実在の団体・個人・地名とは一切関係ありません。" data-en="All team names, player names, and regional names are entirely fictional and bear no relation to any real organizations, individuals, or places.">登場するチーム名・選手名・地域名はすべて架空のものであり、実在の団体・個人・地名とは一切関係ありません。</p>
-  </div>
-</div>
-<style>
-.showcase-disclaimer{margin-top:1.5rem;padding:.9rem 1rem;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);font-size:.82rem;color:var(--text2);line-height:1.6;letter-spacing:.02em}
-.showcase-disclaimer-title{color:var(--gold);font-weight:700;margin-bottom:.4rem;font-size:.9rem}
-.showcase-disclaimer p{margin:.3rem 0}
-@media (max-width:480px){
-  .showcase-disclaimer{font-size:.86rem!important;padding:.85rem .9rem!important}
-  .showcase-disclaimer-title{font-size:.95rem!important;font-weight:800!important}
-}
-</style>
+  <div style="margin-top:1.2rem;font-size:.84rem;color:var(--text3)" id="pro-lbl"></div>
 
-<div id="pro-screen" class="screen">
-  <div class="fb mb"><div class="sec" style="margin:0">🔑 ライセンス認証</div><button class="btn sm" onclick="gotoScreen('menu-screen')">← 戻る</button></div>
-  <div class="card"><div class="notice info">このショーケース版では、ライセンス認証なしで全機能を利用できます。</div></div>
 </div>
 
 <!-- SELECT -->
@@ -1140,49 +1117,18 @@ const DT=TEAM_BASE.map(tb=>{
 
 // ═══ STATE ═══
 let teams=JSON.parse(JSON.stringify(DT));
-let isPro=true,selIds=[],edTabIdx=0,edTeamIdx=0;
+let isPro=true,selIds=[],edTabIdx=0,edTeamIdx=0;  // Paid App Store edition: always unlocked
 let gs=null,awayT,homeT,logs=[],autoOn=false,autoTmr=null;
 let league={active:false,name:"",gpp:2,teamIds:[],schedule:[],stats:{}};
 let leagueBat={},leaguePit={};
 let leagueGameId=-1,fromLeague=false,fromStandings=false,curStatsType='bat',chkIds=null;
 
-// ═══ LICENSE ═══
-const MS='BSIM-2025-NAKAZONO';
-function genKey(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;const n=Math.abs(h)>>>0;return[((n^0xA3F1)&0xFFFF).toString(16).toUpperCase().padStart(4,'0'),((n^0x5C2E)>>4&0xFFFF).toString(16).toUpperCase().padStart(4,'0'),((n*0x9E37&0xFFFF)).toString(16).toUpperCase().padStart(4,'0'),((n^0x71B9)&0xFFFF).toString(16).toUpperCase().padStart(4,'0')].join('-');}
-function fmtKey(el){let v=el.value.replace(/[^A-Fa-f0-9]/g,'').toUpperCase();let p=[];for(let i=0;i<v.length&&i<16;i+=4)p.push(v.slice(i,i+4));el.value=p.join('-');}
-function validateKey(k){
-  if(k.toUpperCase()===genKey(MS))return true;
-  // order-based key: try MSEED:orderId pattern
-  // keygen generates: genKey(MS+':'+orderId), so we can't reverse-validate without orderId
-  // but we can check against master only here; order-based keys are valid by definition if generated correctly
-  return false;
-}
-function activateLic(){
-  const k=document.getElementById('lic-in').value.trim(),m=document.getElementById('lic-msg');
-  m.style.display='block';
-  // Accept both master key AND any key that matches pattern (16 hex chars with dashes)
-  // For order-based: we trust the user (keygen generates valid keys; user can't forge them without knowing MSEED)
-  const isMaster=k.toUpperCase()===genKey(MS);
-  const isOrderBased=/^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/i.test(k);
-  if(isMaster||isOrderBased){
-    isPro=true;localStorage.setItem('bsim_pro',k);
-    m.className='notice ok';m.textContent=t('proActive');updPro();
-  }else{m.className='notice warn';m.textContent=t('proInvalid');}
-}
-async function revokeLic(){
-  await showConfirm(lang==='ja'?'ショーケース版ではPRO機能は常時有効です。':'PRO features are always enabled in the showcase build.');
-}
 function updPro(){
-  const badge=document.getElementById('pro-badge');
-  if(badge){badge.textContent=isPro?'PRO':'FREE';badge.className='badge '+(isPro?'pro':'free');}
-  const rev=document.getElementById('revoke-area');
-  if(rev)rev.style.display=isPro?'block':'none';
-  const lbl=document.getElementById('pro-lbl');
-  if(lbl)lbl.textContent=isPro?t('proStatus'):t('freeStatus');
+  // Paid App Store edition: all features permanently unlocked; legacy hooks kept null-safe.
   const promo=document.querySelector('.pro-promo');
-  if(promo)promo.style.display=isPro?'none':'block';
-  const dl=document.getElementById('pro-divider-label');
-  if(dl)dl.style.color=isPro?'var(--green)':'var(--gold)';
+  if(promo) promo.style.display='none';
+  const lbl=document.getElementById('pro-lbl');
+  if(lbl) lbl.textContent='';
 }
 
 // ═══ SCREENS ═══
@@ -1193,7 +1139,7 @@ function gotoScreen(id){
   if(id==='menu-screen')updateAutoSaveStatus();
 }
 function gotoSelect(){stopAuto();fromLeague=false;selIds=[];renderTGrid();document.getElementById('sel-status').textContent='';document.getElementById('start-btn').style.display='none';gotoScreen('select-screen');}
-function gotoEditor(){if(!isPro){alert(lang==='ja'?'PRO版ライセンスが必要です。':'PRO license required.');return;}edTabIdx=0;edTeamIdx=0;renderEdSels();loadEdTeam(0);gotoScreen('editor-screen');}
+function gotoEditor(){edTabIdx=0;edTeamIdx=0;renderEdSels();loadEdTeam(0);gotoScreen('editor-screen');}
 
 // ═══ ORDER SCREEN ═══
 // orderData[0] = away, orderData[1] = home
@@ -2436,7 +2382,6 @@ function viewGameHistory(gid){
     const ht=teams.find(x=>x.id===game.home);
     if(!at||!ht)return;
     awayT=dc(at);homeT=dc(ht);
-    // Build a pseudo game-state with just final scores; renderers below check _noSnapshot
     gs={inning:9,half:1,outs:0,balls:0,strikes:0,bases:[false,false,false],
         score:[game.scoreA,game.scoreH],ilog:null,order:[0,0],over:true,
         _snapshotSummary:null,_noSnapshot:true};
@@ -2534,8 +2479,8 @@ function renderResultScoreboard(){
 }
 
 // Sum all hits for a team across every batter who appeared (starters + pinch hitters).
-// Without this, lineup-only summing would miss pinch hitters' hits since the lineup
-// reference is replaced when a pinch hitter takes a slot.
+// Without this, lineup-only summing would miss the starter's hits once a pinch hitter
+// replaces them in tm.lineup[slotIdx]. battersAppeared[slot] keeps the full chain.
 function sumTeamHits(tm){
   if(tm.battersAppeared&&tm.battersAppeared.length){
     let total=0;
@@ -2566,7 +2511,6 @@ function buildResultSummary(awayTeam,homeTeam){
       if(p.gS){sPit=p;sTeam=tm;}
     });
   });
-  // HR list — show season total (after accBat has been called)
   const hrList=[];
   [awayTeam,homeTeam].forEach(tm=>{
     const seen=new Set();
@@ -2602,7 +2546,6 @@ function buildResultSummary(awayTeam,homeTeam){
   };
 }
 
-// Render the summary from a pre-built summary object (used by both live result and history view)
 function renderResultSummaryFrom(summary){
   const box=document.getElementById('r-summary');
   if(!box)return;
@@ -2642,10 +2585,8 @@ function renderResultSummaryFrom(summary){
   box.innerHTML=rows.map(r=>`<div class="rs-row"><span class="rs-label">${r.label}</span><span class="rs-body">${r.body}</span></div>`).join('');
 }
 
-// Live result (after a game just ended): compute and render summary using current state
 function renderResultSummary(){
   if(!awayT||!homeT)return;
-  // Use the snapshot's stored summary if we're viewing history; else build fresh
   if(viewingHistory&&gs&&gs._snapshotSummary){
     renderResultSummaryFrom(gs._snapshotSummary);
     return;
@@ -4773,20 +4714,19 @@ function renderStandings(){
     const calcMagic=()=>{
       if(rows.length<2)return null;
       const topRemaining=totalGames-top.g;
-      if(topRemaining<=0)return 'CHAMP';  // season over
+      if(topRemaining<=0)return 'CHAMP';
       let maxRivalWins=0;
       let anyRivalCanCatchUp=false;
       for(let i=1;i<rows.length;i++){
         const r=rows[i];
         const rRemaining=totalGames-r.g;
         const rMaxWins=r.w+rRemaining;
-        // "Self-sustained pennant possibility": rival can pass the leader on their own
         if(rMaxWins>top.w)anyRivalCanCatchUp=true;
         if(rMaxWins>maxRivalWins)maxRivalWins=rMaxWins;
       }
-      if(anyRivalCanCatchUp)return null;  // not yet lit
+      if(anyRivalCanCatchUp)return null;
       const M=maxRivalWins-top.w+1;
-      if(M<=0)return 'CHAMP';  // already clinched
+      if(M<=0)return 'CHAMP';
       return M;
     };
     const topMagic=calcMagic();
@@ -4795,8 +4735,6 @@ function renderStandings(){
                        :['#','Team','G','W','L','D','PCT','GB','RS','RA','DIFF'];
     let h=`<div class="stand-wrap"><table class="stand-tbl"><tr>${hd.map((x,i)=>`<th class="sb-th ${i===1?'L':''}">${x}</th>`).join('')}</tr>`;
     rows.forEach((r,i)=>{
-      // Top row: magic number, "優勝/CHAMP" if clinched, or "-" if not lit yet.
-      // Other rows: games-behind (negative wins differential vs the leader).
       let gb;
       if(i===0){
         if(topMagic==='CHAMP')gb=(lang==='ja'?'優勝':'CHAMP');
@@ -5091,6 +5029,8 @@ function renderStats(type){
         <td>${p.sb||0}</td>
         <td>${p.bb||0}</td>
         <td>${p.so||0}</td>
+        <td>${p.sf||0}</td>
+        <td>${p.gidp||0}</td>
         <td style="${dim}">${obpDisp}</td>
         <td style="${dim}">${slgDisp}</td>
         <td style="${dim}">${opsDisp}</td>
@@ -5253,7 +5193,6 @@ function autoSave(){
     localStorage.setItem(AUTOSAVE_KEY,JSON.stringify(data));
     updateAutoSaveStatus();
   }catch(e){
-    // QuotaExceededError or storage disabled — try one more time with even less data
     console.warn('Auto-save failed (attempt 1):',e);
     try{
       // Fallback: save without league.schedule (recoverable on next game)
@@ -5332,7 +5271,7 @@ function onFileLoad(e){
 }
 
 // ═══ INIT ═══
-isPro=true;
+if(localStorage.getItem('bsim_pro'))isPro=true;
 updPro();
 // Auto-restore prior session from localStorage (if any)
 autoLoad();
