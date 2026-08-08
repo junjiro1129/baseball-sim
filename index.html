@@ -215,6 +215,24 @@ label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-
   .prow select.ed-cell{padding:.3rem 0!important}
   .prow{gap:.2rem!important}
 
+  /* ===== Web体験版: ロック表示 & アプリ導線 ===== */
+  .btn.locked{opacity:.55;border-style:dashed;cursor:pointer}
+  .btn.locked:hover{opacity:.75}
+  .webnote{margin:1.1rem auto 0;max-width:520px;padding:.9rem 1rem;
+    border:1px solid #3a3a3a;border-radius:12px;background:#191919;text-align:left}
+  .webnote-h{font-weight:700;color:var(--gold);font-size:.9rem;margin-bottom:.45rem;letter-spacing:.03em}
+  .webnote p{margin:0 0 .7rem;font-size:.8rem;line-height:1.65;color:var(--text2)}
+  .webnote-sub{margin-top:.5rem;text-align:center;font-size:.72rem;color:var(--text3)}
+  .appbtn{display:block;text-align:center;text-decoration:none;line-height:1.2}
+  .promo-back{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:900;
+    display:none;align-items:center;justify-content:center;padding:1rem}
+  .promo-back.show{display:flex}
+  .promo-box{width:100%;max-width:420px;background:#1c1c1c;border:1px solid #3d3d3d;
+    border-radius:14px;padding:1.15rem 1.15rem 1rem}
+  .promo-ttl{font-weight:700;color:var(--gold);font-size:.98rem;margin-bottom:.6rem;line-height:1.4}
+  .promo-txt,.promo-txt2{margin:0 0 .7rem;font-size:.82rem;line-height:1.7;color:var(--text2)}
+  .promo-txt2{color:var(--text3)}
+
   /* チーム編集画面のカードはモバイルではpaddingを詰めて行幅を確保 */
   #editor-screen .card[style*="padding"]{padding:.5rem .45rem!important}
 
@@ -433,8 +451,9 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
     <button class="btn pri block" onclick="gotoLeague()" data-ja="◈ リーグモード" data-en="◈ League Mode">◈ リーグモード</button>
     <button class="btn green block" onclick="gotoSelect()" data-ja="▶ クイック観戦" data-en="▶ Quick Game">▶ クイック観戦</button>
 
-    <!-- PRO版機能 -->
-    <button class="btn block" id="edit-btn" onclick="gotoEditor()" data-ja="✎ チーム編集" data-en="✎ Edit Teams">✎ チーム編集</button>
+    <!-- アプリ版限定機能（Web体験版ではロック） -->
+    <button class="btn block locked" id="edit-btn" onclick="showAppPromo()"
+            data-ja="🔒 チーム編集（アプリ版限定）" data-en="🔒 Edit Teams (App only)">🔒 チーム編集（アプリ版限定）</button>
     <div style="display:flex;gap:.4rem;margin-top:.3rem">
       <button class="btn sm" style="flex:1" onclick="saveData()" data-ja="💾 データ保存" data-en="💾 Save Data">💾 データ保存</button>
       <button class="btn sm" style="flex:1" onclick="loadData()" data-ja="📂 データ読込" data-en="📂 Load Data">📂 データ読込</button>
@@ -445,6 +464,37 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 
   <div style="margin-top:1.2rem;font-size:.84rem;color:var(--text3)" id="pro-lbl"></div>
 
+  <!-- Web体験版の案内 + アプリ導線 -->
+  <div class="webnote">
+    <div class="webnote-h" data-ja="これは Web 体験版です" data-en="This is the free web edition">これは Web 体験版です</div>
+    <p data-ja="リーグモードとクイック観戦は無料で全部遊べます。選手名・チーム名・能力値を書き換える「チーム編集」は、App Store 版だけの機能です。"
+       data-en="League Mode and Quick Game are fully free. Editing player names, team names and ratings is available in the App Store edition.">
+      リーグモードとクイック観戦は無料で全部遊べます。選手名・チーム名・能力値を書き換える「チーム編集」は、App Store 版だけの機能です。</p>
+    <a class="btn pri block appbtn" href="https://apps.apple.com/jp/app/id6788644487" target="_blank" rel="noopener"
+       data-ja="App Store でアプリ版を見る" data-en="Get the App Store edition">App Store でアプリ版を見る</a>
+    <div class="webnote-sub" data-ja="買い切り・広告なし・完全オフライン対応"
+         data-en="One-time purchase, no ads, fully offline">買い切り・広告なし・完全オフライン対応</div>
+  </div>
+
+</div>
+
+<!-- APP PROMO MODAL -->
+<div id="app-promo" class="promo-back" onclick="if(event.target===this)hideAppPromo()">
+  <div class="promo-box">
+    <div class="promo-ttl" data-ja="チーム編集はアプリ版の機能です" data-en="Team editing is an App Store feature">チーム編集はアプリ版の機能です</div>
+    <p class="promo-txt"
+       data-ja="選手名・チーム名の変更、ミート／パワー／走力／守備、球速／制球／スタミナといった能力値の編集は、App Store 版でご利用いただけます。"
+       data-en="Renaming players and teams, and editing contact / power / speed / defense and velocity / control / stamina ratings are available in the App Store edition.">
+      選手名・チーム名の変更、ミート／パワー／走力／守備、球速／制球／スタミナといった能力値の編集は、App Store 版でご利用いただけます。</p>
+    <p class="promo-txt2"
+       data-ja="この Web 版では、リーグモードとクイック観戦を無料で最後までお楽しみいただけます。"
+       data-en="This web edition lets you play League Mode and Quick Game for free.">
+      この Web 版では、リーグモードとクイック観戦を無料で最後までお楽しみいただけます。</p>
+    <a class="btn pri block appbtn" href="https://apps.apple.com/jp/app/id6788644487" target="_blank" rel="noopener"
+       data-ja="App Store で見る" data-en="View on the App Store">App Store で見る</a>
+    <button class="btn sm block" style="margin-top:.5rem" onclick="hideAppPromo()"
+            data-ja="閉じる" data-en="Close">閉じる</button>
+  </div>
 </div>
 
 <!-- SELECT -->
@@ -1139,7 +1189,17 @@ function gotoScreen(id){
   if(id==='menu-screen')updateAutoSaveStatus();
 }
 function gotoSelect(){stopAuto();fromLeague=false;selIds=[];renderTGrid();document.getElementById('sel-status').textContent='';document.getElementById('start-btn').style.display='none';gotoScreen('select-screen');}
-function gotoEditor(){edTabIdx=0;edTeamIdx=0;renderEdSels();loadEdTeam(0);gotoScreen('editor-screen');}
+// ===== Web体験版: チーム編集はアプリ版限定 =====
+function showAppPromo(){
+  const el=document.getElementById('app-promo');
+  if(el)el.classList.add('show');
+}
+function hideAppPromo(){
+  const el=document.getElementById('app-promo');
+  if(el)el.classList.remove('show');
+}
+// Web体験版では編集画面を開かず、案内を表示する
+function gotoEditor(){showAppPromo();}
 
 // ═══ ORDER SCREEN ═══
 // orderData[0] = away, orderData[1] = home
