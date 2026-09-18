@@ -233,6 +233,45 @@ label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-
   .promo-txt,.promo-txt2{margin:0 0 .7rem;font-size:.82rem;line-height:1.7;color:var(--text2)}
   .promo-txt2{color:var(--text3)}
 
+  /* ===== 選手カード（閲覧専用） ===== */
+  .pcard-back{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;
+    display:none;align-items:center;justify-content:center;padding:.8rem}
+  .pcard-back.show{display:flex}
+  .pcard{width:100%;max-width:430px;max-height:88vh;overflow-y:auto;
+    background:#15171a;border:1px solid #3a3f45;border-radius:16px;padding:1rem .95rem}
+  .pcard-head{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.8rem}
+  .pcard-pos{display:inline-block;background:#39414a;color:#eef1f4;border-radius:5px;
+    padding:.16rem .5rem;font-size:.76rem;font-weight:700;margin-right:.4rem;vertical-align:middle;
+    letter-spacing:.02em}
+  .pcard-name{font-size:1.12rem;font-weight:700;color:#fff;line-height:1.3}
+  .pcard-sub{font-size:.82rem;color:#c8cdd3;margin-top:.22rem}
+  .pcard-ovr{margin-left:auto;text-align:right;flex-shrink:0}
+  .pcard-ovr b{display:block;font-size:1.5rem;font-weight:800;color:#fff;line-height:1}
+  .pcard-ovr span{font-size:.74rem;color:#c8cdd3;font-weight:600}
+  .grid-ab{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;margin-bottom:.55rem}
+  .ab{background:#1d2126;border:1px solid #2e343b;border-radius:8px;padding:.32rem .1rem;text-align:center}
+  .ab-l{font-size:.72rem;color:#d4d9de;margin-bottom:.2rem;letter-spacing:.02em;font-weight:600}
+  .ab-g{font-size:1.24rem;font-weight:800;line-height:1}
+  .ab-v{font-size:.78rem;color:#ccd2d8;margin-top:.16rem;font-weight:700}
+  .gA{color:#f5e642}.gB{color:#5ac8fa}.gC{color:#4cd964}.gD{color:#ff9f0a}.gE{color:#c9cfd6}
+  .pcard-sec{font-size:.8rem;color:var(--gold);margin:.85rem 0 .42rem;letter-spacing:.06em;font-weight:700}
+  .grid-st{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem}
+  .st{background:#1d2126;border:1px solid #2e343b;border-radius:8px;padding:.34rem .1rem;text-align:center}
+  .st-l{font-size:.72rem;color:#d4d9de;margin-bottom:.18rem;font-weight:600}
+  .st-v{font-size:1.02rem;font-weight:700;color:#fff}
+  .pcard-none{font-size:.82rem;color:#c8cdd3;text-align:center;padding:.6rem}
+  .tap-name{cursor:pointer;text-decoration:underline;text-decoration-color:#4a5058;
+    text-underline-offset:2px}
+  .tap-name:active{opacity:.6}
+  /* ===== 所属リーグ選択 ===== */
+  .lgsel{display:flex;gap:.4rem;margin-top:.15rem}
+  .lgsel-btn{flex:1;background:#242424;color:#c8cdd3;border:1px solid #3d3d3d;border-radius:8px;
+    padding:.48rem .2rem;font-size:.92rem;font-weight:700;cursor:pointer;letter-spacing:.04em}
+  .lgsel-btn.on{background:var(--gold);color:#111;border-color:var(--gold)}
+  .lgsel-btn:disabled{opacity:.45;cursor:not-allowed}
+  .lgsel-note{font-size:.74rem;color:#c8cdd3;margin-top:.35rem;line-height:1.5}
+  .lgsel-note.lock{color:#ffb84d}
+
   /* チーム編集画面のカードはモバイルではpaddingを詰めて行幅を確保 */
   #editor-screen .card[style*="padding"]{padding:.5rem .45rem!important}
 
@@ -497,6 +536,11 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
   </div>
 </div>
 
+<!-- PLAYER CARD (view only) -->
+<div id="pcard-back" class="pcard-back" onclick="if(event.target===this)hidePlayerCard()">
+  <div class="pcard" id="pcard-body"></div>
+</div>
+
 <!-- SELECT -->
 <div id="select-screen" class="screen">
   <div class="fb mb"><div class="sec" style="margin:0" data-ja="◀ チーム選択" data-en="◀ Select Teams">◀ チーム選択</div><button class="btn sm" onclick="gotoScreen('menu-screen')" data-ja="← 戻る" data-en="← Back">← 戻る</button></div>
@@ -656,6 +700,14 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
           <label class="ed-label" data-ja="略称（〜5文字）" data-en="Abbrev (≤5)">略称（〜5文字）</label>
           <input type="text" id="e-ab" class="ed-cell ed-cell-wide" maxlength="5" style="width:100%" oninput="updTeam('abbr',this.value)">
         </div>
+      </div>
+      <div class="mt">
+        <label class="ed-label" data-ja="所属リーグ" data-en="League">所属リーグ</label>
+        <div class="lgsel" id="e-lg">
+          <button type="button" class="lgsel-btn" data-side="a" onclick="updTeamLeague('a')">A</button>
+          <button type="button" class="lgsel-btn" data-side="b" onclick="updTeamLeague('b')">B</button>
+        </div>
+        <div class="lgsel-note" id="e-lg-note"></div>
       </div>
       <div class="flex mt">
         <button class="btn sm dan" onclick="delTeam()" data-ja="このチームを削除" data-en="Delete Team">このチームを削除</button>
@@ -3271,6 +3323,8 @@ function loadEdTeam(i){
   const tm=teams[i];
   const nm=document.getElementById('e-nm');if(nm)nm.value=tm.name;
   const ab=document.getElementById('e-ab');if(ab)ab.value=tm.abbr;
+  if(!tm.league)tm.league='a';
+  renderLeagueSel();
 
   // Ensure full 26-man roster exists (migrate older data if needed)
   ensureFullRoster(tm);
@@ -3456,6 +3510,55 @@ function ensureFullRoster(tm){
 
 function updTeam(f,v){teams[edTeamIdx][f]=v;renderEdSels();}
 
+// ===== 所属リーグ（A/B）の編集 =====
+// リーグ戦が進行中は、teamIds/aIds/bIds と実所属がズレて順位表や日程が壊れるため変更不可。
+function leagueLocked(){return !!(typeof league!=='undefined'&&league&&league.active);}
+// 所属チーム数が少ない方のリーグを返す（同数なら 'a'）
+function lighterLeague(){
+  let a=0,b=0;
+  teams.forEach(t=>{((t.league||'a')==='b')?b++:a++;});
+  return b<a?'b':'a';
+}
+function updTeamLeague(side){
+  if(leagueLocked()){
+    alert(lang==='ja'?'リーグ戦の進行中は所属リーグを変更できません。\nリセットしてから変更してください。'
+                     :'Cannot change league while a season is in progress.\nReset the league first.');
+    return;
+  }
+  const tm=teams[edTeamIdx];
+  if(!tm)return;
+  tm.league=(side==='b')?'b':'a';
+  renderLeagueSel();
+  renderEdSels();
+}
+// 所属リーグUIの表示を現在の状態に合わせる
+function renderLeagueSel(){
+  const wrap=document.getElementById('e-lg');
+  const note=document.getElementById('e-lg-note');
+  if(!wrap)return;
+  const tm=teams[edTeamIdx];
+  const cur=(tm&&tm.league)||'a';
+  const locked=leagueLocked();
+  wrap.querySelectorAll('.lgsel-btn').forEach(b=>{
+    b.classList.toggle('on', b.dataset.side===cur);
+    b.disabled=locked;
+  });
+  if(!note)return;
+  let a=0,b=0;
+  teams.forEach(t=>{((t.league||'a')==='b')?b++:a++;});
+  if(locked){
+    note.className='lgsel-note lock';
+    note.textContent=(lang==='ja')
+      ?'リーグ戦の進行中は変更できません（リセット後に変更可）'
+      :'Locked while a season is in progress (reset to change)';
+  }else{
+    note.className='lgsel-note';
+    note.textContent=(lang==='ja')
+      ?`現在の内訳： A ${a}チーム / B ${b}チーム`
+      :`Current split: A ${a} / B ${b}`;
+  }
+}
+
 // Finalize editing: ensure data integrity, then return to menu
 function finishEditing(){
   // Ensure every team has unique starter positions and no bench positions
@@ -3513,6 +3616,8 @@ function addTeam(){
     id:Date.now(),
     name:lang==='ja'?"新チーム":"New Team",
     abbr:newAbbr,
+    // 所属リーグを必ず設定する（未設定だと全チームがAに寄るため）
+    league:lighterLeague(),
     pitcher:newAce,
     lineup:[...newStarters,dhHitter],
     pitchers,
@@ -4722,6 +4827,109 @@ function switchLeagueTab(side){
   renderStats(curStatsType);
 }
 
+// ===== 選手カード（閲覧専用・編集不可） =====
+function abGrade(v){
+  v=Number(v)||0;
+  if(v>=85)return {g:'A',c:'gA'};
+  if(v>=75)return {g:'B',c:'gB'};
+  if(v>=65)return {g:'C',c:'gC'};
+  if(v>=55)return {g:'D',c:'gD'};
+  return {g:'E',c:'gE'};
+}
+function ovrOf(p){
+  const vals=p.role?[p.spd,p.ctrl,p.stam]:[p.meet,p.power,p.speed,p.def];
+  const ns=vals.map(v=>Number(v)||0).filter(v=>v>0);
+  if(!ns.length)return 0;
+  return Math.round(ns.reduce((a,b)=>a+b,0)/ns.length);
+}
+function findPlayerObj(teamName,playerName){
+  const tm=teams.find(t=>t.name===teamName||t.abbr===teamName);
+  if(!tm)return null;
+  const pools=[tm.roster,tm.pitchers,tm.lineup,tm.benchHitters];
+  for(const pool of pools){
+    if(!pool)continue;
+    const hit=pool.find(p=>p&&p.name===playerName);
+    if(hit)return hit;
+  }
+  return null;
+}
+function pcFmtRate(v){
+  if(v===null||v===undefined||isNaN(v))return '-';
+  return (typeof bbAvg==='function')?bbAvg(v):Number(v).toFixed(3);
+}
+function showPlayerCard(teamName,playerName){
+  const box=document.getElementById('pcard-body');
+  const back=document.getElementById('pcard-back');
+  if(!box||!back)return;
+  const ja=(lang==='ja');
+  const obj=findPlayerObj(teamName,playerName);
+  const isP=!!(obj&&obj.role);
+  const bs=(typeof leagueBat!=='undefined')?leagueBat[teamName+':'+playerName]:null;
+  const ps=(typeof leaguePit!=='undefined')?leaguePit[teamName+':'+playerName]:null;
+  let h='';
+  const posLabel=obj?(obj.role||obj.pos||''):'';
+  const ovr=obj?ovrOf(obj):0;
+  h+='<div class="pcard-head"><div><div>'+
+     (posLabel?'<span class="pcard-pos">'+posLabel+'</span>':'')+
+     '<span class="pcard-name">'+playerName+'</span></div>'+
+     '<div class="pcard-sub">'+teamName+'</div></div>';
+  if(ovr)h+='<div class="pcard-ovr"><b>'+ovr+'</b><span>'+(ja?'総合':'OVR')+'</span></div>';
+  h+='</div>';
+  if(obj){
+    h+='<div class="pcard-sec">'+(ja?'◆ 能力':'◆ RATINGS')+'</div><div class="grid-ab">';
+    const abs=isP
+      ?[[ja?'球速':'VELO',obj.spd],[ja?'制球':'CTRL',obj.ctrl],[ja?'スタミナ':'STAM',obj.stam]]
+      :[[ja?'ミート':'CON',obj.meet],[ja?'パワー':'PWR',obj.power],[ja?'走力':'SPD',obj.speed],[ja?'守備':'DEF',obj.def]];
+    abs.forEach(function(a){
+      const g=abGrade(a[1]);
+      h+='<div class="ab"><div class="ab-l">'+a[0]+'</div><div class="ab-g '+g.c+'">'+g.g+
+         '</div><div class="ab-v">'+(Number(a[1])||0)+'</div></div>';
+    });
+    h+='</div>';
+  }
+  if(isP&&ps){
+    const ip=ps.ip||0;
+    const era=ip>0?(ps.er*27/ip):null;
+    const whip=ip>0?(((ps.bb||0)+(ps.ha||0))*3/ip):null;
+    h+='<div class="pcard-sec">'+(ja?'◆ 今季成績':'◆ SEASON STATS')+'</div><div class="grid-st">';
+    const items=[[ja?'登板':'G',ps.g||0],[ja?'勝':'W',ps.w||0],[ja?'敗':'L',ps.l||0],
+      [ja?'セーブ':'SV',ps.s||0],
+      [ja?'投球回':'IP',(typeof fmtIP==='function')?fmtIP(ip):(ip/3).toFixed(1)],
+      [ja?'防御率':'ERA',era===null?'-':era.toFixed(2)],
+      [ja?'奪三振':'K',ps.k||0],[ja?'与四球':'BB',ps.bb||0],
+      [ja?'WHIP':'WHIP',whip===null?'-':whip.toFixed(2)]];
+    items.forEach(function(it){h+='<div class="st"><div class="st-l">'+it[0]+'</div><div class="st-v">'+it[1]+'</div></div>';});
+    h+='</div>';
+  }else if(!isP&&bs){
+    const ab=bs.atbats||0,h1=bs.hits||0,d=bs.doubles||0,t3=bs.triples||0,hr=bs.hrs||0;
+    const singles=Math.max(0,h1-d-t3-hr),tb=singles+2*d+3*t3+4*hr;
+    const avg=ab>0?h1/ab:null;
+    const pa=ab+(bs.bb||0)+(bs.sf||0);
+    const obp=pa>0?((h1+(bs.bb||0))/pa):null;
+    const slg=ab>0?(tb/ab):null;
+    const ops=(obp!==null&&slg!==null)?(obp+slg):null;
+    h+='<div class="pcard-sec">'+(ja?'◆ 今季成績':'◆ SEASON STATS')+'</div><div class="grid-st">';
+    const items=[[ja?'打数':'AB',ab],[ja?'安打':'H',h1],[ja?'打率':'AVG',avg===null?'-':pcFmtRate(avg)],
+      [ja?'本塁打':'HR',hr],[ja?'打点':'RBI',bs.rbi||0],[ja?'盗塁':'SB',bs.sb||0],
+      [ja?'出塁率':'OBP',obp===null?'-':pcFmtRate(obp)],
+      [ja?'長打率':'SLG',slg===null?'-':pcFmtRate(slg)],
+      [ja?'OPS':'OPS',ops===null?'-':pcFmtRate(ops)]];
+    items.forEach(function(it){h+='<div class="st"><div class="st-l">'+it[0]+'</div><div class="st-v">'+it[1]+'</div></div>';});
+    h+='</div>';
+  }else{
+    h+='<div class="pcard-sec">'+(ja?'◆ 今季成績':'◆ SEASON STATS')+'</div>'+
+       '<div class="pcard-none">'+(ja?'まだ出場記録がありません':'No games played yet')+'</div>';
+  }
+  h+='<button class="btn sm block" style="margin-top:.85rem" onclick="hidePlayerCard()">'+(ja?'閉じる':'Close')+'</button>';
+  box.innerHTML=h;
+  back.classList.add('show');
+}
+function hidePlayerCard(){
+  const back=document.getElementById('pcard-back');
+  if(back)back.classList.remove('show');
+}
+function escAttr(v){return String(v).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');}
+
 function renderStandings(){
   const standEl=document.getElementById('stand-tbl');
   if(!standEl)return;
@@ -4955,7 +5163,7 @@ function renderTitleRace(type,players,minQualifier){
         html+=`<div class="title-row">
           <div class="title-row-top">
             <span class="title-rank">${rankMark}</span>
-            <span class="title-name">${p.name}</span>
+            <span class="title-name tap-name" onclick="showPlayerCard('${escAttr(p.team)}','${escAttr(p.name)}')">${p.name}</span>
           </div>
           <div class="title-row-bot">
             <span class="title-team">${abbrFor(p.team)}</span>
@@ -5080,7 +5288,7 @@ function renderStats(type){
       const slgDisp=p.qualified?bbAvg(p.slg):'-';
       const dim=p.qualified?'':'color:var(--text3)';
       h+=`<tr>
-        <td class="L">${p.name}</td>
+        <td class="L"><span class="tap-name" onclick="showPlayerCard('${escAttr(p.team)}','${escAttr(p.name)}')">${p.name}</span></td>
         <td class="L" style="font-size:.78rem;color:var(--text2)">${abbrFor(p.team)}</td>
         <td>${p.atbats}</td><td>${p.hits}</td>
         <td style="${dim}">${avgDisp}</td>
@@ -5180,7 +5388,7 @@ function renderStats(type){
       const kbbDisp=p.qualified?p.kbb.toFixed(2):'-';
       const dim=p.qualified?'':'color:var(--text3)';
       h+=`<tr>
-        <td class="L">${p.name}</td>
+        <td class="L"><span class="tap-name" onclick="showPlayerCard('${escAttr(p.team)}','${escAttr(p.name)}')">${p.name}</span></td>
         <td class="L" style="font-size:.78rem;color:var(--text2)">${abbrFor(p.team)}</td>
         <td>${p.w}</td><td>${p.l}</td>
         <td>${p.s||0}</td><td>${p.h||0}</td>
