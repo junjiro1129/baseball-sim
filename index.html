@@ -215,6 +215,15 @@ label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-
   .prow select.ed-cell{padding:.3rem 0!important}
   .prow{gap:.2rem!important}
 
+  /* ===== 所属リーグ選択 ===== */
+  .lgsel{display:flex;gap:.4rem;margin-top:.15rem}
+  .lgsel-btn{flex:1;background:#242424;color:#c8cdd3;border:1px solid #3d3d3d;border-radius:8px;
+    padding:.48rem .2rem;font-size:.92rem;font-weight:700;cursor:pointer;letter-spacing:.04em}
+  .lgsel-btn.on{background:var(--gold);color:#111;border-color:var(--gold)}
+  .lgsel-btn:disabled{opacity:.45;cursor:not-allowed}
+  .lgsel-note{font-size:.74rem;color:#c8cdd3;margin-top:.35rem;line-height:1.5}
+  .lgsel-note.lock{color:#ffb84d}
+
   /* ===== Web体験版: ロック表示 & アプリ導線 ===== */
   .btn.locked{opacity:.55;border-style:dashed;cursor:pointer}
   .btn.locked:hover{opacity:.75}
@@ -263,14 +272,6 @@ label{font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;letter-
   .tap-name{cursor:pointer;text-decoration:underline;text-decoration-color:#4a5058;
     text-underline-offset:2px}
   .tap-name:active{opacity:.6}
-  /* ===== 所属リーグ選択 ===== */
-  .lgsel{display:flex;gap:.4rem;margin-top:.15rem}
-  .lgsel-btn{flex:1;background:#242424;color:#c8cdd3;border:1px solid #3d3d3d;border-radius:8px;
-    padding:.48rem .2rem;font-size:.92rem;font-weight:700;cursor:pointer;letter-spacing:.04em}
-  .lgsel-btn.on{background:var(--gold);color:#111;border-color:var(--gold)}
-  .lgsel-btn:disabled{opacity:.45;cursor:not-allowed}
-  .lgsel-note{font-size:.74rem;color:#c8cdd3;margin-top:.35rem;line-height:1.5}
-  .lgsel-note.lock{color:#ffb84d}
 
   /* チーム編集画面のカードはモバイルではpaddingを詰めて行幅を確保 */
   #editor-screen .card[style*="padding"]{padding:.5rem .45rem!important}
@@ -490,6 +491,7 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
     <button class="btn pri block" onclick="gotoLeague()" data-ja="◈ リーグモード" data-en="◈ League Mode">◈ リーグモード</button>
     <button class="btn green block" onclick="gotoSelect()" data-ja="▶ クイック観戦" data-en="▶ Quick Game">▶ クイック観戦</button>
 
+    <!-- PRO版機能 -->
     <!-- アプリ版限定機能（Web体験版ではロック） -->
     <button class="btn block locked" id="edit-btn" onclick="showAppPromo()"
             data-ja="🔒 チーム編集（アプリ版限定）" data-en="🔒 Edit Teams (App only)">🔒 チーム編集（アプリ版限定）</button>
@@ -517,6 +519,11 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
 
 </div>
 
+<!-- PLAYER CARD (view only) -->
+<div id="pcard-back" class="pcard-back" onclick="if(event.target===this)hidePlayerCard()">
+  <div class="pcard" id="pcard-body"></div>
+</div>
+
 <!-- APP PROMO MODAL -->
 <div id="app-promo" class="promo-back" onclick="if(event.target===this)hideAppPromo()">
   <div class="promo-box">
@@ -534,11 +541,6 @@ select.spd{font-family:'Courier New',monospace;font-size:.82rem;padding:.45rem .
     <button class="btn sm block" style="margin-top:.5rem" onclick="hideAppPromo()"
             data-ja="閉じる" data-en="Close">閉じる</button>
   </div>
-</div>
-
-<!-- PLAYER CARD (view only) -->
-<div id="pcard-back" class="pcard-back" onclick="if(event.target===this)hidePlayerCard()">
-  <div class="pcard" id="pcard-body"></div>
 </div>
 
 <!-- SELECT -->
@@ -1273,6 +1275,12 @@ function gotoOrderScreen(){
   gotoScreen('order-screen');
 }
 
+// True while a postseason game is in progress. Declared as a hoisted function so it
+// can be called from code that runs before `currentPSGame` is initialized.
+function inPostseason(){
+  try{return typeof currentPSGame!=='undefined'&&currentPSGame!==null;}catch(e){return false;}
+}
+
 // Pick the best available starting pitcher index, considering rest days.
 // Returns the index in team.pitchers[] of the strongest SP with rest=0;
 // if all SPs need rest, returns the SP with lowest rest. Falls back to 0.
@@ -1297,7 +1305,9 @@ function pickFreshStarterIdx(team,restMap){
 function buildInitialOrder(team){
   // Choose default starter: highest-ability SP with rest=0, mirroring quickSim's logic.
   // Falls back to lowest-rest SP, then to index 0.
-  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  // Include postseason games: rest days must be honored there too, otherwise the
+  // ace would be auto-selected for every postseason start.
+  const inLeagueCtx=(fromLeague||fromStandings||inPostseason())&&league&&league.active;
   const restMap=(inLeagueCtx&&league.restDays&&league.restDays[team.id])||{};
   const defaultPitcherIdx=pickFreshStarterIdx(team,restMap);
 
@@ -1443,7 +1453,9 @@ function renderOrderPitchers(od){
   const el=document.getElementById('ord-pitcher-list');if(!el)return;
   // Look up rest days whenever we're in a league context — either from a watched game
   // (fromLeague) or from the standings screen (fromStandings).
-  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  // Include postseason games: rest days must be honored there too, otherwise the
+  // ace would be auto-selected for every postseason start.
+  const inLeagueCtx=(fromLeague||fromStandings||inPostseason())&&league&&league.active;
   const restMap=(inLeagueCtx&&league.restDays&&league.restDays[od.team.id])||{};
   el.innerHTML=od.team.pitchers.map((p,i)=>{
     const rest=restMap[p.name]||0;
@@ -1468,7 +1480,9 @@ function selectOrderPitcher(i){
   // Defensive: refuse to select a resting pitcher
   const od=orderData[curOrderTeam];
   const p=od.team.pitchers[i];
-  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  // Include postseason games: rest days must be honored there too, otherwise the
+  // ace would be auto-selected for every postseason start.
+  const inLeagueCtx=(fromLeague||fromStandings||inPostseason())&&league&&league.active;
   const restMap=(inLeagueCtx&&league.restDays&&league.restDays[od.team.id])||{};
   if(p&&(restMap[p.name]||0)>0){
     return;  // resting; cannot select
@@ -1649,7 +1663,9 @@ function autoOrderTeam(od){
   // Bench players never carry a position
   od.bench=benchPlayers.map(p=>{const{score,pos:_p,...rest}=p;return rest;});
   // Auto-pick best pitcher (respecting rest days if in a league context)
-  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  // Include postseason games: rest days must be honored there too, otherwise the
+  // ace would be auto-selected for every postseason start.
+  const inLeagueCtx=(fromLeague||fromStandings||inPostseason())&&league&&league.active;
   const restMap=(inLeagueCtx&&league.restDays&&league.restDays[od.team.id])||{};
   let bestPi=0,bestScore=-1;
   od.team.pitchers.forEach((p,i)=>{
@@ -2181,9 +2197,11 @@ function endGame(){
     // (or not tracked at all, per NPB convention where titles are regular-season only).
     if(!currentPSGame){
       accBat(awayT,awayT.name);accBat(homeT,homeT.name);accPit(awayT,awayT.name);accPit(homeT,homeT.name);
-      // Update league rest days based on who actually pitched in this watched game
-      updateRestDays(awayT,homeT);
     }
+    // Update league rest days based on who actually pitched — ALWAYS run, including
+    // postseason. Only season stats are skipped in the postseason; the rotation must
+    // keep advancing or the same starter would pitch every postseason game.
+    updateRestDays(awayT,homeT);
     // Snapshot full game data for history viewing
     // Build summary AFTER accBat/accPit so season totals (leaguePit) include this game
     const summary=buildResultSummary(awayT,homeT);
@@ -3323,7 +3341,7 @@ function loadEdTeam(i){
   const tm=teams[i];
   const nm=document.getElementById('e-nm');if(nm)nm.value=tm.name;
   const ab=document.getElementById('e-ab');if(ab)ab.value=tm.abbr;
-  if(!tm.league)tm.league='a';
+  if(!tm.league)tm.league='a';   // 旧データ互換: 未設定はAとして扱う
   renderLeagueSel();
 
   // Ensure full 26-man roster exists (migrate older data if needed)
@@ -3616,7 +3634,8 @@ function addTeam(){
     id:Date.now(),
     name:lang==='ja'?"新チーム":"New Team",
     abbr:newAbbr,
-    // 所属リーグを必ず設定する（未設定だと全チームがAに寄るため）
+    // 所属リーグを必ず設定する。未設定だと参照側の既定値により全チームがAに寄ってしまう。
+    // 既定はチーム数が少ない側へ自動で振り分ける。
     league:lighterLeague(),
     pitcher:newAce,
     lineup:[...newStarters,dhHitter],
@@ -3937,6 +3956,28 @@ function generateCS1Games(){
 }
 
 // Initialize CS Final Stage: 1st vs CS1 winner, best-of-6, 1st gets 1-win advantage
+// ===== CSファイナルステージ アドバンテージ判定（2026年ルール） =====
+// ファーストステージを勝ち上がった球団が次のいずれかに該当する場合、
+// リーグ1位球団のアドバンテージが1勝→2勝に増え、6戦制(4勝先取)→7戦制(5勝先取)になる。
+//   (1) レギュラーシーズンで優勝球団と10ゲーム差以上（10.0ちょうども該当）
+//   (2) レギュラーシーズンの勝率が5割未満（5割ちょうどは該当しない）
+// 判定は実際に勝ち上がった球団の成績で行う。
+function csFinalAdvantage(stand,winnerId){
+  const DEFAULT={adv:1,needed:4,games:6,bigGap:false,subFive:false};
+  if(!stand||stand.length<1)return DEFAULT;
+  const top=stand[0];
+  const win=stand.find(r=>r.id===winnerId);
+  if(!win||win.id===top.id)return DEFAULT;
+  // ゲーム差 = {(上位の勝 - 下位の勝) + (下位の敗 - 上位の敗)} / 2
+  const gb=((top.w-win.w)+(win.l-top.l))/2;
+  const bigGap=gb>=10;            // 10.0ちょうどは該当
+  const subFive=win.pct<0.5;      // 5割ちょうどは該当しない
+  if(bigGap||subFive){
+    return {adv:2,needed:5,games:7,bigGap,subFive,gb};
+  }
+  return {...DEFAULT,gb};
+}
+
 function initCS2(){
   ['a','b'].forEach(side=>{
     const stand=getLeagueStandings(side);
@@ -3947,11 +3988,18 @@ function initCS2(){
       league.postseason.cs2[side]=null;
       return;
     }
+    const ad=csFinalAdvantage(stand,winnerId);
     league.postseason.cs2[side]={
-      team1:stand[0].id,   // 1st place (home advantage + 1 win)
+      team1:stand[0].id,   // 1st place (home + advantage wins)
       team2:winnerId,      // CS1 winner
-      games:[],wins1:1,    // 1-win advantage for league winner
-      wins2:0,winner:null
+      games:[],
+      wins1:ad.adv,        // 2026年ルール: 条件次第で1勝または2勝のアドバンテージ
+      wins2:0,winner:null,
+      adv:ad.adv,          // 付与されたアドバンテージ勝数
+      needed:ad.needed,    // 日本シリーズ進出に必要な勝利数(4 or 5)
+      maxGames:ad.games,   // 最大試合数(6 or 7)
+      bigGap:ad.bigGap,    // 10ゲーム差以上で発動したか
+      subFive:ad.subFive   // 勝率5割未満で発動したか
     };
   });
   league.phase='cs2';
@@ -3965,8 +4013,9 @@ function generateCS2Games(){
     const cs=league.postseason.cs2[side];
     if(!cs)return;
     cs.games=[];
-    // Best-of-6: league winner needs 4 wins (has 1 advantage), so up to 6 games
-    for(let i=0;i<6;i++){
+    // 通常は最大6試合(4勝先取)。2勝アドバンテージ適用時は最大7試合(5勝先取)。
+    const maxG=cs.maxGames||6;
+    for(let i=0;i<maxG;i++){
       cs.games.push({
         id:baseId++,
         away:cs.team2,home:cs.team1,  // 1st place always home
@@ -4104,7 +4153,7 @@ function renderCSPanel(stage){
     }
     const t1=teams.find(x=>x.id===cs.team1);
     const t2=cs.team2!==null?teams.find(x=>x.id===cs.team2):null;
-    const needToWin=stage==='cs1'?2:4;  // best-of-3 needs 2 wins, best-of-6 needs 4
+    const needToWin=stage==='cs1'?2:(cs.needed||4);  // CS1は2勝先取 / CS2は4勝 or 5勝先取
     const t1Name=t1?.abbr||'?';
     const t2Name=t2?.abbr||(cs.bye?'BYE':'?');
     // Winner highlight
@@ -4123,8 +4172,15 @@ function renderCSPanel(stage){
         ${cs.bye?(lang==='ja'?'※チーム不足のため不戦勝':'(Bye due to team count)')
           :cs.winner!=null?(lang==='ja'?'シリーズ決着':'Series decided')
           :(stage==='cs1'?(lang==='ja'?'3戦先勝 ('+t1Name+'ホーム)':'Best of 3 ('+t1Name+' home)')
-                         :(lang==='ja'?'4戦先勝 ('+t1Name+'に1勝アドバンテージ・ホーム)':'First to 4 ('+t1Name+' +1W advantage, home)'))}
+                         :(lang==='ja'
+                            ? needToWin+'戦先勝 ('+t1Name+'に'+(cs.adv||1)+'勝アドバンテージ・ホーム)'
+                            : 'First to '+needToWin+' ('+t1Name+' +'+(cs.adv||1)+'W advantage, home)'))}
       </div>
+      ${(stage==='cs2'&&(cs.adv||1)>=2&&!cs.bye)?`<div style="font-size:.72rem;color:#ffb84d;margin-top:.3rem;text-align:center;line-height:1.5">
+        ${lang==='ja'
+          ? '◆ 2勝アドバンテージ適用（'+[cs.bigGap?'10ゲーム差以上':null,cs.subFive?'勝率5割未満':null].filter(Boolean).join('・')+'）'
+          : '◆ 2-win advantage ('+[cs.bigGap?'10+ GB':null,cs.subFive?'sub-.500':null].filter(Boolean).join(', ')+')'}
+      </div>`:''}
     </div>`;
   });
 
@@ -4240,8 +4296,9 @@ function recPSGame(game,scoreA,scoreH){
     // CS: team1 is always home
     if(homeWin)series.wins1++;
     else series.wins2++;
-    // CS1: best of 3 (2 wins to clinch); CS2: first to 4 wins (team1 has 1-win head start)
-    const needed=game.phase==='cs1'?2:4;
+    // CS1: 3戦2勝先取。CS2: 通常4勝先取、2勝アドバンテージ時は5勝先取。
+    // (series.needed は旧セーブデータ互換のため既定値4)
+    const needed=game.phase==='cs1'?2:(series.needed||4);
     if(series.wins1>=needed)series.winner=series.team1;
     else if(series.wins2>=needed)series.winner=series.team2;
   }
@@ -4680,9 +4737,10 @@ function quickSim(awayId,homeId){
   // Skip stat accumulation in postseason (quickSimNoTie=true is set during postseason auto-sim)
   if(!quickSimNoTie){
     accBat(at,at.name);accBat(ht,ht.name);accPit(at,at.name);accPit(ht,ht.name);
-    // Update league rest days using the shared helper (same logic as watched games)
-    updateRestDays(at,ht);
   }
+  // Update league rest days — ALWAYS run, including postseason auto-sim, so the
+  // starting rotation advances between postseason games.
+  updateRestDays(at,ht);
   // Snapshot for history viewing (no play-by-play log for quick sim)
   // Build summary now — accBat/accPit have already run above
   const summary=buildResultSummary(at,ht);
@@ -4788,7 +4846,9 @@ function restoreSavedOrder(team){
   if(pitcherIdx<0)pitcherIdx=0;
   // If the saved pitcher is currently resting, pick a fresh SP instead
   // (preserves user intent on day 0 but auto-rotates on the next visit).
-  const inLeagueCtx=(fromLeague||fromStandings)&&league&&league.active;
+  // Include postseason games: rest days must be honored there too, otherwise the
+  // ace would be auto-selected for every postseason start.
+  const inLeagueCtx=(fromLeague||fromStandings||inPostseason())&&league&&league.active;
   const restMap=(inLeagueCtx&&league.restDays&&league.restDays[team.id])||{};
   const savedPitcher=team.pitchers[pitcherIdx];
   if(savedPitcher&&(restMap[savedPitcher.name]||0)>0){
@@ -4982,19 +5042,18 @@ function renderStandings(){
     const calcMagic=()=>{
       if(rows.length<2)return null;
       const topRemaining=totalGames-top.g;
-      if(topRemaining<=0)return 'CHAMP';
       let maxRivalWins=0;
-      let anyRivalCanCatchUp=false;
       for(let i=1;i<rows.length;i++){
         const r=rows[i];
-        const rRemaining=totalGames-r.g;
-        const rMaxWins=r.w+rRemaining;
-        if(rMaxWins>top.w)anyRivalCanCatchUp=true;
+        const rMaxWins=r.w+Math.max(0,totalGames-r.g);
         if(rMaxWins>maxRivalWins)maxRivalWins=rMaxWins;
       }
-      if(anyRivalCanCatchUp)return null;
+      // M = wins still needed for the leader to finish above the best rival,
+      //     assuming that rival wins out.
       const M=maxRivalWins-top.w+1;
-      if(M<=0)return 'CHAMP';
+      if(M<=0)return 'CHAMP';           // rivals already mathematically eliminated
+      if(topRemaining<=0)return 'CHAMP';
+      if(M>topRemaining)return null;    // not yet attainable - no magic shown
       return M;
     };
     const topMagic=calcMagic();
