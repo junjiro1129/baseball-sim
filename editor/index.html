@@ -1,1 +1,1269 @@
-x
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>チームエディタ</title>
+<meta name="description" content="BASEBALL SIM 用のチーム・選手データを作成し、アプリに読み込めるJSONとして書き出す無料ツール">
+<style>
+:root{
+  --bg:#0F0F0F; --bg2:#181818; --bg3:#222; --bg4:#2a2a2a;
+  --text:#ffffff; --text2:#cccccc; --text3:#888888;
+  --border:#2a2a2a; --border2:#3a3a3a;
+  --gold:#f5e642; --gold2:#c8b800;
+  --red:#c0392b; --green:#2e8b57; --blue:#2e6f9e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text); min-height:100vh;
+  font-family:'Courier New',monospace; font-size:15px; line-height:1.5;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-text-size-adjust:100%;
+}
+#app{max-width:1180px;margin:0 auto;padding:.75rem}
+
+/* ---- ヘッダ ---- */
+.hd{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.4rem 0 .8rem}
+.hd h1{font-size:1.15rem;letter-spacing:.06em;color:var(--gold);font-weight:700}
+.hd .sub{font-size:.72rem;color:var(--text3);letter-spacing:.14em}
+.hd .sp{flex:1}
+.btn{
+  background:var(--bg3);color:var(--text);border:1px solid var(--border2);
+  border-radius:6px;padding:.4rem .8rem;font-family:inherit;font-size:.82rem;
+  cursor:pointer;white-space:nowrap;
+}
+.btn:hover{background:var(--bg4)}
+.btn.pri{background:var(--gold);color:#111;border-color:var(--gold);font-weight:700}
+.btn.pri:hover{background:#ffe95c}
+.btn.dim{color:var(--text2)}
+.btn.danger{border-color:#6b2b23;color:#e08376}
+.btn.danger:hover{background:#3a1a16}
+.btn.sm{padding:.2rem .45rem;font-size:.74rem}
+
+/* ---- パネル ---- */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.8rem;margin-bottom:.8rem}
+.card h2{font-size:.9rem;color:var(--gold);margin-bottom:.6rem;letter-spacing:.05em}
+.muted{color:var(--text3);font-size:.78rem}
+
+/* ---- チーム一覧 ---- */
+.tchips{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem}
+.tchip{
+  background:var(--bg3);border:1px solid var(--border2);border-radius:6px;
+  padding:.3rem .55rem;font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:.35rem;
+}
+.tchip:hover{background:var(--bg4)}
+.tchip.on{background:var(--gold);color:#111;border-color:var(--gold);font-weight:700}
+.tchip .lg{font-size:.64rem;opacity:.75;border:1px solid currentColor;border-radius:3px;padding:0 .2rem}
+
+/* ---- タブ ---- */
+.tabs{display:flex;gap:.2rem;border-bottom:1px solid var(--border);margin-bottom:.7rem;flex-wrap:wrap}
+.tab{
+  background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);
+  font-family:inherit;font-size:.86rem;padding:.45rem .7rem;cursor:pointer;
+}
+.tab:hover{color:var(--text2)}
+.tab.on{color:var(--gold);border-bottom-color:var(--gold);font-weight:700}
+
+/* ---- フォーム ---- */
+label.fl{display:block;font-size:.74rem;color:var(--text3);margin-bottom:.2rem}
+input[type=text],input[type=number],select,textarea{
+  background:var(--bg3);color:var(--text);border:1px solid var(--border2);
+  border-radius:5px;padding:.35rem .5rem;font-family:inherit;font-size:.86rem;width:100%;
+}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--gold);border-color:var(--gold)}
+.row{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.6rem}
+.row>div{flex:1;min-width:150px}
+
+/* ---- テーブル ---- */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.82rem;min-width:620px}
+th{
+  color:var(--text3);font-weight:400;font-size:.72rem;text-align:left;
+  padding:.3rem .35rem;border-bottom:1px solid var(--border);white-space:nowrap;
+}
+td{padding:.18rem .35rem;border-bottom:1px solid #1e1e1e;vertical-align:middle}
+tr.bench td{background:#141414}
+tr.bench .no{color:var(--text3)}
+.no{width:2.6rem;color:var(--gold);font-size:.78rem;white-space:nowrap}
+td.nm input{min-width:8rem}
+td.num input{width:4.2rem;text-align:right}
+td.ord{width:3.4rem;white-space:nowrap}
+.sep td{background:#101010;color:var(--text3);font-size:.72rem;padding:.25rem .35rem;letter-spacing:.08em}
+
+/* ---- チーム力 ---- */
+.meters{display:flex;gap:.8rem;flex-wrap:wrap}
+.meter{flex:1;min-width:120px}
+.meter .lb{display:flex;justify-content:space-between;font-size:.74rem;color:var(--text2);margin-bottom:.15rem}
+.meter .bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.meter .fill{height:100%;background:var(--gold)}
+
+/* ---- 検証 ---- */
+.issues{list-style:none;font-size:.8rem}
+.issues li{padding:.22rem 0 .22rem .9rem;position:relative;color:#e8b84b}
+.issues li:before{content:'!';position:absolute;left:0;color:#e8b84b}
+.issues li.err{color:#e08376}
+.issues li.err:before{content:'x';color:#e08376}
+.ok{color:#7fcf9a;font-size:.8rem}
+
+/* ---- モーダル ---- */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+.ov.on{display:flex}
+.mw{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:1rem;max-width:620px;width:100%;max-height:86vh;overflow:auto}
+.mw h3{font-size:.95rem;color:var(--gold);margin-bottom:.5rem}
+.mw p{font-size:.82rem;color:var(--text2);margin-bottom:.5rem}
+.mw textarea{min-height:170px;font-size:.8rem;white-space:pre;overflow-wrap:normal;overflow-x:auto}
+.mact{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.7rem;flex-wrap:wrap}
+.mw code{background:var(--bg3);padding:.05rem .25rem;border-radius:3px;font-size:.78rem}
+
+/* ---- 誘導 ---- */
+.card.ss{border-color:#3b3722;background:linear-gradient(180deg,#191810,#161614)}
+.ssflow{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .45rem;font-size:.78rem;color:var(--text2);margin-bottom:.7rem}
+.ssflow span{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:.15rem .45rem}
+.ssflow .ar{background:none;border:none;color:var(--text3);padding:0}
+.promo{background:linear-gradient(180deg,#1b1a12,#141310);border:1px solid #3b3722;border-radius:10px;padding:.9rem;text-align:center}
+.promo h2{color:var(--gold);font-size:.95rem;margin-bottom:.35rem}
+.promo p{font-size:.82rem;color:var(--text2);margin-bottom:.6rem}
+.stores{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.stores a{
+  background:var(--bg3);border:1px solid var(--border2);border-radius:6px;
+  padding:.4rem .8rem;color:var(--text);text-decoration:none;font-size:.82rem;
+}
+.stores a:hover{background:var(--bg4)}
+footer{text-align:center;color:var(--text3);font-size:.74rem;padding:1.2rem 0 .6rem}
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:1.2rem;z-index:60;
+  background:var(--bg3);border:1px solid var(--gold);color:var(--text);
+  padding:.5rem .9rem;border-radius:6px;font-size:.84rem;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.toast.on{opacity:1}
+@media (max-width:560px){
+  body{font-size:14px}
+  .hd h1{font-size:1rem}
+  #app{padding:.5rem}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="hd">
+    <div>
+      <h1>BASEBALL SIM チームエディタ</h1>
+      <div class="sub">TEAM &amp; PLAYER EDITOR</div>
+    </div>
+    <div class="sp"></div>
+    <button class="btn" onclick="openHelp()">使い方</button>
+    <button class="btn" onclick="doImport()">JSONを読込</button>
+    <button class="btn pri" onclick="doExport()">JSONを書き出す</button>
+  </div>
+
+  <!-- スプレッドシートで一括編集 -->
+  <div class="card ss">
+    <h2>スプレッドシートで一括編集</h2>
+    <p class="ssflow">
+      <span>① 出力</span><span class="ar">→</span>
+      <span>② Excel / Google スプレッドシートで編集</span><span class="ar">→</span>
+      <span>③ 読み込み</span><span class="ar">→</span>
+      <span>④ この画面で微調整</span><span class="ar">→</span>
+      <span>⑤ JSONを書き出す</span>
+    </p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem">
+      <button class="btn pri" onclick="xlsxExport()">スプレッドシートで出力</button>
+      <button class="btn" onclick="xlsxImport()">スプレッドシートを読み込み</button>
+    </div>
+    <div class="muted">
+      出力される Excel ファイルが雛形です。<strong>タブが1チームずつに分かれ</strong>、チーム名と略称は「リーグ編成」タブの1か所だけで編集します。守備位置と投手の役割は行ごとに固定、打順はドロップダウン選択です。
+    </div>
+  </div>
+
+  <!-- チーム一覧 -->
+  <div class="card">
+    <h2>チーム（<span id="tcount">0</span>）</h2>
+    <div class="tchips" id="tchips"></div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+      <button class="btn sm" onclick="addTeam()">＋ チーム追加</button>
+      <button class="btn sm" onclick="moveTeam(-1)">◀ 左へ</button>
+      <button class="btn sm" onclick="moveTeam(1)">右へ ▶</button>
+      <button class="btn sm danger" onclick="delTeam()">このチームを削除</button>
+    </div>
+  </div>
+
+  <!-- 編集 -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab on" data-tab="info" onclick="setTab('info')">チーム情報</button>
+      <button class="tab" data-tab="pit" onclick="setTab('pit')">投手 13人</button>
+      <button class="tab" data-tab="bat" onclick="setTab('bat')">野手 13人・打順</button>
+    </div>
+    <div id="pane"></div>
+  </div>
+
+  <!-- チーム力 -->
+  <div class="card">
+    <h2>チーム力</h2>
+    <div class="meters" id="meters"></div>
+    <div class="muted" style="margin-top:.5rem">全チームの平均を 50% の位置として表示しています。12球団のバランス調整にお使いください。</div>
+  </div>
+
+  <!-- 検証 -->
+  <div class="card">
+    <h2>チェック</h2>
+    <div id="issues"></div>
+  </div>
+
+  <!-- 誘導 -->
+  <div class="promo">
+    <h2>このデータで試合を観るには</h2>
+    <p>書き出したJSONは <strong>BASEBALL SIM</strong> の「データ読込」から取り込めます。<br>
+       アプリ側でペナントレースを開始すると、ここで作ったチームで1シーズンを観戦できます。</p>
+    <div class="stores">
+      <a href="https://apps.apple.com/jp/app/id6788644487" target="_blank" rel="noopener">App Store（iPhone / iPad）</a>
+      <a href="https://play.google.com/store/apps/details?id=com.nakahomes.baseballsim" target="_blank" rel="noopener">Google Play（Android）</a>
+    </div>
+  </div>
+
+  <footer>
+    入力したデータはブラウザ内だけで処理され、外部に送信されません。<br>
+    編集内容はこのブラウザに自動保存されます。
+  </footer>
+</div>
+
+<!-- 使い方 -->
+<div class="ov" id="ov-help">
+  <div class="mw">
+    <h3>使い方</h3>
+
+    <p><strong>PCでの基本の流れ</strong><br>
+      ① <strong>スプレッドシートで出力</strong> → ② Excel や Google スプレッドシートで編集 →
+      ③ <strong>スプレッドシートを読み込み</strong> → ④ この画面で確認・微調整 →
+      ⑤ <strong>JSONを書き出す</strong> → アプリの「データ読込」で取り込み。</p>
+
+    <p><strong>タブの構成</strong><br>
+      「はじめに」「リーグ編成」のほかは、<code>チーム1</code> <code>チーム2</code> … と通し番号で並びます。
+      この番号は「リーグ編成」タブの番号の列と対応しています。</p>
+
+    <p><strong>チーム名と略称は「リーグ編成」タブだけで変えます</strong><br>
+      各チームのタブの1〜2行目は数式で、「リーグ編成」の内容が自動で表示されます。直接は編集できません。
+      <strong>編集箇所が1か所だけなので、食い違いが起きません。</strong></p>
+
+    <p><strong>リーグ所属も「リーグ編成」タブで決まります</strong><br>
+      Aリーグ・Bリーグの2つの表があり、どちらにあるかで所属が決まります。
+      移したいときは<strong>その行ごと（番号を含めて）</strong>上下の表の間で移動してください。
+      番号で引く数式にしてあるので、行を動かしても各チームタブの表示はずれません。
+      並び順もこの表のとおりになります。</p>
+
+    <p><strong>打順はドロップダウンで選びます</strong><br>
+      野手9行の「打順」欄から1〜9を選んでください。<br>
+      入れ替えの途中で同じ番号が重なることは避けられないため、<strong>重なっている間はそのセルが赤く表示されます</strong>。
+      入れ替えが終われば色は消えます。赤が残ったまま読み込むと、上からの並び順を打順として扱います。</p>
+
+    <p><strong>守備位置と役割は行で決まっています</strong><br>
+      野手は上から <code>C 1B 2B 3B SS LF CF RF DH</code> の9行＋控え4行。
+      投手は <code>SP</code>5行・<code>RP</code>6行・<code>SU</code>1行・<code>CL</code>1行。<br>
+      この形にしてあるので、<strong>守備位置の重複も抜けも、投手の役割構成の崩れも起こりません</strong>。人数も13人ずつで固定です。</p>
+
+    <p><strong>チームを増やす・減らす</strong><br>
+      この画面の「チーム追加」「削除」で増減させ、出力し直すのが確実です。<br>
+      表計算側で増やす場合は、チームのタブを複製してタブ名を <code>チーム◯</code>（次の番号）に変え、
+      「リーグ編成」にも同じ番号の行を追加します。減らす場合はタブと行の両方を消します。</p>
+
+    <p><strong>グレーの欄が編集できないとき</strong><br>
+      守備位置・役割・人数を守るため、チームのタブに保護をかけています。白い欄は普通に編集できます。
+      構造ごと変えたい場合は Excel の「校閲 → シート保護の解除」で外せます（パスワードはありません）。</p>
+
+    <p><strong>保存形式</strong><br>
+      <strong>.xlsx のまま</strong>保存してください。CSVで保存するとタブの構成が失われます。
+      Google スプレッドシートの場合は「ファイル → ダウンロード → Microsoft Excel (.xlsx)」です。</p>
+
+    <p><strong>能力値の目安</strong><br>
+      1〜99の整数で、35〜95が標準の範囲です。「能力をランダム生成」で強い／標準／弱いの3水準から一括生成もできます。</p>
+
+    <p style="color:#e8b84b"><strong>注意：</strong>アプリでの読み込みは<strong>リーグ戦を始める前</strong>に行ってください。
+      ペナント進行中に読み込むと、順位表や日程がチーム構成と食い違います。アプリ側でリセットしてから取り込むのが確実です。</p>
+
+    <div class="mact"><button class="btn pri" onclick="closeHelp()">閉じる</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileIn" accept="application/json,.json" style="display:none">
+<input type="file" id="xlsxIn" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
+
+<script>
+const BUNDLED_TEAMS=[{"name":"京都クレインズ","abbr":"KYO","league":"a","pitchers":[{"name":"佐藤 翔太","role":"SP","spd":82,"ctrl":75,"stam":88},{"name":"山田 浩二","role":"SP","spd":83,"ctrl":79,"stam":76},{"name":"加藤 哲也","role":"SP","spd":75,"ctrl":68,"stam":76},{"name":"中村 誠一","role":"SP","spd":77,"ctrl":70,"stam":71},{"name":"山本 太郎","role":"SP","spd":67,"ctrl":72,"stam":68},{"name":"鈴木 隆司","role":"RP","spd":82,"ctrl":73,"stam":51},{"name":"田中 洋平","role":"RP","spd":75,"ctrl":74,"stam":55},{"name":"中村 隆司","role":"RP","spd":66,"ctrl":67,"stam":40},{"name":"加藤 拓也","role":"RP","spd":74,"ctrl":67,"stam":41},{"name":"山本 健一","role":"RP","spd":71,"ctrl":63,"stam":46},{"name":"田中 浩二","role":"RP","spd":67,"ctrl":64,"stam":41},{"name":"伊藤 哲也","role":"SU","spd":87,"ctrl":75,"stam":64},{"name":"佐藤 大輔","role":"CL","spd":86,"ctrl":78,"stam":60}],"roster":[{"name":"鈴木 健一","pos":"CF","meet":78,"power":65,"speed":80,"def":75},{"name":"高橋 大輔","pos":"RF","meet":82,"power":72,"speed":70,"def":68},{"name":"田中 誠","pos":"1B","meet":75,"power":88,"speed":55,"def":72},{"name":"伊藤 浩二","pos":"3B","meet":70,"power":80,"speed":60,"def":78},{"name":"渡辺 哲也","pos":"C","meet":68,"power":74,"speed":50,"def":85},{"name":"山本 拓也","pos":"SS","meet":73,"power":60,"speed":82,"def":88},{"name":"中村 健太","pos":"LF","meet":65,"power":70,"speed":75,"def":70},{"name":"小林 隆","pos":"2B","meet":72,"power":58,"speed":78,"def":80},{"name":"山田 直樹","pos":"DH","meet":62,"power":54,"speed":64,"def":56},{"name":"山田 拓也","pos":"IF","meet":63,"power":51,"speed":64,"def":63},{"name":"中村 哲也","pos":"IF","meet":72,"power":68,"speed":69,"def":66},{"name":"伊藤 大輔","pos":"OF","meet":69,"power":67,"speed":57,"def":64},{"name":"吉田 拓也","pos":"OF","meet":70,"power":66,"speed":70,"def":76}]},{"name":"金沢ブレイブス","abbr":"KAN","league":"a","pitchers":[{"name":"佐々木 翔","role":"SP","spd":78,"ctrl":80,"stam":85},{"name":"林 陽斗","role":"SP","spd":81,"ctrl":79,"stam":82},{"name":"橋本 翔平","role":"SP","spd":69,"ctrl":76,"stam":70},{"name":"山口 正樹","role":"SP","spd":74,"ctrl":69,"stam":76},{"name":"池田 大樹","role":"SP","spd":73,"ctrl":77,"stam":73},{"name":"池田 裕也","role":"RP","spd":73,"ctrl":69,"stam":53},{"name":"森 裕介","role":"RP","spd":75,"ctrl":68,"stam":53},{"name":"木村 裕介","role":"RP","spd":70,"ctrl":68,"stam":43},{"name":"松本 裕介","role":"RP","spd":69,"ctrl":61,"stam":41},{"name":"松本 和也","role":"RP","spd":68,"ctrl":61,"stam":48},{"name":"橋本 蓮太","role":"RP","spd":64,"ctrl":60,"stam":42},{"name":"橋本 颯一","role":"SU","spd":79,"ctrl":81,"stam":58},{"name":"橋本 裕介","role":"CL","spd":86,"ctrl":75,"stam":58}],"roster":[{"name":"山口 智也","pos":"2B","meet":80,"power":62,"speed":79,"def":82},{"name":"松本 優","pos":"CF","meet":76,"power":68,"speed":85,"def":77},{"name":"井上 蓮","pos":"RF","meet":72,"power":85,"speed":58,"def":70},{"name":"木村 大樹","pos":"1B","meet":68,"power":90,"speed":50,"def":75},{"name":"林 颯","pos":"3B","meet":74,"power":78,"speed":62,"def":80},{"name":"斎藤 陽斗","pos":"C","meet":70,"power":70,"speed":52,"def":88},{"name":"清水 康介","pos":"SS","meet":75,"power":55,"speed":80,"def":85},{"name":"山崎 信也","pos":"LF","meet":67,"power":72,"speed":70,"def":68},{"name":"山口 大樹","pos":"DH","meet":61,"power":67,"speed":62,"def":62},{"name":"橋本 大樹","pos":"IF","meet":56,"power":62,"speed":63,"def":67},{"name":"清水 裕介","pos":"IF","meet":64,"power":62,"speed":66,"def":67},{"name":"井上 智也","pos":"OF","meet":67,"power":60,"speed":66,"def":66},{"name":"松本 颯一","pos":"OF","meet":68,"power":62,"speed":76,"def":75}]},{"name":"新潟タイフーンズ","abbr":"NII","league":"a","pitchers":[{"name":"阿部 亮","role":"SP","spd":80,"ctrl":77,"stam":82},{"name":"坂本 勇人","role":"SP","spd":83,"ctrl":83,"stam":80},{"name":"近藤 秀樹","role":"SP","spd":68,"ctrl":74,"stam":76},{"name":"青木 勇人","role":"SP","spd":70,"ctrl":71,"stam":75},{"name":"前田 涼介","role":"SP","spd":69,"ctrl":69,"stam":72},{"name":"遠藤 隼人","role":"RP","spd":74,"ctrl":72,"stam":55},{"name":"福田 勇人","role":"RP","spd":73,"ctrl":77,"stam":48},{"name":"坂口 隼人","role":"RP","spd":68,"ctrl":59,"stam":40},{"name":"坂口 真一","role":"RP","spd":70,"ctrl":63,"stam":41},{"name":"太田 勇人","role":"RP","spd":75,"ctrl":64,"stam":42},{"name":"阿部 聡志","role":"RP","spd":70,"ctrl":70,"stam":49},{"name":"青木 光輝","role":"SU","spd":79,"ctrl":79,"stam":62},{"name":"福田 俊介","role":"CL","spd":85,"ctrl":81,"stam":64}],"roster":[{"name":"石川 聡","pos":"SS","meet":77,"power":60,"speed":82,"def":86},{"name":"前田 勇人","pos":"2B","meet":81,"power":65,"speed":76,"def":80},{"name":"藤田 俊介","pos":"RF","meet":74,"power":82,"speed":62,"def":72},{"name":"近藤 隼人","pos":"1B","meet":70,"power":87,"speed":52,"def":74},{"name":"坂本 和樹","pos":"3B","meet":73,"power":76,"speed":65,"def":79},{"name":"遠藤 祐介","pos":"C","meet":69,"power":71,"speed":53,"def":86},{"name":"青木 拓海","pos":"CF","meet":79,"power":63,"speed":84,"def":78},{"name":"坂口 涼","pos":"LF","meet":66,"power":69,"speed":72,"def":69},{"name":"太田 光輝","pos":"DH","meet":61,"power":50,"speed":64,"def":60},{"name":"遠藤 俊介","pos":"IF","meet":63,"power":68,"speed":68,"def":61},{"name":"西村 祐介","pos":"IF","meet":69,"power":67,"speed":73,"def":67},{"name":"藤田 勇人","pos":"OF","meet":64,"power":61,"speed":57,"def":68},{"name":"西村 俊介","pos":"OF","meet":76,"power":59,"speed":64,"def":70}]},{"name":"松山ウェイブス","abbr":"MAT","league":"a","pitchers":[{"name":"藤井 健介","role":"SP","spd":79,"ctrl":78,"stam":86},{"name":"藤井 旭彦","role":"SP","spd":81,"ctrl":84,"stam":84},{"name":"中島 彰人","role":"SP","spd":76,"ctrl":77,"stam":69},{"name":"岡田 海斗","role":"SP","spd":70,"ctrl":73,"stam":70},{"name":"金子 健介","role":"SP","spd":75,"ctrl":69,"stam":72},{"name":"三浦 彰人","role":"RP","spd":74,"ctrl":75,"stam":55},{"name":"松田 昌弘","role":"RP","spd":72,"ctrl":77,"stam":51},{"name":"金子 旭彦","role":"RP","spd":73,"ctrl":65,"stam":46},{"name":"小川 昌弘","role":"RP","spd":71,"ctrl":64,"stam":47},{"name":"竹内 昇平","role":"RP","spd":67,"ctrl":65,"stam":47},{"name":"上田 壮太","role":"RP","spd":72,"ctrl":62,"stam":43},{"name":"中野 旭彦","role":"SU","spd":89,"ctrl":74,"stam":57},{"name":"上田 裕太","role":"CL","spd":81,"ctrl":79,"stam":61}],"roster":[{"name":"岡田 龍太","pos":"CF","meet":83,"power":67,"speed":86,"def":80},{"name":"三浦 海斗","pos":"SS","meet":79,"power":63,"speed":81,"def":87},{"name":"金子 駿","pos":"RF","meet":75,"power":84,"speed":60,"def":71},{"name":"中島 旭","pos":"1B","meet":69,"power":89,"speed":51,"def":73},{"name":"小川 彰","pos":"3B","meet":72,"power":77,"speed":63,"def":81},{"name":"中野 俊","pos":"C","meet":71,"power":72,"speed":54,"def":87},{"name":"原田 昇","pos":"LF","meet":68,"power":73,"speed":73,"def":70},{"name":"松田 壮太","pos":"2B","meet":74,"power":59,"speed":79,"def":83},{"name":"小川 裕太","pos":"DH","meet":65,"power":68,"speed":64,"def":66},{"name":"松田 彰人","pos":"IF","meet":59,"power":58,"speed":56,"def":56},{"name":"上田 健介","pos":"IF","meet":74,"power":63,"speed":73,"def":76},{"name":"中島 龍太","pos":"OF","meet":59,"power":64,"speed":63,"def":57},{"name":"岡田 昇平","pos":"OF","meet":74,"power":76,"speed":77,"def":75}]},{"name":"静岡サンライズ","abbr":"SHI","league":"a","pitchers":[{"name":"森田 将太","role":"SP","spd":81,"ctrl":76,"stam":87},{"name":"森田 直人","role":"SP","spd":76,"ctrl":74,"stam":76},{"name":"酒井 怜司","role":"SP","spd":72,"ctrl":71,"stam":73},{"name":"柴田 拓真","role":"SP","spd":70,"ctrl":69,"stam":72},{"name":"原 将太","role":"SP","spd":69,"ctrl":75,"stam":70},{"name":"菅原 純平","role":"RP","spd":74,"ctrl":77,"stam":52},{"name":"宮崎 康太","role":"RP","spd":74,"ctrl":74,"stam":55},{"name":"横山 康太","role":"RP","spd":69,"ctrl":60,"stam":46},{"name":"柴田 直人","role":"RP","spd":72,"ctrl":67,"stam":47},{"name":"平野 純平","role":"RP","spd":73,"ctrl":64,"stam":44},{"name":"宮崎 暁人","role":"RP","spd":69,"ctrl":68,"stam":41},{"name":"柴田 康太","role":"SU","spd":89,"ctrl":80,"stam":64},{"name":"原 和真","role":"CL","spd":82,"ctrl":80,"stam":56}],"roster":[{"name":"原 直人","pos":"2B","meet":78,"power":64,"speed":80,"def":82},{"name":"柴田 慎吾","pos":"CF","meet":82,"power":69,"speed":84,"def":79},{"name":"酒井 俊也","pos":"RF","meet":76,"power":83,"speed":61,"def":70},{"name":"工藤 拓真","pos":"1B","meet":71,"power":86,"speed":53,"def":74},{"name":"横山 遼","pos":"3B","meet":74,"power":75,"speed":64,"def":78},{"name":"宮崎 純平","pos":"C","meet":70,"power":73,"speed":55,"def":86},{"name":"内田 康太","pos":"SS","meet":77,"power":58,"speed":81,"def":88},{"name":"平野 和真","pos":"LF","meet":65,"power":71,"speed":74,"def":69},{"name":"酒井 純平","pos":"DH","meet":67,"power":65,"speed":58,"def":68},{"name":"横山 暁人","pos":"IF","meet":60,"power":67,"speed":66,"def":62},{"name":"岩田 康太","pos":"IF","meet":69,"power":74,"speed":74,"def":68},{"name":"岩田 純平","pos":"OF","meet":64,"power":64,"speed":69,"def":62},{"name":"森田 暁人","pos":"OF","meet":74,"power":70,"speed":73,"def":76}]},{"name":"熊本ボルケーノズ","abbr":"KMT","league":"a","pitchers":[{"name":"長谷川 晃","role":"SP","spd":77,"ctrl":81,"stam":84},{"name":"武田 琢磨","role":"SP","spd":84,"ctrl":80,"stam":78},{"name":"武田 信吾","role":"SP","spd":77,"ctrl":67,"stam":71},{"name":"上原 晃一","role":"SP","spd":69,"ctrl":66,"stam":71},{"name":"大野 信吾","role":"SP","spd":76,"ctrl":71,"stam":67},{"name":"秋山 裕一","role":"RP","spd":82,"ctrl":71,"stam":47},{"name":"本田 良太","role":"RP","spd":79,"ctrl":77,"stam":48},{"name":"上原 哲平","role":"RP","spd":69,"ctrl":60,"stam":40},{"name":"村上 裕一","role":"RP","spd":71,"ctrl":61,"stam":43},{"name":"古川 良太","role":"RP","spd":71,"ctrl":61,"stam":40},{"name":"武田 俊太","role":"RP","spd":75,"ctrl":66,"stam":40},{"name":"本田 信吾","role":"SU","spd":83,"ctrl":84,"stam":59},{"name":"石田 信吾","role":"CL","spd":89,"ctrl":83,"stam":64}],"roster":[{"name":"村上 勝","pos":"CF","meet":80,"power":66,"speed":83,"def":79},{"name":"近江 学","pos":"2B","meet":77,"power":62,"speed":78,"def":83},{"name":"古川 信","pos":"RF","meet":73,"power":86,"speed":59,"def":72},{"name":"石田 誠也","pos":"1B","meet":68,"power":91,"speed":49,"def":76},{"name":"本田 泰志","pos":"3B","meet":75,"power":79,"speed":66,"def":80},{"name":"武田 良太","pos":"C","meet":72,"power":74,"speed":56,"def":85},{"name":"上原 哲","pos":"SS","meet":76,"power":57,"speed":82,"def":87},{"name":"秋山 幸太","pos":"LF","meet":67,"power":70,"speed":71,"def":68},{"name":"石田 幸太","pos":"DH","meet":59,"power":66,"speed":56,"def":62},{"name":"村上 俊太","pos":"IF","meet":64,"power":51,"speed":69,"def":58},{"name":"秋山 誠也","pos":"IF","meet":74,"power":72,"speed":77,"def":67},{"name":"菊池 勝也","pos":"OF","meet":67,"power":62,"speed":65,"def":65},{"name":"本田 琢磨","pos":"OF","meet":67,"power":68,"speed":68,"def":69}]},{"name":"那覇マリーンズ","abbr":"NAH","league":"b","pitchers":[{"name":"宮城 翔太","role":"SP","spd":75,"ctrl":73,"stam":80},{"name":"金城 諒一","role":"SP","spd":84,"ctrl":78,"stam":84},{"name":"伊波 真也","role":"SP","spd":73,"ctrl":75,"stam":70},{"name":"喜屋武 海斗","role":"SP","spd":73,"ctrl":66,"stam":72},{"name":"喜屋武 蓮太","role":"SP","spd":68,"ctrl":72,"stam":73},{"name":"儀間 大樹","role":"RP","spd":77,"ctrl":77,"stam":55},{"name":"宮里 翔大","role":"RP","spd":72,"ctrl":77,"stam":50},{"name":"上原 海斗","role":"RP","spd":73,"ctrl":68,"stam":49},{"name":"宮里 颯介","role":"RP","spd":74,"ctrl":63,"stam":42},{"name":"知念 蓮太","role":"RP","spd":71,"ctrl":61,"stam":40},{"name":"儀間 翔大","role":"RP","spd":69,"ctrl":68,"stam":42},{"name":"平良 真也","role":"SU","spd":86,"ctrl":79,"stam":59},{"name":"儀間 蓮太","role":"CL","spd":80,"ctrl":83,"stam":64}],"roster":[{"name":"比嘉 翔","pos":"CF","meet":85,"power":70,"speed":78,"def":73},{"name":"金城 大樹","pos":"2B","meet":82,"power":65,"speed":76,"def":78},{"name":"新垣 海斗","pos":"RF","meet":78,"power":88,"speed":60,"def":70},{"name":"伊波 蓮","pos":"1B","meet":73,"power":94,"speed":50,"def":72},{"name":"安里 翼","pos":"3B","meet":80,"power":81,"speed":62,"def":76},{"name":"喜屋武 颯","pos":"C","meet":75,"power":75,"speed":54,"def":82},{"name":"上原 朔","pos":"SS","meet":78,"power":60,"speed":78,"def":84},{"name":"知念 諒","pos":"LF","meet":70,"power":75,"speed":70,"def":65},{"name":"与那覇 龍一","pos":"DH","meet":68,"power":51,"speed":54,"def":66},{"name":"安里 海斗","pos":"IF","meet":66,"power":56,"speed":69,"def":66},{"name":"平良 朔太","pos":"IF","meet":70,"power":66,"speed":64,"def":75},{"name":"新垣 蓮太","pos":"OF","meet":66,"power":61,"speed":67,"def":61},{"name":"金城 海斗","pos":"OF","meet":62,"power":58,"speed":71,"def":76}]},{"name":"盛岡イーグルウィンズ","abbr":"MOR","league":"b","pitchers":[{"name":"佐藤 龍之介","role":"SP","spd":90,"ctrl":85,"stam":90},{"name":"山田 蓮太","role":"SP","spd":82,"ctrl":84,"stam":78},{"name":"千葉 拓也","role":"SP","spd":77,"ctrl":73,"stam":69},{"name":"高橋 信吾","role":"SP","spd":68,"ctrl":73,"stam":76},{"name":"山田 隼人","role":"SP","spd":69,"ctrl":67,"stam":70},{"name":"高橋 雄太","role":"RP","spd":71,"ctrl":70,"stam":50},{"name":"工藤 蓮太","role":"RP","spd":82,"ctrl":70,"stam":52},{"name":"菅原 拓也","role":"RP","spd":71,"ctrl":70,"stam":43},{"name":"工藤 信吾","role":"RP","spd":67,"ctrl":59,"stam":44},{"name":"小野寺 信吾","role":"RP","spd":67,"ctrl":62,"stam":48},{"name":"小野寺 健司","role":"RP","spd":65,"ctrl":67,"stam":47},{"name":"小野寺 巧海","role":"SU","spd":84,"ctrl":85,"stam":59},{"name":"佐藤 和真","role":"CL","spd":88,"ctrl":79,"stam":60}],"roster":[{"name":"千葉 隼人","pos":"CF","meet":73,"power":60,"speed":75,"def":80},{"name":"高橋 修","pos":"2B","meet":71,"power":58,"speed":74,"def":84},{"name":"鈴木 啓太","pos":"RF","meet":68,"power":78,"speed":60,"def":72},{"name":"伊藤 健司","pos":"1B","meet":65,"power":82,"speed":48,"def":74},{"name":"渡辺 雄太","pos":"3B","meet":70,"power":72,"speed":62,"def":78},{"name":"山田 拓","pos":"C","meet":66,"power":68,"speed":50,"def":88},{"name":"工藤 蓮","pos":"SS","meet":69,"power":55,"speed":78,"def":90},{"name":"加藤 慎吾","pos":"LF","meet":62,"power":65,"speed":68,"def":68},{"name":"工藤 啓太","pos":"DH","meet":69,"power":64,"speed":68,"def":63},{"name":"菅原 信吾","pos":"IF","meet":61,"power":60,"speed":65,"def":56},{"name":"伊藤 修平","pos":"IF","meet":72,"power":71,"speed":77,"def":63},{"name":"及川 蓮太","pos":"OF","meet":57,"power":63,"speed":56,"def":60},{"name":"菅原 隼人","pos":"OF","meet":72,"power":64,"speed":66,"def":70}]},{"name":"高松クリッパーズ","abbr":"TAK","league":"b","pitchers":[{"name":"四国 翔","role":"SP","spd":78,"ctrl":78,"stam":82},{"name":"三宅 駿介","role":"SP","spd":83,"ctrl":79,"stam":79},{"name":"岩崎 涼平","role":"SP","spd":73,"ctrl":73,"stam":73},{"name":"川田 涼平","role":"SP","spd":76,"ctrl":70,"stam":67},{"name":"村田 涼平","role":"SP","spd":72,"ctrl":66,"stam":74},{"name":"松永 怜司","role":"RP","spd":81,"ctrl":69,"stam":50},{"name":"松永 翔吾","role":"RP","spd":71,"ctrl":67,"stam":53},{"name":"瀬戸 蒼太","role":"RP","spd":69,"ctrl":64,"stam":47},{"name":"村田 颯太","role":"RP","spd":69,"ctrl":65,"stam":49},{"name":"西岡 翔吾","role":"RP","spd":69,"ctrl":60,"stam":41},{"name":"小野 拓海","role":"RP","spd":75,"ctrl":68,"stam":46},{"name":"小野 翔吾","role":"SU","spd":80,"ctrl":82,"stam":60},{"name":"西岡 蓮一","role":"CL","spd":79,"ctrl":77,"stam":58}],"roster":[{"name":"森山 駿","pos":"CF","meet":75,"power":55,"speed":92,"def":88},{"name":"川田 颯太","pos":"2B","meet":78,"power":58,"speed":89,"def":89},{"name":"福永 涼","pos":"SS","meet":74,"power":53,"speed":90,"def":92},{"name":"小野 拓","pos":"3B","meet":72,"power":68,"speed":78,"def":86},{"name":"村田 蒼","pos":"RF","meet":73,"power":72,"speed":75,"def":80},{"name":"安藤 涼太","pos":"1B","meet":68,"power":78,"speed":65,"def":82},{"name":"井川 蓮","pos":"C","meet":65,"power":64,"speed":60,"def":92},{"name":"瀬戸 翔","pos":"LF","meet":70,"power":62,"speed":83,"def":80},{"name":"岩崎 拓海","pos":"DH","meet":61,"power":54,"speed":57,"def":62},{"name":"村田 怜司","pos":"IF","meet":68,"power":60,"speed":54,"def":64},{"name":"岩崎 颯太","pos":"IF","meet":68,"power":57,"speed":73,"def":75},{"name":"松永 拓海","pos":"OF","meet":60,"power":57,"speed":58,"def":58},{"name":"瀬戸 翔吾","pos":"OF","meet":75,"power":59,"speed":70,"def":75}]},{"name":"富山フェニックス","abbr":"TOY","league":"b","pitchers":[{"name":"加賀 大地","role":"SP","spd":88,"ctrl":82,"stam":92},{"name":"朝日 拓真","role":"SP","spd":74,"ctrl":81,"stam":79},{"name":"滑川 拓真","role":"SP","spd":71,"ctrl":67,"stam":68},{"name":"魚津 駿一","role":"SP","spd":70,"ctrl":68,"stam":73},{"name":"朝日 龍生","role":"SP","spd":70,"ctrl":66,"stam":69},{"name":"黒部 龍生","role":"RP","spd":74,"ctrl":73,"stam":50},{"name":"入善 大樹","role":"RP","spd":75,"ctrl":66,"stam":47},{"name":"朝日 隼平","role":"RP","spd":67,"ctrl":60,"stam":44},{"name":"氷見 蒼介","role":"RP","spd":71,"ctrl":70,"stam":47},{"name":"礪波 海斗","role":"RP","spd":67,"ctrl":62,"stam":44},{"name":"南砺 隼平","role":"RP","spd":68,"ctrl":65,"stam":46},{"name":"朝日 駿一","role":"SU","spd":82,"ctrl":84,"stam":61},{"name":"滑川 大樹","role":"CL","spd":85,"ctrl":78,"stam":58}],"roster":[{"name":"立山 駿","pos":"CF","meet":83,"power":72,"speed":85,"def":80},{"name":"黒部 翔太","pos":"2B","meet":82,"power":68,"speed":82,"def":85},{"name":"井波 蓮","pos":"RF","meet":78,"power":89,"speed":65,"def":75},{"name":"南砺 大樹","pos":"1B","meet":73,"power":93,"speed":55,"def":78},{"name":"礪波 龍","pos":"3B","meet":78,"power":82,"speed":68,"def":83},{"name":"高岡 怜","pos":"C","meet":75,"power":78,"speed":58,"def":90},{"name":"魚津 颯","pos":"SS","meet":79,"power":63,"speed":85,"def":90},{"name":"氷見 海","pos":"LF","meet":70,"power":75,"speed":78,"def":72},{"name":"魚津 翔太","pos":"DH","meet":61,"power":60,"speed":68,"def":56},{"name":"朝日 颯太","pos":"IF","meet":55,"power":64,"speed":55,"def":68},{"name":"礪波 颯太","pos":"IF","meet":75,"power":61,"speed":69,"def":70},{"name":"氷見 隼平","pos":"OF","meet":58,"power":68,"speed":67,"def":60},{"name":"黒部 海斗","pos":"OF","meet":70,"power":60,"speed":73,"def":73}]},{"name":"鹿児島ヴァルカンズ","abbr":"KGS","league":"b","pitchers":[{"name":"桜島 健","role":"SP","spd":83,"ctrl":80,"stam":88},{"name":"知覧 拓也","role":"SP","spd":74,"ctrl":78,"stam":75},{"name":"枕崎 龍一","role":"SP","spd":70,"ctrl":77,"stam":72},{"name":"霧島 翔吾","role":"SP","spd":76,"ctrl":67,"stam":71},{"name":"川内 海斗","role":"SP","spd":72,"ctrl":67,"stam":76},{"name":"出水 駿介","role":"RP","spd":79,"ctrl":66,"stam":55},{"name":"知覧 隼平","role":"RP","spd":77,"ctrl":72,"stam":50},{"name":"枕崎 蒼太","role":"RP","spd":75,"ctrl":66,"stam":42},{"name":"加治木 翔吾","role":"RP","spd":67,"ctrl":61,"stam":44},{"name":"知覧 蒼太","role":"RP","spd":68,"ctrl":59,"stam":40},{"name":"屋久 龍一","role":"RP","spd":64,"ctrl":68,"stam":48},{"name":"枕崎 大樹","role":"SU","spd":81,"ctrl":77,"stam":59},{"name":"霧島 拓也","role":"CL","spd":82,"ctrl":76,"stam":56}],"roster":[{"name":"霧島 蓮","pos":"CF","meet":69,"power":58,"speed":75,"def":70},{"name":"指宿 颯","pos":"2B","meet":68,"power":55,"speed":73,"def":75},{"name":"屋久 海斗","pos":"RF","meet":65,"power":78,"speed":55,"def":65},{"name":"奄美 蒼","pos":"1B","meet":62,"power":82,"speed":46,"def":69},{"name":"枕崎 翔","pos":"3B","meet":66,"power":70,"speed":58,"def":72},{"name":"知覧 隼","pos":"C","meet":64,"power":65,"speed":48,"def":80},{"name":"川内 駿","pos":"SS","meet":67,"power":52,"speed":76,"def":82},{"name":"鹿屋 大樹","pos":"LF","meet":60,"power":63,"speed":66,"def":62},{"name":"串木野 蓮太","pos":"DH","meet":56,"power":52,"speed":64,"def":67},{"name":"枕崎 拓也","pos":"IF","meet":69,"power":58,"speed":56,"def":66},{"name":"枕崎 琢磨","pos":"IF","meet":70,"power":67,"speed":75,"def":66},{"name":"指宿 海斗","pos":"OF","meet":56,"power":57,"speed":63,"def":64},{"name":"霧島 駿介","pos":"OF","meet":71,"power":72,"speed":67,"def":70}]},{"name":"長野ハイランダーズ","abbr":"NAG","league":"b","pitchers":[{"name":"信濃 翔太","role":"SP","spd":80,"ctrl":78,"stam":85},{"name":"茅野 俊明","role":"SP","spd":84,"ctrl":74,"stam":80},{"name":"岡谷 蓮介","role":"SP","spd":69,"ctrl":76,"stam":67},{"name":"木曽 蓮介","role":"SP","spd":69,"ctrl":68,"stam":73},{"name":"大町 海斗","role":"SP","spd":69,"ctrl":67,"stam":76},{"name":"千曲 翔太","role":"RP","spd":82,"ctrl":74,"stam":55},{"name":"小諸 駿一","role":"RP","spd":82,"ctrl":72,"stam":53},{"name":"乗鞍 誠也","role":"RP","spd":70,"ctrl":63,"stam":46},{"name":"佐久 昇平","role":"RP","spd":69,"ctrl":62,"stam":42},{"name":"美ヶ原 昇平","role":"RP","spd":71,"ctrl":64,"stam":48},{"name":"小諸 翔太","role":"RP","spd":64,"ctrl":67,"stam":42},{"name":"小諸 勇人","role":"SU","spd":86,"ctrl":77,"stam":57},{"name":"大町 蓮介","role":"CL","spd":81,"ctrl":76,"stam":55}],"roster":[{"name":"上田 颯","pos":"CF","meet":78,"power":67,"speed":80,"def":77},{"name":"松本 大樹","pos":"2B","meet":76,"power":63,"speed":77,"def":81},{"name":"伊那 蓮","pos":"RF","meet":74,"power":84,"speed":60,"def":70},{"name":"駒ヶ根 隆","pos":"1B","meet":69,"power":90,"speed":50,"def":74},{"name":"諏訪 翔","pos":"3B","meet":73,"power":78,"speed":65,"def":79},{"name":"塩尻 蒼","pos":"C","meet":71,"power":72,"speed":54,"def":86},{"name":"安曇 駿","pos":"SS","meet":75,"power":58,"speed":81,"def":87},{"name":"飯田 颯太","pos":"LF","meet":66,"power":71,"speed":73,"def":68},{"name":"千曲 駿一","pos":"DH","meet":58,"power":49,"speed":62,"def":68},{"name":"岡谷 海斗","pos":"IF","meet":60,"power":62,"speed":55,"def":59},{"name":"蓼科 昇平","pos":"IF","meet":71,"power":61,"speed":62,"def":66},{"name":"乗鞍 翔太","pos":"OF","meet":54,"power":64,"speed":60,"def":65},{"name":"小諸 昇平","pos":"OF","meet":64,"power":70,"speed":68,"def":76}]}];
+
+/* ══════════════════════════════════════════════
+   定数
+   ══════════════════════════════════════════════ */
+const ROLES=['SP','RP','SU','CL'];
+const ROLE_LABEL={SP:'先発',RP:'中継ぎ',SU:'セットアップ',CL:'抑え'};
+const POS=['C','1B','2B','3B','SS','LF','CF','RF','DH','IF','OF'];
+const FIELD_POS=['C','1B','2B','3B','SS','LF','CF','RF'];   // 守る9人のうち野手8人
+const START_POS=['C','1B','2B','3B','SS','LF','CF','RF','DH']; // 先発9人が1つずつ埋める
+const DEFAULT_ROLES=['SP','SP','SP','SP','SP','RP','RP','RP','RP','RP','RP','SU','CL'];
+const DEFAULT_POS=['CF','RF','1B','3B','C','SS','LF','2B','DH','IF','IF','OF','OF'];
+const N_PIT=13, N_BAT=13, N_LINEUP=9;
+const LS_KEY='bsim_editor_v1';
+
+/* ══════════════════════════════════════════════
+   状態
+   ══════════════════════════════════════════════ */
+let teams=[], cur=0, tab='info', bulkKind='';
+
+/* ══════════════════════════════════════════════
+   ユーティリティ
+   ══════════════════════════════════════════════ */
+const clone=o=>JSON.parse(JSON.stringify(o));
+const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),2200);
+}
+function rnd(base,range){
+  return clamp(base+Math.floor((Math.random()-0.5)*range),35,95);
+}
+
+/* ══════════════════════════════════════════════
+   保存・復元（このブラウザ内のみ）
+   ══════════════════════════════════════════════ */
+function save(){
+  try{ localStorage.setItem(LS_KEY,JSON.stringify({teams,cur})); }catch(e){}
+}
+function restore(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw)return false;
+    const d=JSON.parse(raw);
+    if(!d||!Array.isArray(d.teams)||!d.teams.length)return false;
+    teams=d.teams.map(normTeam);
+    cur=clamp(d.cur|0,0,teams.length-1);
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ══════════════════════════════════════════════
+   正規化（欠けた項目を既定値で埋める）
+   ══════════════════════════════════════════════ */
+function normPitcher(p,i){
+  p=p||{};
+  return {
+    name:String(p.name||('投手'+(i+1))),
+    role:ROLES.includes(p.role)?p.role:(DEFAULT_ROLES[i]||'RP'),
+    spd:clamp(+p.spd||65,1,99), ctrl:clamp(+p.ctrl||65,1,99), stam:clamp(+p.stam||60,1,99)
+  };
+}
+function normHitter(h,i){
+  h=h||{};
+  return {
+    name:String(h.name||('野手'+(i+1))),
+    pos:POS.includes(h.pos)?h.pos:(DEFAULT_POS[i]||'OF'),
+    meet:clamp(+h.meet||65,1,99), power:clamp(+h.power||60,1,99),
+    speed:clamp(+h.speed||65,1,99), def:clamp(+h.def||65,1,99)
+  };
+}
+function normTeam(t){
+  t=t||{};
+  const pit=Array.isArray(t.pitchers)?t.pitchers.slice(0,N_PIT):[];
+  const bat=Array.isArray(t.roster)?t.roster.slice(0,N_BAT):[];
+  while(pit.length<N_PIT)pit.push(null);
+  while(bat.length<N_BAT)bat.push(null);
+  return {
+    name:String(t.name||'新チーム'),
+    abbr:String(t.abbr||'新').slice(0,5),
+    league:(t.league==='b')?'b':'a',
+    pitchers:pit.map(normPitcher),
+    roster:bat.map(normHitter)
+  };
+}
+
+/* ══════════════════════════════════════════════
+   チーム操作
+   ══════════════════════════════════════════════ */
+function newTeam(n){
+  const t={name:'新チーム'+n,abbr:'新'+n,league:lighterLeague(),pitchers:[],roster:[]};
+  for(let i=0;i<N_PIT;i++)t.pitchers.push(normPitcher({name:'投手'+(i+1),role:DEFAULT_ROLES[i]},i));
+  for(let i=0;i<N_BAT;i++)t.roster.push(normHitter({name:'野手'+(i+1),pos:DEFAULT_POS[i]},i));
+  randomizeTeam(t,1);
+  return t;
+}
+function lighterLeague(){
+  let a=0,b=0; teams.forEach(t=>t.league==='b'?b++:a++);
+  return b<a?'b':'a';
+}
+function addTeam(){
+  teams.push(normTeam(newTeam(teams.length+1)));
+  cur=teams.length-1; render();
+  toast('チームを追加しました');
+}
+function delTeam(){
+  if(teams.length<=2){ toast('チームは最低2つ必要です'); return; }
+  if(!confirm('「'+teams[cur].name+'」を削除します。よろしいですか？'))return;
+  teams.splice(cur,1); cur=clamp(cur,0,teams.length-1); render();
+}
+function moveTeam(d){
+  const j=cur+d; if(j<0||j>=teams.length)return;
+  const t=teams.splice(cur,1)[0]; teams.splice(j,0,t); cur=j; render();
+}
+function selTeam(i){ cur=i; render(); }
+
+/* ══════════════════════════════════════════════
+   ランダム生成
+   ══════════════════════════════════════════════ */
+function randomizeTeam(t,tier){
+  const hb=tier===0?78:tier===1?70:62;
+  const pb=tier===0?80:tier===1?72:65;
+  t.roster.forEach(h=>{
+    h.meet=rnd(hb,16); h.power=rnd(hb-3,20); h.speed=rnd(hb,16); h.def=rnd(hb,14);
+  });
+  t.pitchers.forEach(p=>{
+    const rel=(p.role==='RP'||p.role==='SU'||p.role==='CL');
+    p.spd=rnd(pb+(rel?5:0),12); p.ctrl=rnd(pb,12); p.stam=rnd(pb+(rel?-20:0),10);
+  });
+}
+function doRandom(kind){
+  const lv=prompt('能力の水準を選んでください\n0 = 強い / 1 = 標準 / 2 = 弱い','1');
+  if(lv===null)return;
+  const tier=clamp(parseInt(lv,10)||1,0,2);
+  const t=teams[cur];
+  const hb=tier===0?78:tier===1?70:62, pb=tier===0?80:tier===1?72:65;
+  if(kind!=='bat'){
+    t.pitchers.forEach(p=>{
+      const rel=(p.role==='RP'||p.role==='SU'||p.role==='CL');
+      p.spd=rnd(pb+(rel?5:0),12); p.ctrl=rnd(pb,12); p.stam=rnd(pb+(rel?-20:0),10);
+    });
+  }
+  if(kind!=='pit'){
+    t.roster.forEach(h=>{ h.meet=rnd(hb,16); h.power=rnd(hb-3,20); h.speed=rnd(hb,16); h.def=rnd(hb,14); });
+  }
+  render(); toast('能力値を生成しました（名前は変更していません）');
+}
+
+/* ══════════════════════════════════════════════
+   描画
+   ══════════════════════════════════════════════ */
+function render(){
+  renderChips(); renderPane(); renderMeters(); renderIssues(); save();
+}
+function renderChips(){
+  document.getElementById('tcount').textContent=teams.length;
+  document.getElementById('tchips').innerHTML=teams.map((t,i)=>
+    '<div class="tchip'+(i===cur?' on':'')+'" title="'+esc(t.name)+'" onclick="selTeam('+i+')">'+
+    '<span>'+esc(t.abbr)+'</span><span class="lg">'+(t.league==='b'?'B':'A')+'</span></div>'
+  ).join('');
+}
+function setTab(t){
+  tab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  renderPane();
+}
+function renderPane(){
+  const el=document.getElementById('pane');
+  if(!teams.length){ el.innerHTML='<div class="muted">チームがありません。「チーム追加」から作成してください。</div>'; return; }
+  el.innerHTML = tab==='info' ? paneInfo() : tab==='pit' ? panePit() : paneBat();
+}
+
+function paneInfo(){
+  const t=teams[cur];
+  return '<div class="row">'+
+    '<div style="flex:2"><label class="fl">チーム名</label>'+
+      '<input type="text" value="'+esc(t.name)+'" oninput="setTeam(\'name\',this.value)"></div>'+
+    '<div><label class="fl">略称（5文字以内・順位表などで使われます）</label>'+
+      '<input type="text" maxlength="5" value="'+esc(t.abbr)+'" oninput="setTeam(\'abbr\',this.value)"></div>'+
+    '<div><label class="fl">所属リーグ</label>'+
+      '<select onchange="setTeam(\'league\',this.value)">'+
+        '<option value="a"'+(t.league==='a'?' selected':'')+'>Aリーグ</option>'+
+        '<option value="b"'+(t.league==='b'?' selected':'')+'>Bリーグ</option>'+
+      '</select></div>'+
+  '</div>'+
+  '<div class="muted">所属リーグはペナントの組分けに使われます。両リーグに同数ずつ振り分けるのが標準です。</div>';
+}
+
+function panePit(){
+  const t=teams[cur];
+  let h='<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem">'+
+    '<button class="btn sm" onclick="doRandom(\'pit\')">能力をランダム生成</button>'+
+    '</div><div class="tw"><table><thead><tr>'+
+    '<th class="no">#</th><th>名前</th><th>役割</th><th>球速</th><th>制球</th><th>スタミナ</th><th></th>'+
+    '</tr></thead><tbody>';
+  t.pitchers.forEach((p,i)=>{
+    h+='<tr><td class="no">'+(i+1)+'</td>'+
+      '<td class="nm"><input type="text" value="'+esc(p.name)+'" oninput="setPit('+i+',\'name\',this.value)"></td>'+
+      '<td><select onchange="setPit('+i+',\'role\',this.value)">'+
+        ROLES.map(r=>'<option value="'+r+'"'+(p.role===r?' selected':'')+'>'+r+'（'+ROLE_LABEL[r]+'）</option>').join('')+
+      '</select></td>'+
+      ['spd','ctrl','stam'].map(f=>
+        '<td class="num"><input type="number" min="1" max="99" value="'+p[f]+'" oninput="setPit('+i+',\''+f+'\',this.value)"></td>'
+      ).join('')+
+      '<td class="ord"><button class="btn sm" onclick="movePit('+i+',-1)">▲</button>'+
+        '<button class="btn sm" onclick="movePit('+i+',1)">▼</button></td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+
+function paneBat(){
+  const t=teams[cur];
+  let h='<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem">'+
+    '<button class="btn sm" onclick="doRandom(\'bat\')">能力をランダム生成</button>'+
+    '</div><div class="muted" style="margin-bottom:.5rem">上から9人が先発出場、その並びがそのまま打順になります。先発9人で C・1B・2B・3B・SS・LF・CF・RF・DH を1つずつ埋めてください。</div>'+
+    '<div class="tw"><table><thead><tr>'+
+    '<th class="no">打順</th><th>名前</th><th>守備</th><th>ミート</th><th>パワー</th><th>走力</th><th>守備力</th><th></th>'+
+    '</tr></thead><tbody>';
+  t.roster.forEach((p,i)=>{
+    const bench=i>=N_LINEUP;
+    if(i===N_LINEUP)h+='<tr class="sep"><td colspan="8">── 控え（代打・守備固め） ──</td></tr>';
+    h+='<tr'+(bench?' class="bench"':'')+'><td class="no">'+(bench?'控'+(i-N_LINEUP+1):(i+1)+'番')+'</td>'+
+      '<td class="nm"><input type="text" value="'+esc(p.name)+'" oninput="setBat('+i+',\'name\',this.value)"></td>'+
+      '<td><select onchange="setBat('+i+',\'pos\',this.value)">'+
+        POS.map(x=>'<option value="'+x+'"'+(p.pos===x?' selected':'')+'>'+x+'</option>').join('')+
+      '</select></td>'+
+      ['meet','power','speed','def'].map(f=>
+        '<td class="num"><input type="number" min="1" max="99" value="'+p[f]+'" oninput="setBat('+i+',\''+f+'\',this.value)"></td>'
+      ).join('')+
+      '<td class="ord"><button class="btn sm" onclick="moveBat('+i+',-1)">▲</button>'+
+        '<button class="btn sm" onclick="moveBat('+i+',1)">▼</button></td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+
+/* ---- 入力反映 ---- */
+function setTeam(f,v){
+  if(f==='abbr')v=String(v).slice(0,5);
+  teams[cur][f]=v;
+  renderChips(); renderIssues(); save();
+}
+function setPit(i,f,v){
+  const p=teams[cur].pitchers[i];
+  p[f]=(f==='name'||f==='role')?v:clamp(parseInt(v,10)||0,1,99);
+  renderMeters(); renderIssues(); save();
+}
+function setBat(i,f,v){
+  const p=teams[cur].roster[i];
+  p[f]=(f==='name'||f==='pos')?v:clamp(parseInt(v,10)||0,1,99);
+  renderMeters(); renderIssues(); save();
+}
+function movePit(i,d){
+  const j=i+d; if(j<0||j>=N_PIT)return;
+  const a=teams[cur].pitchers; [a[i],a[j]]=[a[j],a[i]]; renderPane(); renderIssues(); save();
+}
+function moveBat(i,d){
+  const j=i+d; if(j<0||j>=N_BAT)return;
+  const a=teams[cur].roster; [a[i],a[j]]=[a[j],a[i]]; renderPane(); renderMeters(); renderIssues(); save();
+}
+
+/* ══════════════════════════════════════════════
+   チーム力
+   ══════════════════════════════════════════════ */
+function teamStats(t){
+  const st=t.roster.slice(0,N_LINEUP);
+  const avg=(a,f)=>a.length?a.reduce((s,x)=>s+x[f],0)/a.length:0;
+  const sp=t.pitchers.filter(p=>p.role==='SP');
+  const rp=t.pitchers.filter(p=>p.role!=='SP');
+  return {
+    打力:(avg(st,'meet')+avg(st,'power'))/2,
+    機動力:avg(st,'speed'),
+    守備:avg(st,'def'),
+    先発:sp.length?(avg(sp,'spd')+avg(sp,'ctrl')+avg(sp,'stam'))/3:0,
+    救援:rp.length?(avg(rp,'spd')+avg(rp,'ctrl'))/2:0
+  };
+}
+function renderMeters(){
+  if(!teams.length){document.getElementById('meters').innerHTML='';return;}
+  const all=teams.map(teamStats);
+  const me=all[cur];
+  const keys=Object.keys(me);
+  document.getElementById('meters').innerHTML=keys.map(k=>{
+    const vs=all.map(s=>s[k]);
+    const lo=Math.min(...vs), hi=Math.max(...vs);
+    const pct=hi>lo?((me[k]-lo)/(hi-lo))*100:50;
+    return '<div class="meter"><div class="lb"><span>'+k+'</span><span>'+me[k].toFixed(1)+'</span></div>'+
+      '<div class="bar"><div class="fill" style="width:'+clamp(pct,3,100).toFixed(0)+'%"></div></div></div>';
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════
+   検証
+   ══════════════════════════════════════════════ */
+function validate(){
+  const errs=[], warns=[];
+  if(teams.length<2)errs.push('チームが2つ未満です。リーグ戦には最低2チーム必要です。');
+  const la=teams.filter(t=>t.league==='a').length, lb=teams.filter(t=>t.league==='b').length;
+  if(lb>0&&(la<2||lb<2))warns.push('リーグを2つ使う場合、各リーグに2チーム以上が必要です（A:'+la+' / B:'+lb+'）。');
+  const names=new Set(), abbrs=new Set();
+  teams.forEach(t=>{
+    const who='【'+(t.abbr||t.name)+'】';
+    if(!t.name.trim())errs.push(who+' チーム名が空です。');
+    if(!t.abbr.trim())errs.push(who+' 略称が空です。');
+    if(names.has(t.name))warns.push('チーム名「'+t.name+'」が重複しています。');
+    if(abbrs.has(t.abbr))warns.push('略称「'+t.abbr+'」が重複しています。');
+    names.add(t.name); abbrs.add(t.abbr);
+
+    const pn=new Set();
+    t.pitchers.forEach(p=>{
+      if(!p.name.trim())errs.push(who+' 名前が空の投手がいます。');
+      if(pn.has(p.name))warns.push(who+' 投手名「'+p.name+'」が重複しています。');
+      pn.add(p.name);
+    });
+    const sp=t.pitchers.filter(p=>p.role==='SP').length;
+    const cl=t.pitchers.filter(p=>p.role==='CL').length;
+    if(sp===0)errs.push(who+' 先発（SP）が1人もいません。');
+    else if(sp<3)warns.push(who+' 先発（SP）が'+sp+'人です。ローテーションには3人以上を推奨します。');
+    if(cl===0)warns.push(who+' 抑え（CL）がいません。');
+
+    const bn=new Set();
+    t.roster.forEach(p=>{
+      if(!p.name.trim())errs.push(who+' 名前が空の野手がいます。');
+      if(bn.has(p.name))warns.push(who+' 野手名「'+p.name+'」が重複しています。');
+      bn.add(p.name);
+    });
+    if(pn.size&&bn.size){
+      t.roster.forEach(h=>{ if(pn.has(h.name))warns.push(who+' 「'+h.name+'」が投手と野手の両方にいます。'); });
+    }
+    // 先発9人が C/1B/2B/3B/SS/LF/CF/RF/DH を1つずつ埋めているかを見る。
+    // 打順は自由なので、並び順ではなく顔ぶれで判定する。
+    const st=t.roster.slice(0,N_LINEUP);
+    const used={};
+    st.forEach(h=>{ if(START_POS.includes(h.pos))used[h.pos]=(used[h.pos]||0)+1; });
+    Object.keys(used).forEach(k=>{ if(used[k]>1)warns.push(who+' 守備位置「'+k+'」が'+used[k]+'人重複しています。'); });
+    const miss=START_POS.filter(p=>!used[p]);
+    if(miss.length)warns.push(who+' 先発に守備位置が埋まっていません：'+miss.join(' / '));
+  });
+  return {errs,warns};
+}
+function renderIssues(){
+  const {errs,warns}=validate();
+  const el=document.getElementById('issues');
+  if(!errs.length&&!warns.length){
+    el.innerHTML='<div class="ok">問題は見つかりませんでした。書き出せます。</div>'; return;
+  }
+  el.innerHTML='<ul class="issues">'+
+    errs.map(m=>'<li class="err">'+esc(m)+'</li>').join('')+
+    warns.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul>'+
+    (errs.length?'<div class="muted" style="margin-top:.4rem">× の項目は書き出し前に直してください。! は警告で、そのままでも書き出せます。</div>'
+                :'<div class="muted" style="margin-top:.4rem">! は警告です。そのままでも書き出せます。</div>');
+}
+
+// 表記ゆれを吸収する。SP と書いても「先発」と書いても通るようにする
+const ROLE_ALIAS={
+  'SP':'SP','先発':'SP','スターター':'SP',
+  'RP':'RP','中継':'RP','中継ぎ':'RP','リリーフ':'RP','中継ぎ投手':'RP',
+  'SU':'SU','セットアップ':'SU','セットアッパー':'SU',
+  'CL':'CL','抑え':'CL','抑':'CL','クローザー':'CL','守護神':'CL'
+};
+const POS_ALIAS={
+  'C':'C','捕':'C','捕手':'C','キャッチャー':'C',
+  '1B':'1B','一':'1B','一塁':'1B','一塁手':'1B','ファースト':'1B',
+  '2B':'2B','二':'2B','二塁':'2B','二塁手':'2B','セカンド':'2B',
+  '3B':'3B','三':'3B','三塁':'3B','三塁手':'3B','サード':'3B',
+  'SS':'SS','遊':'SS','遊撃':'SS','遊撃手':'SS','ショート':'SS',
+  'LF':'LF','左':'LF','左翼':'LF','レフト':'LF',
+  'CF':'CF','中':'CF','中堅':'CF','センター':'CF',
+  'RF':'RF','右':'RF','右翼':'RF','ライト':'RF',
+  'DH':'DH','指':'DH','指名打者':'DH',
+  'IF':'IF','内野':'IF','内野手':'IF',
+  'OF':'OF','外野':'OF','外野手':'OF'
+};
+
+/* ══════════════════════════════════════════════
+   スプレッドシート（.xlsx）の書き出し / 読み込み
+   ──────────────────────────────────────────────
+   タブ構成
+     はじめに    … 書き方の説明
+     リーグ編成  … Aリーグ／Bリーグの2つの表。略称を並べるだけ。
+                   どちらの表に居るかで所属リーグが決まる。
+     <略称>      … チームごとに1タブ。野手13人・投手13人。
+
+   誤入力が構造的に起きないようにしている
+     ・守備位置（C/1B/2B/3B/SS/LF/CF/RF/DH）は行ごとに固定。重複も欠落も起きない
+     ・投手の役割（SP5・RP6・SU1・CL1）も行ごとに固定。規定数が必ず守られる
+     ・固定欄はシート保護でロック。編集できるのは名前・能力値・打順だけ
+     ・打順は1〜9の重複なしを入力規則で強制
+     ・チーム名はシート内に1か所しか現れない
+
+   外部ライブラリは使わない。
+     書き出し … 無圧縮(stored)のZIPを自前で組み立てる
+     読み込み … ブラウザ標準の DecompressionStream('deflate-raw') で展開する
+   ══════════════════════════════════════════════ */
+
+const SHEET_READ='はじめに', SHEET_LEAGUE='リーグ編成';
+const XLSX_FILE='baseball-sim-teams.xlsx';
+
+/* 野手13枠の守備位置（行で固定）。先頭9つが先発、残り4つが控え */
+const SLOT_POS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
+const SLOT_BENCH=['IF','IF','OF','OF'];
+/* 投手13枠の役割（行で固定） */
+const SLOT_ROLE=['SP','SP','SP','SP','SP','RP','RP','RP','RP','RP','RP','SU','CL'];
+
+/* 行番号（1始まり） */
+const R_NAME=1, R_ABBR=2, R_BATHEAD=4, R_BAT0=5, R_PITHEAD=19, R_PIT0=20, R_NOTE=34;
+
+/* ---------- XML / 列名 ---------- */
+function xe(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function colName(n){ let s=''; n++; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=(n-m-1)/26; } return s; }
+function colIndex(ref){ const m=/^([A-Z]+)/.exec(ref); if(!m)return 0; let n=0; for(const ch of m[1])n=n*26+(ch.charCodeAt(0)-64); return n-1; }
+
+/* ---------- CRC32 ---------- */
+let CRC_TBL=null;
+function crc32(buf){
+  if(!CRC_TBL){
+    CRC_TBL=new Uint32Array(256);
+    for(let i=0;i<256;i++){ let c=i; for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); CRC_TBL[i]=c>>>0; }
+  }
+  let c=0xFFFFFFFF;
+  for(let i=0;i<buf.length;i++)c=CRC_TBL[(c^buf[i])&0xFF]^(c>>>8);
+  return (c^0xFFFFFFFF)>>>0;
+}
+
+/* ---------- ZIP 書き出し（無圧縮） ---------- */
+function zipBuild(files){
+  const enc=new TextEncoder(); const parts=[], central=[]; let offset=0;
+  files.forEach(f=>{
+    const name=enc.encode(f.name);
+    const data=typeof f.data==='string'?enc.encode(f.data):f.data;
+    const crc=crc32(data);
+    const lh=new Uint8Array(30+name.length), dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true); dv.setUint16(4,20,true); dv.setUint16(6,0x0800,true);
+    dv.setUint16(8,0,true); dv.setUint16(10,0,true); dv.setUint16(12,0,true);
+    dv.setUint32(14,crc,true); dv.setUint32(18,data.length,true); dv.setUint32(22,data.length,true);
+    dv.setUint16(26,name.length,true); dv.setUint16(28,0,true);
+    lh.set(name,30); parts.push(lh,data);
+    const ch=new Uint8Array(46+name.length), cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true); cv.setUint16(4,20,true); cv.setUint16(6,20,true);
+    cv.setUint16(8,0x0800,true); cv.setUint16(10,0,true); cv.setUint16(12,0,true); cv.setUint16(14,0,true);
+    cv.setUint32(16,crc,true); cv.setUint32(20,data.length,true); cv.setUint32(24,data.length,true);
+    cv.setUint16(28,name.length,true); cv.setUint16(30,0,true); cv.setUint16(32,0,true);
+    cv.setUint16(34,0,true); cv.setUint16(36,0,true); cv.setUint32(38,0,true); cv.setUint32(42,offset,true);
+    ch.set(name,46); central.push(ch);
+    offset+=lh.length+data.length;
+  });
+  let cdSize=0; central.forEach(c=>cdSize+=c.length);
+  const eocd=new Uint8Array(22), ev=new DataView(eocd.buffer);
+  ev.setUint32(0,0x06054b50,true); ev.setUint16(8,files.length,true); ev.setUint16(10,files.length,true);
+  ev.setUint32(12,cdSize,true); ev.setUint32(16,offset,true);
+  return new Blob([...parts,...central,eocd],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+
+/* ---------- ZIP 読み込み ---------- */
+async function inflateRaw(data){
+  const ds=new DecompressionStream('deflate-raw');
+  const w=ds.writable.getWriter(); w.write(data); w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
+async function zipRead(buf){
+  const u8=new Uint8Array(buf), dv=new DataView(buf);
+  let eo=-1;
+  for(let i=u8.length-22;i>=0&&i>u8.length-22-65557;i--){ if(dv.getUint32(i,true)===0x06054b50){eo=i;break;} }
+  if(eo<0)throw new Error('ファイルの形式が違います（.xlsx を選んでください）');
+  const n=dv.getUint16(eo+10,true); let off=dv.getUint32(eo+16,true);
+  const dec=new TextDecoder('utf-8'); const out={};
+  for(let k=0;k<n;k++){
+    if(dv.getUint32(off,true)!==0x02014b50)break;
+    const method=dv.getUint16(off+10,true), csize=dv.getUint32(off+20,true);
+    const nlen=dv.getUint16(off+28,true), elen=dv.getUint16(off+30,true), clen=dv.getUint16(off+32,true);
+    const lho=dv.getUint32(off+42,true);
+    const name=dec.decode(u8.subarray(off+46,off+46+nlen));
+    const lnlen=dv.getUint16(lho+26,true), lelen=dv.getUint16(lho+28,true);
+    const dstart=lho+30+lnlen+lelen;
+    out[name]={method,data:u8.subarray(dstart,dstart+csize)};
+    off+=46+nlen+elen+clen;
+  }
+  const res={};
+  for(const k in out){ const e=out[k]; res[k]= e.method===0 ? e.data : await inflateRaw(e.data); }
+  return res;
+}
+
+/* ══════════════════════════════════════════════
+   書き出し
+   ══════════════════════════════════════════════ */
+function cellXml(ref,v,style,forceText,formula){
+  const s=style?' s="'+style+'"':'';
+  if(formula)  // 数式。表計算が開く前でも値が見えるよう、計算済みの値も一緒に書いておく
+    return '<c r="'+ref+'"'+s+' t="str"><f>'+xe(formula)+'</f><v>'+xe(v)+'</v></c>';
+  if(v===''||v==null)return '<c r="'+ref+'"'+s+'/>';
+  if(!forceText&&typeof v==='number')return '<c r="'+ref+'"'+s+'><v>'+v+'</v></c>';
+  return '<c r="'+ref+'"'+s+' t="inlineStr"><is><t xml:space="preserve">'+xe(v)+'</t></is></c>';
+}
+function sheetXml(rows,opt){
+  opt=opt||{};
+  let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">';
+  x+='<sheetViews><sheetView workbookViewId="0"'+(opt.tab?' tabSelected="1"':'')+'>'+
+     (opt.freeze?'<pane ySplit="'+opt.freeze+'" topLeftCell="A'+(opt.freeze+1)+'" activePane="bottomLeft" state="frozen"/>':'')+
+     '</sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/>';
+  if(opt.cols&&opt.cols.length)
+    x+='<cols>'+opt.cols.map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join('')+'</cols>';
+  x+='<sheetData>';
+  rows.forEach((r,ri)=>{
+    if(!r||!r.length)return;
+    x+='<row r="'+(ri+1)+'">';
+    r.forEach((c,ci)=>{
+      if(c===undefined)return;
+      const o=(c&&typeof c==='object')?c:{v:c};
+      x+=cellXml(colName(ci)+(ri+1), o.v, o.s||0, !!o.text, o.f);
+    });
+    x+='</row>';
+  });
+  x+='</sheetData>';
+  // selectLockedCells / selectUnlockedCells は「選択を禁止するか」の指定。
+  // 立てると全セルが選択できなくなるので付けない。
+  // sheet="1" だけで「ロックされたセルは編集不可、ロック解除セルは編集可」になる。
+  if(opt.protect)x+='<sheetProtection sheet="1" objects="1" scenarios="1"/>';
+  if(opt.dup)x+='<conditionalFormatting sqref="'+opt.dup+'"><cfRule type="duplicateValues" dxfId="0" priority="1"/></conditionalFormatting>';
+  if(opt.dv&&opt.dv.length){
+    x+='<dataValidations count="'+opt.dv.length+'">';
+    opt.dv.forEach(d=>{
+      if(d.type==='list')
+        x+='<dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" '+
+           'errorTitle="入力できない値です" error="一覧から選んでください。" sqref="'+d.sqref+'">'+
+           '<formula1>'+xe(d.formula)+'</formula1></dataValidation>';
+      else if(d.type==='custom')
+        x+='<dataValidation type="custom" allowBlank="1" showInputMessage="1" showErrorMessage="1" '+
+           'errorTitle="'+xe(d.title||'入力できない値です')+'" error="'+xe(d.msg||'')+'" sqref="'+d.sqref+'">'+
+           '<formula1>'+xe(d.formula)+'</formula1></dataValidation>';
+      else
+        x+='<dataValidation type="whole" operator="between" allowBlank="1" showInputMessage="1" showErrorMessage="1" '+
+           'errorTitle="入力できない値です" error="1〜99の整数で入力してください。" sqref="'+d.sqref+'">'+
+           '<formula1>1</formula1><formula2>99</formula2></dataValidation>';
+    });
+    x+='</dataValidations>';
+  }
+  return x+'</worksheet>';
+}
+/* 書式: 0標準(ロック) 1見出し 2固定ラベル(中央) 3補足 4大見出し 5注意
+        6編集可 7編集可(控え) 8控えラベル 9ブロック見出し 10固定ラベル(左揃え) */
+function stylesXml(){
+  const F='<name val="Yu Gothic"/>';
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+  '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+  '<fonts count="5">'+
+    '<font><sz val="11"/>'+F+'</font>'+
+    '<font><b/><sz val="11"/><color rgb="FF1A1A1A"/>'+F+'</font>'+
+    '<font><sz val="11"/><color rgb="FF777777"/>'+F+'</font>'+
+    '<font><b/><sz val="13"/>'+F+'</font>'+
+    '<font><b/><sz val="11"/><color rgb="FF1F4E79"/>'+F+'</font>'+
+  '</fonts>'+
+  '<fills count="7">'+
+    '<fill><patternFill patternType="none"/></fill>'+
+    '<fill><patternFill patternType="gray125"/></fill>'+
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFF5E642"/><bgColor indexed="64"/></patternFill></fill>'+
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFEDEDED"/><bgColor indexed="64"/></patternFill></fill>'+
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFFFF7CC"/><bgColor indexed="64"/></patternFill></fill>'+
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill>'+
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFF7F7F7"/><bgColor indexed="64"/></patternFill></fill>'+
+  '</fills>'+
+  '<borders count="2"><border/>'+
+    '<border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right>'+
+    '<top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom><diagonal/></border>'+
+  '</borders>'+
+  '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+  '<cellXfs count="11">'+
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'+
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
+    '<xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>'+
+    '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+    '<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+    '<xf numFmtId="0" fontId="0" fillId="4" borderId="0" xfId="0" applyFill="1"/>'+
+    '<xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyProtection="1"><protection locked="0"/></xf>'+
+    '<xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyProtection="1"><protection locked="0"/></xf>'+
+    '<xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>'+
+    '<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+    '<xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left"/></xf>'+
+  '</cellXfs>'+
+  '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'+
+  '<dxfs count="1"><dxf><font><color rgb="FF9C0006"/></font>'+
+  '<fill><patternFill><bgColor rgb="FFFFC7CE"/></patternFill></fill></dxf></dxfs>'+
+  '</styleSheet>';
+}
+function xlsxBuild(sheets){
+  const files=[];
+  files.push({name:'[Content_Types].xml',data:
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+    '<Default Extension="xml" ContentType="application/xml"/>'+
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+
+    sheets.map((s,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('')+
+    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+
+    '</Types>'});
+  files.push({name:'_rels/.rels',data:
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'+
+    '</Relationships>'});
+  files.push({name:'xl/workbook.xml',data:
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '+
+    'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+
+    sheets.map((s,i)=>'<sheet name="'+xe(s.name)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join('')+
+    '</sheets></workbook>'});
+  files.push({name:'xl/_rels/workbook.xml.rels',data:
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    sheets.map((s,i)=>'<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join('')+
+    '<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'+
+    '</Relationships>'});
+  files.push({name:'xl/styles.xml',data:stylesXml()});
+  sheets.forEach((s,i)=>files.push({name:'xl/worksheets/sheet'+(i+1)+'.xml',data:sheetXml(s.rows,s.opt)}));
+  return zipBuild(files);
+}
+
+/* 先発9人を「守備位置の行」に割り当て直す。
+   行＝守備位置なので、打順を変えても各選手は自分の守備の行に留まる。
+   守備が重複・欠落しているデータが来た場合は、空いている行へ順に詰める。 */
+function assignSlots(starters){
+  const slots=new Array(9).fill(null), left=[];
+  starters.forEach((h,i)=>{
+    const si=SLOT_POS.indexOf(h.pos);
+    if(si>=0&&!slots[si])slots[si]={h,ord:i+1};
+    else left.push({h,ord:i+1});
+  });
+  let k=0;
+  for(let i=0;i<9&&k<left.length;i++)if(!slots[i])slots[i]=left[k++];
+  return slots;
+}
+function teamSheetRows(t,no){
+  const rows=[];
+  const put=(r,arr)=>{ rows[r-1]=arr; };
+  const slots=assignSlots(t.roster.slice(0,9));
+  // チーム名と略称は「リーグ編成」タブを参照する数式。ここでは編集させない。
+  // 行番号で直接指さず「番号」で引くので、リーグ編成で行を入れ替えてもずれない。
+  const L="'"+SHEET_LEAGUE+"'";
+  const look=c=>'IFERROR(INDEX('+L+'!$'+c+':$'+c+',MATCH('+no+','+L+'!$A:$A,0)),"")';
+  put(R_NAME, [{v:'チーム名',s:2},{v:t.name,s:10,f:look('B')}]);
+  put(R_ABBR, [{v:'略称',s:2},{v:t.abbr,s:10,f:look('C')}]);
+  put(R_BATHEAD-0, undefined);
+  put(R_BATHEAD, [{v:'守備',s:1},{v:'打順',s:1},{v:'名前',s:1},{v:'ミート',s:1},{v:'パワー',s:1},{v:'走力',s:1},{v:'守備力',s:1}]);
+  for(let i=0;i<13;i++){
+    const bench=i>=9;
+    const sl=bench?null:slots[i];
+    const h=bench?(t.roster[i]||{}):((sl&&sl.h)||{});
+    const lab=bench?('控'+(i-8)):SLOT_POS[i];
+    const es=bench?7:6;
+    put(R_BAT0+i,[
+      {v:lab,s:bench?8:2,text:true},
+      bench?{v:'',s:8}:{v:(sl?sl.ord:''),s:6},
+      {v:h.name||'',s:es,text:true},
+      {v:h.meet||'',s:es},{v:h.power||'',s:es},{v:h.speed||'',s:es},{v:h.def||'',s:es}
+    ]);
+  }
+  put(R_PITHEAD,[{v:'役割',s:1},{v:'順',s:1},{v:'名前',s:1},{v:'球速',s:1},{v:'制球',s:1},{v:'スタミナ',s:1},{v:'',s:1}]);
+  for(let i=0;i<13;i++){
+    const p=t.pitchers[i]||{};
+    put(R_PIT0+i,[
+      {v:SLOT_ROLE[i],s:2,text:true},{v:i+1,s:2},
+      {v:p.name||'',s:6,text:true},
+      {v:p.spd||'',s:6},{v:p.ctrl||'',s:6},{v:p.stam||'',s:6},{v:'',s:0}
+    ]);
+  }
+  put(R_NOTE,[{v:'※ グレーの欄（守備・役割・控え）は固定です。打順は1〜9を重複なく入れてください。',s:3}]);
+  put(R_NOTE+1,[{v:'※ 控えの4人は打順を持ちません。代打・守備固めとして使われます。',s:3}]);
+  for(let i=0;i<rows.length;i++)if(!rows[i])rows[i]=[];
+  return rows;
+}
+
+function xlsxExport(){
+  if(!teams.length){ toast('チームがありません'); return; }
+  // Aリーグ→Bリーグの順に通し番号を振る。タブ名は「チーム1」「チーム2」…
+  const ordered=teams.filter(t=>t.league!=='b').concat(teams.filter(t=>t.league==='b'));
+  const metas=ordered.map((t,i)=>({t,no:i+1,sheet:'チーム'+(i+1)}));
+
+  /* はじめに */
+  const intro=[
+    [{v:'BASEBALL SIM チームエディタ用シート',s:4}],[''],
+    [{v:'編集のしかた',s:9}],
+    [{v:'1. 「リーグ編成」タブで、チーム名・略称・所属リーグを決めます。',s:0}],
+    [{v:'2. 「チーム1」「チーム2」…のタブで、選手の名前・能力値・打順を編集します。',s:0}],
+    [{v:'3. .xlsx のまま保存し、エディタの「スプレッドシートを読み込み」で取り込みます。',s:0}],
+    [{v:'4. エディタで最終確認し、「JSONを書き出す」でアプリ用のファイルを作ります。',s:0}],
+    [''],
+    [{v:'チーム名と略称は「リーグ編成」タブだけで変えます',s:9}],
+    [{v:'各チームのタブの1〜2行目は数式です。「リーグ編成」の内容が自動で表示されるので、直接は編集できません。',s:0}],
+    [{v:'番号の列は、チームのタブ名（チーム1、チーム2…）と対応しています。書き換えないでください。',s:0}],
+    [{v:'所属リーグを変えるときは、その行ごと（番号を含めて）AリーグとBリーグの表の間で移動します。',s:0}],
+    [''],
+    [{v:'なぜ固定欄があるのか',s:9}],
+    [{v:'守備位置は行ごとに決まっています。重複も抜けも起きません。',s:0}],
+    [{v:'投手の役割も行ごとに決まっています。先発5人・中継ぎ6人・セットアッパー1人・抑え1人が必ず揃います。',s:0}],
+    [{v:'人数も13人ずつで固定です。増減しません。',s:0}],
+    [''],
+    [{v:'打順の変え方',s:9}],
+    [{v:'野手9行の「打順」欄はドロップダウンです。1〜9から選んでください。',s:0}],
+    [{v:'同じ番号が重なっている間は、そのセルが赤く表示されます。入れ替えが終われば色は消えます。',s:0}],
+    [{v:'下の4行は控えで、打順を持ちません。',s:0}],
+    [''],
+    [{v:'チームを増やす・減らす',s:9}],
+    [{v:'エディタ画面で増減させ、出力し直すのが確実です。',s:0}],
+    [{v:'この表で増やす場合は、チームのタブを複製してタブ名を「チーム◯」（次の番号）に変え、',s:0}],
+    [{v:'「リーグ編成」にも同じ番号の行を追加してください。減らす場合はタブと行の両方を消します。',s:0}],
+    [''],
+    [{v:'守備位置の記号',s:9}],
+    [{v:'C 捕手 / 1B 一塁 / 2B 二塁 / 3B 三塁 / SS 遊撃 / LF 左翼 / CF 中堅 / RF 右翼 / DH 指名打者',s:0}],
+    [{v:'控えの IF は内野、OF は外野です。',s:0}],
+    [''],
+    [{v:'投手の役割',s:9}],
+    [{v:'SP 先発 / RP 中継ぎ / SU セットアッパー / CL 抑え',s:0}],
+    [''],
+    [{v:'注意：アプリでの読み込みはリーグ戦を始める前に行ってください。',s:5}]
+  ];
+
+  /* リーグ編成 */
+  const lg=[];
+  const head=()=>[{v:'番号',s:1},{v:'チーム名',s:1},{v:'略称',s:1}];
+  lg.push([{v:'Aリーグ',s:9}]); lg.push(head());
+  metas.filter(m=>m.t.league!=='b').forEach(m=>{
+    lg.push([{v:m.no,s:2},{v:m.t.name,s:6,text:true},{v:m.t.abbr,s:6,text:true}]);
+  });
+  lg.push(['']);
+  lg.push([{v:'Bリーグ',s:9}]); lg.push(head());
+  metas.filter(m=>m.t.league==='b').forEach(m=>{
+    lg.push([{v:m.no,s:2},{v:m.t.name,s:6,text:true},{v:m.t.abbr,s:6,text:true}]);
+  });
+  lg.push(['']);
+  lg.push([{v:'※ チーム名と略称を編集できるのはこのタブだけです。各チームのタブには自動で反映されます。',s:3}]);
+  lg.push([{v:'※ 番号はチームのタブ名（チーム1、チーム2…）と対応しています。番号は書き換えないでください。',s:3}]);
+  lg.push([{v:'※ 所属リーグを変えるときは、その行ごと（番号を含めて）上下の表の間で移動してください。',s:3}]);
+
+  const sheets=[
+    {name:SHEET_READ, rows:intro, opt:{cols:[98], tab:true}},
+    {name:SHEET_LEAGUE, rows:lg, opt:{cols:[7,28,12]}}
+  ];
+  const b0=R_BAT0, b8=R_BAT0+8, b12=R_BAT0+12, p0=R_PIT0, p12=R_PIT0+12;
+  metas.forEach(m=>{
+    sheets.push({name:m.sheet, rows:teamSheetRows(m.t,m.no), opt:{
+      cols:[9,7,18,9,9,9,9], protect:true,
+      dup:'B'+b0+':B'+b8,                       // 打順の重複を赤く塗る
+      dv:[
+        {type:'list', sqref:'B'+b0+':B'+b8, formula:'"1,2,3,4,5,6,7,8,9"'},
+        {type:'whole', sqref:'D'+b0+':G'+b12},
+        {type:'whole', sqref:'D'+p0+':F'+p12}
+      ]}});
+  });
+  const blob=xlsxBuild(sheets);
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=XLSX_FILE; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  toast('出力しました（'+teams.length+'チーム）');
+}
+
+/* ══════════════════════════════════════════════
+   読み込み
+   ══════════════════════════════════════════════ */
+function xmlDoc(u8){ return new DOMParser().parseFromString(new TextDecoder('utf-8').decode(u8),'application/xml'); }
+function sstText(si){ let s=''; si.querySelectorAll('t').forEach(t=>s+=t.textContent); return s; }
+function sheetGrid(doc,sst){
+  const rows=[];
+  doc.querySelectorAll('sheetData > row').forEach(r=>{
+    const ri=parseInt(r.getAttribute('r')||(rows.length+1),10)-1;
+    const arr=rows[ri]||(rows[ri]=[]); let auto=0;
+    r.querySelectorAll('c').forEach(c=>{
+      const ref=c.getAttribute('r'); const ci=ref?colIndex(ref):auto; auto=ci+1;
+      const t=c.getAttribute('t'); let v='';
+      if(t==='inlineStr'){ const is=c.querySelector('is'); v=is?sstText(is):''; }
+      else{ const vn=c.querySelector('v'); const raw=vn?vn.textContent:'';
+            v=(t==='s')?(sst[parseInt(raw,10)]||''):raw; }
+      arr[ci]=v;
+    });
+  });
+  for(let i=0;i<rows.length;i++)if(!rows[i])rows[i]=[];
+  return rows;
+}
+async function xlsxParse(buf){
+  const files=await zipRead(buf);
+  if(!files['xl/workbook.xml'])throw new Error('Excel のファイルとして読めませんでした');
+  const wb=xmlDoc(files['xl/workbook.xml']);
+  const relMap={};
+  if(files['xl/_rels/workbook.xml.rels'])
+    xmlDoc(files['xl/_rels/workbook.xml.rels']).querySelectorAll('Relationship')
+      .forEach(r=>relMap[r.getAttribute('Id')]=r.getAttribute('Target'));
+  const sst=[];
+  if(files['xl/sharedStrings.xml'])
+    xmlDoc(files['xl/sharedStrings.xml']).querySelectorAll('si').forEach(si=>sst.push(sstText(si)));
+  const out={}, order=[];
+  wb.querySelectorAll('sheets > sheet').forEach((s,i)=>{
+    const name=s.getAttribute('name');
+    const rid=s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id')||s.getAttribute('r:id');
+    let tgt=relMap[rid]||('worksheets/sheet'+(i+1)+'.xml');
+    tgt=tgt.replace(/^\/?xl\//,'');
+    const f=files['xl/'+tgt];
+    if(f){ out[name]=sheetGrid(xmlDoc(f),sst); order.push(name); }
+  });
+  return {sheets:out, order};
+}
+
+function xlsxApply(parsed){
+  const S=v=>String(v==null?'':v).trim();
+  const N=v=>{ const n=parseInt(S(v),10); return isNaN(n)?undefined:n; };
+  const {sheets,order}=parsed;
+  const notes=[];
+
+  /* ── 「リーグ編成」: 番号 / チーム名 / 略称。ここが唯一の正 ── */
+  const listed=[];
+  const lgGrid=sheets[SHEET_LEAGUE];
+  if(lgGrid){
+    let mode='a';
+    lgGrid.forEach(r=>{
+      r=r||[];
+      const a=S(r[0]);
+      if(/^A\s*リーグ/i.test(a)){mode='a';return;}
+      if(/^B\s*リーグ/i.test(a)){mode='b';return;}
+      if(!a||a==='番号'||a.indexOf('※')===0)return;
+      const no=N(a), name=S(r[1]), abbr=S(r[2]);
+      if(no===undefined&&!name)return;
+      listed.push({no,name,abbr,league:mode});
+    });
+  }
+
+  /* ── 各チームのタブから選手だけを読む ── */
+  const byTab={};
+  order.forEach(nm=>{
+    if(nm===SHEET_READ||nm===SHEET_LEAGUE)return;
+    const g=sheets[nm]; if(!g)return;
+    const row=i=>(g[i-1]||[]);
+    const starters=[], bench=[], pitchers=[];
+    for(let i=0;i<13;i++){
+      const r=row(R_BAT0+i);
+      const h={name:S(r[2]),pos:(i<9?SLOT_POS[i]:SLOT_BENCH[i-9]),
+               meet:N(r[3]),power:N(r[4]),speed:N(r[5]),def:N(r[6])};
+      if(i<9)starters.push({h,ord:N(r[1])}); else bench.push(h);
+    }
+    const nums=starters.map(x=>x.ord).filter(x=>x!==undefined);
+    const ok=nums.length===9&&new Set(nums).size===9&&Math.min(...nums)===1&&Math.max(...nums)===9;
+    if(!ok&&nums.length)notes.push(nm+'：打順が1〜9で揃っていないため、上からの並び順を打順として扱いました');
+    const line=ok?starters.slice().sort((a,b)=>a.ord-b.ord).map(x=>x.h):starters.map(x=>x.h);
+    for(let i=0;i<13;i++){
+      const r=row(R_PIT0+i);
+      pitchers.push({name:S(r[2]),role:SLOT_ROLE[i],spd:N(r[3]),ctrl:N(r[4]),stam:N(r[5])});
+    }
+    byTab[nm]={tab:nm, name:S(row(R_NAME)[1]), abbr:S(row(R_ABBR)[1]),
+               roster:line.concat(bench), pitchers};
+  });
+  const tabs=Object.keys(byTab);
+  if(!tabs.length)throw new Error('チームのタブが見つかりませんでした');
+
+  /* ── 突き合わせ。番号（チームN）を第一の手がかりにする ── */
+  const idx={};
+  tabs.forEach(k=>{ const f=byTab[k]; [k,f.name,f.abbr].forEach(v=>{ const x=S(v); if(x&&!idx[x])idx[x]=k; }); });
+  const used={}, out=[];
+  listed.forEach(e=>{
+    const k=(e.no!==undefined&&idx['チーム'+e.no])||idx[e.name]||idx[e.abbr];
+    if(!k||used[k]){ notes.push('「リーグ編成」の「'+(e.name||('番号'+e.no))+'」に対応するタブが見つかりません'); return; }
+    used[k]=1;
+    const f=byTab[k];
+    out.push({name:e.name||f.name||k, abbr:e.abbr||f.abbr||k, league:e.league,
+              roster:f.roster, pitchers:f.pitchers});
+  });
+  tabs.forEach(k=>{
+    if(used[k])return;
+    const f=byTab[k];
+    out.push({name:f.name||k, abbr:f.abbr||k, league:'a', roster:f.roster, pitchers:f.pitchers});
+    if(listed.length)notes.push((f.name||k)+'：「リーグ編成」に見当たらないため Aリーグ に入れました');
+  });
+  if(!out.length)throw new Error('チームを読み取れませんでした');
+
+  teams=out.map(normTeam);
+  cur=0; render();
+  toast(teams.length+'チームを読み込みました');
+  if(notes.length)alert('読み込みました。次の点をご確認ください。\n\n'+notes.slice(0,12).join('\n')+
+    (notes.length>12?'\n…ほか'+(notes.length-12)+'件':''));
+}
+
+function xlsxImport(){
+  if(typeof DecompressionStream==='undefined'){
+    alert('このブラウザは .xlsx の読み込みに対応していません。\nChrome / Edge / Safari の最新版をお使いください。'); return;
+  }
+  document.getElementById('xlsxIn').click();
+}
+document.getElementById('xlsxIn').addEventListener('change',function(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    try{ xlsxApply(await xlsxParse(ev.target.result)); }
+    catch(err){
+      alert('読み込めませんでした。\n'+(err&&err.message?err.message:'')+
+        '\n\n「スプレッドシートで出力」で作ったファイルを編集して、.xlsx 形式のまま保存してください。');
+    }
+  };
+  r.readAsArrayBuffer(f); e.target.value='';
+});
+
+/* ══════════════════════════════════════════════
+   書き出し / 読み込み
+   ══════════════════════════════════════════════
+   アプリの既定データ（DT）と同じ形で出力する。
+   - 成績フィールドは持たせない。アプリ側が試合開始時に用意する
+   - isPro は出力しない（アプリ側は常に解錠済みのため不要）
+   - league / leagueBat / leaguePit も出力しない。
+     アプリの loadData はキーごとに独立判定するため、
+     teams だけを渡せば進行中の成績に触れずに差し替えられる
+   ══════════════════════════════════════════════ */
+function buildExport(){
+  return {
+    version:4,
+    lang:'ja',
+    teams:teams.map((t,i)=>{
+      const pitchers=t.pitchers.map(p=>({name:p.name,role:p.role,spd:p.spd,ctrl:p.ctrl,stam:p.stam}));
+      const roster=t.roster.map(h=>({name:h.name,pos:h.pos,meet:h.meet,power:h.power,speed:h.speed,def:h.def}));
+      // 打順9番をDHに固定しない。アプリ側は「先発9人が9つの守備位置を1つずつ
+      // 埋めていれば、打順は自由」という作りのため、各選手の守備をそのまま渡す。
+      const lineup=roster.slice(0,N_LINEUP).map(h=>Object.assign({},h));
+      const sp=pitchers.find(p=>p.role==='SP')||pitchers[0];
+      return {
+        id:i, name:t.name, abbr:t.abbr, league:t.league,
+        pitcher:{name:sp.name,spd:sp.spd,ctrl:sp.ctrl,stam:sp.stam},
+        lineup, pitchers, roster
+      };
+    })
+  };
+}
+function doExport(){
+  const {errs}=validate();
+  if(errs.length&&!confirm('修正が必要な項目が'+errs.length+'件あります。このまま書き出しますか？'))return;
+  const json=JSON.stringify(buildExport(),null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download='baseball-sim-teams.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('書き出しました（'+teams.length+'チーム）');
+}
+function doImport(){ document.getElementById('fileIn').click(); }
+document.getElementById('fileIn').addEventListener('change',function(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(!d||!Array.isArray(d.teams)||!d.teams.length)throw new Error('teams がありません');
+      teams=d.teams.map(normTeam); cur=0; render();
+      toast(teams.length+'チームを読み込みました');
+    }catch(err){
+      alert('読み込めませんでした。\nBASEBALL SIM が書き出したJSON、またはこのエディタで作ったJSONを選んでください。');
+    }
+  };
+  r.readAsText(f); e.target.value='';
+});
+
+/* ══════════════════════════════════════════════
+   モーダル
+   ══════════════════════════════════════════════ */
+function openHelp(){ document.getElementById('ov-help').classList.add('on'); }
+function closeHelp(){ document.getElementById('ov-help').classList.remove('on'); }
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeBulk(); closeHelp(); }
+});
+document.querySelectorAll('.ov').forEach(ov=>{
+  ov.addEventListener('click',e=>{ if(e.target===ov)ov.classList.remove('on'); });
+});
+
+/* ══════════════════════════════════════════════
+   起動
+   ══════════════════════════════════════════════ */
+if(!restore()){
+  teams=(typeof BUNDLED_TEAMS!=='undefined'?BUNDLED_TEAMS:[]).map(normTeam);
+  cur=0;
+}
+render();
+</script>
+</body>
+</html>
+
